@@ -8,6 +8,6 @@ import (
 func RunAlive(client *client.Client) {
 	for {
 		client.SendAlive()
-		time.Sleep(1 * time.Second)
+		time.Sleep(30 * time.Second)
 	}
 }

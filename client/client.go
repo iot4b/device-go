@@ -8,20 +8,24 @@ import (
 )
 
 type Client struct {
-	coala *coalago.Client
-	addr  string
+	coala     *coalago.Client
+	addr      string
+	publicKey string
 }
 
-func New(addr string) *Client {
+func New(addr string, publicKey []byte) *Client {
 	c := new(Client)
 	c.coala = coalago.NewClient()
 	c.addr = addr
+	c.publicKey = string(publicKey)
+
 	return c
 }
 
 func (c *Client) SendAlive() {
 	requestMessage := coalaMsg.NewCoAPMessage(coalaMsg.CON, coalaMsg.GET)
-	requestMessage.SetURIPath("/live")
+	requestMessage.SetURIPath("/live?key=" + c.publicKey)
+	requestMessage.SetURIQuery("key", c.publicKey)
 
 	address, err := net.ResolveUDPAddr("udp", c.addr)
 	if err != nil {

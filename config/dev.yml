@@ -1,0 +1,8 @@
+version: 0.1mac
+type: test-device
+vendor: apple
+
+node: 127.0.0.1:5683
+
+publicKey:
+privateKey:
