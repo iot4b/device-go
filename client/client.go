@@ -24,7 +24,7 @@ func New(addr string, publicKey []byte) *Client {
 
 func (c *Client) SendAlive() {
 	requestMessage := coalaMsg.NewCoAPMessage(coalaMsg.CON, coalaMsg.GET)
-	requestMessage.SetURIPath("/live?key=" + c.publicKey)
+	requestMessage.SetURIPath("/live")
 	requestMessage.SetURIQuery("key", c.publicKey)
 
 	address, err := net.ResolveUDPAddr("udp", c.addr)
