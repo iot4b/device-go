@@ -32,6 +32,7 @@ func execCmd(message *coalaMsg.CoAPMessage) *resource.CoAPResourceHandlerResult 
 	log.Debug(message)
 	command := cmd{}
 	// parsing message from node
+	log.Debug(message)
 	err := json.Unmarshal(message.Payload.Bytes(), &command)
 	if err != nil {
 		log.Error(err)
