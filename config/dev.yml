@@ -4,5 +4,5 @@ vendor: apple
 
 node: 127.0.0.1:5683
 
-publicKey:
-privateKey:
+publicKey: 12345
+privateKey: 123456
