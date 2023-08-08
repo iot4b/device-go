@@ -3,9 +3,7 @@ package main
 import (
 	"device-go/api"
 	"device-go/cfg"
-	"device-go/client"
 	"device-go/models"
-	"device-go/workers"
 	log "github.com/ndmsystems/golog"
 	"os"
 	"os/signal"
@@ -19,10 +17,18 @@ func main() {
 		Type:    cfg.GetString("type"),
 		Vendor:  cfg.GetString("vendor"),
 	}
-	go api.Start(info, []byte(cfg.GetString("privateKey")))
 
-	cl := client.New(cfg.GetString("node"), []byte(cfg.GetString("publicKey")))
-	go workers.RunAlive(cl)
+	// инициируем CoaP сервер
+	coapServer := api.NewServer(info)
+
+	// стартуем сервер
+	go api.Start(coapServer, cfg.GetString("coapServerHost"))
+
+	// начинаем слать alive пакеты, чтобы сохранять соединение для udp punching
+	go api.RunAlive(cfg.GetString("publicKey"),
+		cfg.GetString("nodeHost"),
+		cfg.GetTime("aliveInterval"),
+		coapServer)
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)

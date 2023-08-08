@@ -3,8 +3,7 @@ package api
 import (
 	"encoding/json"
 	"errors"
-	"github.com/coalalib/coalago/message"
-	"github.com/coalalib/coalago/resource"
+	"github.com/coalalib/coalago"
 	log "github.com/ndmsystems/golog"
 	"os/exec"
 )
@@ -16,19 +15,19 @@ type cmd struct {
 	Uid   string `json:"uid"`
 }
 
-func getInfo(_ *coalaMsg.CoAPMessage) *resource.CoAPResourceHandlerResult {
+func getInfo(_ *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 	result, err := json.Marshal(info)
 	if err != nil {
 		log.Error(err)
 		return nil
 	}
 
-	handlerResult := resource.NewResponse(coalaMsg.NewStringPayload(string(result)), coalaMsg.CoapCodeContent)
+	handlerResult := coalago.NewResponse(coalago.NewStringPayload(string(result)), coalago.CoapCodeContent)
 	log.Debug(handlerResult)
 	return handlerResult
 }
 
-func execCmd(message *coalaMsg.CoAPMessage) *resource.CoAPResourceHandlerResult {
+func execCmd(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 	log.Debug(message)
 	command := cmd{}
 	// parsing message from node
@@ -36,7 +35,7 @@ func execCmd(message *coalaMsg.CoAPMessage) *resource.CoAPResourceHandlerResult 
 	err := json.Unmarshal(message.Payload.Bytes(), &command)
 	if err != nil {
 		log.Error(err)
-		return nil
+		return coalago.NewResponse(coalago.NewStringPayload(err.Error()), coalago.CoapCodeInternalServerError)
 	}
 
 	// todo разобрать команду приватным ключом из sight, иначе вернуть ошибку
@@ -47,8 +46,9 @@ func execCmd(message *coalaMsg.CoAPMessage) *resource.CoAPResourceHandlerResult 
 	}
 	if err := c.Run(); err != nil {
 		log.Error(err)
+		return coalago.NewResponse(coalago.NewStringPayload(err.Error()), coalago.CoapCodeInternalServerError)
 	}
 
 	// todo что отдавать в ответ после выполнения колманды
-	return resource.NewResponse(nil, coalaMsg.CoapCodeEmpty)
+	return coalago.NewResponse(nil, coalago.CoapCodeEmpty)
 }

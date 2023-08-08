@@ -2,22 +2,51 @@ package api
 
 import (
 	"device-go/models"
-	"github.com/coalalib/coalago/coalaServer"
+	"github.com/coalalib/coalago"
 	log "github.com/ndmsystems/golog"
+	"github.com/pkg/errors"
+	"time"
 )
 
 var (
-	info       models.Info
-	privateKey []byte
+	info models.Info
 )
 
-func Start(i models.Info, pk []byte) {
+func NewServer(i models.Info) *coalago.Server {
 	info = i
-	privateKey = pk
-	server := coalaServer.NewServer(privateKey)
+	server := coalago.NewServer()
 
 	server.GET("/info", getInfo)
 	server.POST("/cmd", execCmd)
 
-	log.Fatal(server.Listen("127.0.0.1:5683"))
+	return server
+}
+
+func Start(s *coalago.Server, host string) {
+	log.Info("api start")
+	log.Fatal(s.Listen(host))
+}
+
+func RunAlive(publicKey, nodeHost string, aliveInterval time.Duration, s *coalago.Server) {
+	log.Info("run alive")
+	//c := client.New(nodeHost, []byte(publicKey))
+	//отсылаем alive на ноду
+	for {
+		// если ставим после alive, то соединение с нодой не успевает инициироваться
+		// todo пофиксить порядок запуска
+		time.Sleep(aliveInterval)
+		//c.SendAlive()
+		if err := alive(s, nodeHost, publicKey); err != nil {
+			log.Error(err)
+		}
+	}
+}
+
+func alive(server *coalago.Server, nodeHost, publicKey string) error {
+	aliveMessage := coalago.NewCoAPMessage(coalago.CON, coalago.GET)
+	aliveMessage.SetURIPath("/live")
+	aliveMessage.SetURIQuery("key", publicKey)
+
+	log.Info("send alive", aliveMessage.Payload.String(), nodeHost, publicKey)
+	return errors.Wrap(server.SendToSocket(aliveMessage, nodeHost), "sendToSocket")
 }
