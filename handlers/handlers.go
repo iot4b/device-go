@@ -1,6 +1,7 @@
-package api
+package handlers
 
 import (
+	"device-go/models"
 	"encoding/json"
 	"errors"
 	"os/exec"
@@ -9,15 +10,10 @@ import (
 	log "github.com/ndmsystems/golog"
 )
 
-type CMD struct {
-	Cmd string `json:"cmd"`
-	// todo для чего sight и cmd раздельно?
-	Sight string `json:"sight"`
-	Uid   string `json:"uid"`
-}
+var Info models.Info
 
 func GetInfo(_ *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
-	result, err := json.Marshal(info)
+	result, err := json.Marshal(Info)
 	if err != nil {
 		log.Error(err)
 		return nil
@@ -31,7 +27,7 @@ func GetInfo(_ *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 func ExecCmd(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 	log.Debug(message.Payload.String())
 	// parsing message from node
-	command := CMD{}
+	command := models.CMD{}
 	err := json.Unmarshal(message.Payload.Bytes(), &command)
 	if err != nil {
 		log.Error(err)

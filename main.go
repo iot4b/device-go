@@ -1,8 +1,11 @@
 package main
 
 import (
+	"device-go/aliver"
 	"device-go/cfg"
+	"device-go/handlers"
 	"device-go/models"
+
 	"os"
 	"os/signal"
 	"syscall"

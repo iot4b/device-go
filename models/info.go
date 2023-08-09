@@ -6,3 +6,9 @@ type Info struct {
 	Type    string `json:"type"`
 	Vendor  string `json:"vendor"`
 }
+
+type CMD struct {
+	Cmd   string `json:"cmd"`
+	Sight string `json:"sight"`
+	Uid   string `json:"uid"`
+}
