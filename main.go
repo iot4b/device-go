@@ -15,7 +15,7 @@ import (
 )
 
 func main() {
-	handlers.Info := models.Info{
+	handlers.Info = models.Info{
 		Key:     cfg.GetString("publicKey"),
 		Version: cfg.GetString("version"),
 		Type:    cfg.GetString("type"),
