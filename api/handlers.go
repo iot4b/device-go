@@ -3,19 +3,20 @@ package api
 import (
 	"encoding/json"
 	"errors"
+	"os/exec"
+
 	"github.com/coalalib/coalago"
 	log "github.com/ndmsystems/golog"
-	"os/exec"
 )
 
-type cmd struct {
+type CMD struct {
 	Cmd string `json:"cmd"`
 	// todo для чего sight и cmd раздельно?
 	Sight string `json:"sight"`
 	Uid   string `json:"uid"`
 }
 
-func getInfo(_ *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
+func GetInfo(_ *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 	result, err := json.Marshal(info)
 	if err != nil {
 		log.Error(err)
@@ -27,10 +28,10 @@ func getInfo(_ *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 	return handlerResult
 }
 
-func execCmd(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
+func ExecCmd(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 	log.Debug(message.Payload.String())
 	// parsing message from node
-	command := cmd{}
+	command := CMD{}
 	err := json.Unmarshal(message.Payload.Bytes(), &command)
 	if err != nil {
 		log.Error(err)

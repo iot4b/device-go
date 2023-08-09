@@ -2,7 +2,7 @@ version: 0.1mac
 type: test-device
 vendor: apple
 
-coapServerHost: 127.0.0.1:5683
+coapServerHost: :5683
 nodeHost: 157.245.57.218:5683
 aliveInterval: 2s
 

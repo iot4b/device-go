@@ -1,34 +1,36 @@
 package main
 
 import (
-	"device-go/api"
 	"device-go/cfg"
 	"device-go/models"
-	log "github.com/ndmsystems/golog"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/coalalib/coalago"
+	log "github.com/ndmsystems/golog"
 )
 
 func main() {
-	info := models.Info{
+	handlers.Info := models.Info{
 		Key:     cfg.GetString("publicKey"),
 		Version: cfg.GetString("version"),
 		Type:    cfg.GetString("type"),
 		Vendor:  cfg.GetString("vendor"),
 	}
 
-	// инициируем CoaP сервер
-	coapServer := api.NewServer(info)
-
-	// стартуем сервер
-	go api.Start(coapServer, cfg.GetString("coapServerHost"))
+	server := coalago.NewServer()
+	server.GET("/info", handlers.GetInfo)
+	server.POST("/cmd", handlers.ExecCmd)
 
 	// начинаем слать alive пакеты, чтобы сохранять соединение для udp punching
-	go api.RunAlive(cfg.GetString("publicKey"),
-		cfg.GetString("nodeHost"),
-		cfg.GetTime("aliveInterval"),
-		coapServer)
+	go aliver.Run(server, cfg.GetString("publicKey"), cfg.GetString("nodeHost"), cfg.GetTime("aliveInterval"))
+
+	// стартуем сервер
+	err := server.Listen(cfg.GetString("coapServerHost"))
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)

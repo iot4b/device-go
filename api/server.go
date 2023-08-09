@@ -2,10 +2,11 @@ package api
 
 import (
 	"device-go/models"
+	"time"
+
 	"github.com/coalalib/coalago"
 	log "github.com/ndmsystems/golog"
 	"github.com/pkg/errors"
-	"time"
 )
 
 var (
@@ -16,8 +17,8 @@ func NewServer(i models.Info) *coalago.Server {
 	info = i
 	server := coalago.NewServer()
 
-	server.GET("/info", getInfo)
-	server.POST("/cmd", execCmd)
+	server.GET("/info", GetInfo)
+	server.POST("/cmd", ExecCmd)
 
 	return server
 }
