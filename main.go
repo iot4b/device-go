@@ -41,6 +41,6 @@ func main() {
 }
 
 func init() {
-	log.Init("en", "dev", "test")
 	cfg.Init("dev")
+	log.Init(cfg.GetBool("debug"))
 }

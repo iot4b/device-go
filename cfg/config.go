@@ -7,10 +7,6 @@ import (
 	"time"
 )
 
-var (
-	Debug bool
-)
-
 // эта обертка нужна, чтобы логировать отсутствие параметра
 var config *viper.Viper
 
@@ -23,9 +19,6 @@ func Init(env string) {
 	if err := config.ReadInConfig(); err != nil {
 		panic(err)
 	}
-
-	// viper сам конвертирует on/off yes/no в true/false
-	Debug = config.GetBool("debug")
 }
 
 func GetString(key string) (value string) {
