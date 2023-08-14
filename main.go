@@ -2,9 +2,10 @@ package main
 
 import (
 	"device-go/aliver"
-	"device-go/cfg"
 	"device-go/handlers"
 	"device-go/models"
+	"device-go/shared/config"
+	"fmt"
 
 	"os"
 	"os/signal"
@@ -16,10 +17,10 @@ import (
 
 func main() {
 	handlers.Info = models.Info{
-		Key:     cfg.GetString("publicKey"),
-		Version: cfg.GetString("version"),
-		Type:    cfg.GetString("type"),
-		Vendor:  cfg.GetString("vendor"),
+		Key:     config.Get("publicKey"),
+		Version: config.Get("version"),
+		Type:    config.Get("type"),
+		Vendor:  config.Get("vendor"),
 	}
 
 	server := coalago.NewServer()
@@ -27,10 +28,10 @@ func main() {
 	server.POST("/cmd", handlers.ExecCmd)
 
 	// начинаем слать alive пакеты, чтобы сохранять соединение для udp punching
-	go aliver.Run(server, cfg.GetString("publicKey"), cfg.GetString("nodeHost"), cfg.GetTime("aliveInterval"))
+	go aliver.Run(server, config.Get("publicKey"), config.Get("nodeHost"), config.Time("aliveInterval"))
 
 	// стартуем сервер
-	err := server.Listen(cfg.GetString("coapServerHost"))
+	err := server.Listen(config.Get("coapServerHost"))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -40,7 +41,13 @@ func main() {
 	<-c
 }
 
+// инитим конфиги и logger
 func init() {
-	cfg.Init("dev")
-	log.Init(cfg.GetBool("debug"))
+	if len(os.Args) < 1 {
+		fmt.Println(`Usage: server [env]`)
+		fmt.Println("Not enough arguments. Use defaults : dev")
+		os.Exit(0)
+	}
+	config.Init(os.Args[1])
+	log.Init(config.Bool("debug"))
 }

@@ -1,10 +1,15 @@
-package cfg
+package config
 
 import (
 	log "github.com/ndmsystems/golog"
 	"github.com/spf13/viper"
 	"strconv"
 	"time"
+)
+
+var (
+	Debug bool
+	Ip    string // Ip текущей ноды
 )
 
 // эта обертка нужна, чтобы логировать отсутствие параметра
@@ -21,26 +26,27 @@ func Init(env string) {
 	}
 }
 
-func GetString(key string) (value string) {
+func Get(key string) (value string) {
 	exists := config.IsSet(key)
 	if !exists {
 		log.Fatal("config: value is not set key: " + key)
 	}
 	value = config.GetString(key)
 	if value == "" {
-		log.Errorw("config: value is empty, key: "+key, "key", key)
+		log.Warningw("config: value is empty, key: "+key, "key", key)
 	}
+	log.Debug(key, value)
 	return
 }
 
-func GetBool(key string) (result bool) {
+func Bool(key string) (result bool) {
 	exists := config.IsSet(key)
 	if !exists {
 		log.Fatal("config: value is not set key: " + key)
 	}
 	value := config.GetString(key)
 	if value == "" {
-		log.Errorw("config: value is empty, key: "+key, "key", key)
+		log.Warningw("config: value is empty, key: "+key, "key", key)
 	}
 	result, err := strconv.ParseBool(value)
 	if err != nil {
@@ -49,7 +55,7 @@ func GetBool(key string) (result bool) {
 	return result
 }
 
-func GetInt(key string) int {
+func Int(key string) int {
 	exists := config.IsSet(key)
 	if !exists {
 		log.Fatal("config: value is not set key: " + key)
@@ -57,41 +63,59 @@ func GetInt(key string) int {
 	// все как строку берем
 	strValue := config.GetString(key)
 	if strValue == "" {
-		log.Errorw("config: value is empty, key: "+key, "key", key)
+		log.Warningw("config: value is empty, key: "+key, "key", key)
 	}
 	value64, err := strconv.ParseInt(strValue, 10, 64)
 	if err != nil {
-		log.Errorw("config: invalid type of int", "key", key, "value", strValue)
+		log.Fatalw("config: invalid type of int", "key", key, "value", strValue)
 		return 0
 	}
 	return int(value64)
 }
 
-func GetStringSlice(key string) []string {
+func List(key string) []string {
 	exists := config.IsSet(key)
 	if !exists {
 		log.Fatal("config: value is not set key: " + key)
 	}
 	slice := config.GetStringSlice(key)
 	if slice == nil || len(slice) == 0 {
-		log.Errorw("config: value is empty, key: "+key, "key", key)
+		log.Warningw("config: value is empty, key: "+key, "key", key)
 	}
 	return slice
 }
 
-func GetTime(key string) time.Duration {
+func Map(key string) map[string]interface{} {
 	exists := config.IsSet(key)
 	if !exists {
 		log.Fatal("config: value is not set key: " + key)
 	}
-	strValue := GetString(key)
+	m := config.GetStringMap(key)
+	if m == nil || len(m) == 0 {
+		log.Warningw("config: value is empty, key: "+key, "key", key)
+	}
+
+	return m
+}
+
+func Time(key string) time.Duration {
+	exists := config.IsSet(key)
+	if !exists {
+		log.Fatal("config: value is not set key: " + key)
+	}
+	strValue := Get(key)
 	if strValue == "" {
-		log.Errorw("config: value is empty, key: "+key, "key", key)
+		log.Warningw("config: value is empty, key: "+key, "key", key)
 	}
 	value, err := time.ParseDuration(strValue)
 	if err != nil {
-		log.Errorw("config: invalid type of time", "key", key, "value", strValue)
-		return 0
+		log.Fatal("config: invalid type of time", "key", key, "value", strValue)
 	}
 	return value
+}
+
+func Info() map[string]interface{} {
+	info := Map("info")
+	info["ts"] = time.Now().Unix()
+	return info
 }
