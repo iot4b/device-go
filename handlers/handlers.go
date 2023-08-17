@@ -1,10 +1,12 @@
 package handlers
 
 import (
+	"bufio"
 	"device-go/models"
 	"encoding/json"
 	"errors"
 	"os/exec"
+	"strings"
 
 	"github.com/coalalib/coalago"
 	log "github.com/ndmsystems/golog"
@@ -37,16 +39,41 @@ func ExecCmd(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 
 	// todo разобрать команду приватным ключом из sight, иначе вернуть ошибку
 	// exec command from node
-	c := exec.Command(command.Cmd)
+	log.Debug(command.Cmd)
+	cmdArr := strings.Split(command.Cmd, " ")
+	var args []string
+	if len(cmdArr) > 1 {
+		args = cmdArr[1:]
+	}
+	log.Debug(cmdArr[0], args)
+	c := exec.Command(cmdArr[0], args...)
 	if errors.Is(c.Err, exec.ErrDot) {
 		c.Err = nil
 	}
-	output, err := c.Output()
-	if err != nil {
+	log.Debug(c.String(), args)
+
+	stderr, _ := c.StderrPipe()
+	stdout, _ := c.StdoutPipe()
+	if err = c.Start(); err != nil {
 		log.Error(err)
 		return coalago.NewResponse(coalago.NewStringPayload(err.Error()), coalago.CoapCodeInternalServerError)
 	}
 
-	log.Debug(string(output))
-	return coalago.NewResponse(coalago.NewStringPayload(string(output)), coalago.CoapCodeContent)
+	var errOut string
+	scanner := bufio.NewScanner(stderr)
+	for scanner.Scan() {
+		errOut += scanner.Text() + "\n"
+	}
+	if len(errOut) > 0 {
+		log.Error(errOut)
+		return coalago.NewResponse(coalago.NewStringPayload(errOut), coalago.CoapCodeInternalServerError)
+	}
+
+	var out string
+	scanner = bufio.NewScanner(stdout)
+	for scanner.Scan() {
+		out += scanner.Text() + "\n"
+	}
+	log.Debug(out)
+	return coalago.NewResponse(coalago.NewStringPayload(out), coalago.CoapCodeContent)
 }
