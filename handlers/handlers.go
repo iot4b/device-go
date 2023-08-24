@@ -12,6 +12,7 @@ import (
 
 var Info models.Info
 
+// TODO везде добавить описания методов и полей моделей
 func GetInfo(_ *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 	result, err := json.Marshal(Info)
 	if err != nil {

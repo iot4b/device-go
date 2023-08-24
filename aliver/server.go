@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/coalalib/coalago"
-	log "github.com/ndmsystems/golog"
+	log "github.com/ndmsystems/golog" //TODO переделать на свой простой лог, чтобы ndmsystems нигде не упоминалось
 	"github.com/pkg/errors"
 )
 
@@ -25,6 +25,6 @@ func alive(server *coalago.Server, nodeHost, publicKey string) error {
 	aliveMessage := coalago.NewCoAPMessage(coalago.CON, coalago.GET)
 	aliveMessage.SetURIPath("/live")
 	aliveMessage.SetURIQuery("key", publicKey)
-	log.Info("send alive", aliveMessage.Payload.String(), nodeHost, publicKey)
+	log.Debug(aliveMessage.Payload.String(), nodeHost, publicKey)
 	return errors.Wrap(server.SendToSocket(aliveMessage, nodeHost), "sendToSocket")
 }
