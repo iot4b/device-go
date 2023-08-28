@@ -14,7 +14,9 @@ import (
 
 var Info models.Info
 
-// TODO везде добавить описания методов и полей моделей
+// TOdO везде добавить описания методов и полей моделей
+
+// GetInfo - получить информацию о девайсе
 func GetInfo(_ *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 	result, err := json.Marshal(Info)
 	if err != nil {
@@ -29,6 +31,8 @@ func GetInfo(_ *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 
 func ExecCmd(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 	log.Debug(message.Payload.String())
+	// decrypt
+
 	// parsing message from node
 	command := models.CMD{}
 	err := json.Unmarshal(message.Payload.Bytes(), &command)

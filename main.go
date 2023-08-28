@@ -2,6 +2,7 @@ package main
 
 import (
 	"device-go/aliver"
+	"device-go/crypto"
 	"device-go/handlers"
 	"device-go/models"
 	"device-go/shared/config"
@@ -15,26 +16,27 @@ import (
 	log "github.com/ndmsystems/golog"
 )
 
-func main() {
+//TODO  при старте девайса надо скачать смартконтракт девайса и сохранить локально.
+// В смарт контракте прописаны ключи которые имеют право присылать команды,  смарт вендора, из которого берем имя вендора для конфига
+// по клюбчам проверяем что команда подписана тем ключем, который стоит в разрешенных, и тогда выполняем ее.
 
-	//TODO  при старте девайса надо скачать смартконтракт девайса и сохранить локально.
-	// В смарт контракте прописаны ключи которые имеют право присылать команды,  смарт вендора, из которого берем имя вендора для конфига
-	// по клюбчам проверяем что команда подписана тем ключем, который стоит в разрешенных, и тогда выполняем ее.
-	//
+func main() {
+	crypto.Init()
 
 	handlers.Info = models.Info{
-		Key:     config.Get("publicKey"),
+		Key:     crypto.KeyPair.PublicStr(),
 		Version: config.Get("version"),
 		Type:    config.Get("type"),
 		Vendor:  config.Get("vendor"),
 	}
 
+	//server := coalago.NewServerWithPrivateKey([]byte(crypto.KeyPair.Secret))
 	server := coalago.NewServer()
 	server.GET("/info", handlers.GetInfo)
 	server.POST("/cmd", handlers.ExecCmd)
 
 	// начинаем слать alive пакеты, чтобы сохранять соединение для udp punching
-	go aliver.Run(server, config.Get("publicKey"), config.Get("nodeHost"), config.Time("aliveInterval"))
+	go aliver.Run(server, crypto.KeyPair.PublicStr(), config.Get("nodeHost"), config.Time("aliveInterval"))
 
 	// стартуем сервер
 	err := server.Listen(config.Get("coapServerHost"))

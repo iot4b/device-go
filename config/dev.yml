@@ -4,8 +4,14 @@ vendor: apple
 
 debug: true
 
+keysFile: "device.keys.json"
+
 coapServerHost: :5683
 nodeHost: 157.245.57.218:5683
+nodes:
+  0: 157.245.57.218:5683
+  1: 157.245.57.218:5683
+  3: 157.245.57.218:5683
 aliveInterval: 2s
 
 publicKey: 123123123   #TODO вынести из конфига в отдельный файл device.key который   создается в корне 
