@@ -2,11 +2,13 @@ package main
 
 import (
 	"device-go/aliver"
+	"device-go/client"
 	"device-go/crypto"
 	"device-go/handlers"
 	"device-go/models"
 	"device-go/shared/config"
 	"fmt"
+	"time"
 
 	"os"
 	"os/signal"
@@ -21,7 +23,29 @@ import (
 // по клюбчам проверяем что команда подписана тем ключем, который стоит в разрешенных, и тогда выполняем ее.
 
 func main() {
-	crypto.Init()
+	//crypto.Init()
+
+	// todo get rndm from master nodes
+	nodeHost := config.Get("nodeHost")
+	cl := client.New(nodeHost)
+	list := cl.NodeList()
+
+	// check min ping time to host
+	var lastTime time.Duration
+	fasterHost := nodeHost
+	for _, host := range list {
+		t := client.Ping(host)
+		if lastTime > t || lastTime == 0 {
+			lastTime = t
+			fasterHost = host
+		}
+	}
+
+	cl = client.New(fasterHost)
+	err := cl.Register()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	handlers.Info = models.Info{
 		Key:     crypto.KeyPair.PublicStr(),
@@ -39,7 +63,7 @@ func main() {
 	go aliver.Run(server, crypto.KeyPair.PublicStr(), config.Get("nodeHost"), config.Time("aliveInterval"))
 
 	// стартуем сервер
-	err := server.Listen(config.Get("coapServerHost"))
+	err = server.Listen(config.Get("coapServerHost"))
 	if err != nil {
 		log.Fatal(err)
 	}

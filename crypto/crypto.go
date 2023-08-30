@@ -94,6 +94,7 @@ func Init() {
 		if err != nil {
 			log.Fatal(err)
 		}
+		log.Debug(string(data))
 	}
 	defer keysFile.Close()
 
