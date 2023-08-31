@@ -1,0 +1,15 @@
+---
+- name: "Distribute files and restart service"
+  hosts: dev
+  serial: 1 # сколько серваков обновляем в потоке. 1 - это по одному, все таски по очереди.
+  gather_facts: False
+  vars: 
+    SERVICEBIN: "{{service}}-{{config}}"
+    CONFIG: "{{config}}"
+
+  tasks:
+    - include_tasks: tasks/build_golang.yml
+    - include_tasks: tasks/create_dirs.yml
+    - include_tasks: tasks/upload_files.yml
+    - include_tasks: tasks/restart_service.yml
+

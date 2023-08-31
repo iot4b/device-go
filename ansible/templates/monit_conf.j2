@@ -1,0 +1,9 @@
+check process {{SERVICEBIN}}
+	matching "{{SERVICEBIN}}"
+	start program = "/bin/bash -c 'cd {{DEPLOYPATH}} && nohup ./{{SERVICEBIN}} {{config}} 2>&1 < /dev/null | logger -p user.error -t {{SERVICEBIN}} &'"
+	stop program = "/bin/bash -c '/bin/ps ax | /bin/grep {{SERVICEBIN}} | /bin/grep -v grep | /usr/bin/awk "{print \$1}" | /usr/bin/xargs /bin/kill -9 || true'"
+	if cpu usage > 95% for 10 cycles then alert
+	if memory usage > 80% for 5 cycles then alert
+	alert {{monit_alert}} but not on { instance, nonexist }
+
+
