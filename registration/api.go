@@ -8,17 +8,12 @@ import (
 	"github.com/coalalib/coalago"
 	log "github.com/ndmsystems/golog"
 	"io"
+	"math/rand"
 	"os"
 	"time"
 )
 
-type register struct {
-	Key     string `json:"key"`
-	Version string `json:"version"`
-	Type    string `json:"type"`
-	Vendor  string `json:"vendor"`
-}
-
+// Register - регистрируем устройство на ноде
 func Register(nodeHost, public, version, Type, vendor string) error {
 	client := coalago.NewClient()
 
@@ -46,6 +41,7 @@ func Register(nodeHost, public, version, Type, vendor string) error {
 	return helpers.SaveContractLocal(resp.Body)
 }
 
+// NodeList - получаем список нод с мастер ноды
 func NodeList(masterNode string) (list []string, err error) {
 	client := coalago.NewClient()
 
@@ -63,34 +59,25 @@ func NodeList(masterNode string) (list []string, err error) {
 	return
 }
 
-func Ping(nodeHost string) (duration time.Duration, err error) {
-	start := time.Now()
-
-	client := coalago.NewClient()
-
-	msg := coalago.NewCoAPMessage(coalago.CON, coalago.GET)
-	msg.SetURIPath("/info")
-	resp, err := client.Send(msg, nodeHost)
-	if err != nil {
-		return
-	}
-	duration = time.Since(start)
-	log.Debugf("node: %s, ping time: %d ms, %s", nodeHost, duration.Milliseconds(), string(resp.Body))
-	return
-}
-
+// GetNode - определяем ноду к которой нужно подключиться по минимальному пингу.
+// если есть файл контракта, то из него берет ноду.
+// если девайс долго не был в сети, то может быть такая ситуация, что нода на которой он висел уже не активна,
+// то повторяет процедуру регистрации
 func GetNode() (host string, needRegistration bool) {
 	contractFile, err := os.Open(config.Get("device.contractFile"))
 	// если файл не найден, то получаем ноду с минимальным пингом
 	if err != nil && errors.Is(err, os.ErrNotExist) {
 
-		// todo get rndm from master nodes
-		nodeHost := config.Get("nodeHost")
+		// get random from master nodes
+		masterNodeList := config.List("masterNodes")
+
+		randomIndex := rand.Intn(len(masterNodeList))
+		masterNode := masterNodeList[randomIndex] + config.Get("coapServerPort")
 
 		var list []string
 		err := helpers.RoundRobin(func() error {
 			var err error
-			list, err = NodeList(nodeHost)
+			list, err = NodeList(masterNode)
 			return err
 		}, 3*time.Second, 10)
 		if err != nil {
@@ -99,9 +86,9 @@ func GetNode() (host string, needRegistration bool) {
 
 		// check min ping time to host
 		var lastTime time.Duration
-		fasterHost := nodeHost
+		fasterHost := masterNode
 		for _, host := range list {
-			t, err := Ping(host + config.Get("coapServerPort"))
+			t, err := ping(host + config.Get("coapServerPort"))
 			if err != nil {
 				log.Error(err)
 				continue
@@ -130,7 +117,7 @@ func GetNode() (host string, needRegistration bool) {
 	}
 	// пингуем ноду из контракта
 	host = contract["node"].(string)
-	if _, err := Ping(host); err != nil {
+	if _, err := ping(host); err != nil {
 		// если нода не пингуется, то удаляем текущий контракт и новую ноду выбираем для девайса
 		err = os.Remove(config.Get("device.contractFile"))
 		if err != nil {
@@ -138,5 +125,21 @@ func GetNode() (host string, needRegistration bool) {
 		}
 		host, needRegistration = GetNode()
 	}
+	return
+}
+
+func ping(nodeHost string) (duration time.Duration, err error) {
+	start := time.Now()
+
+	client := coalago.NewClient()
+
+	msg := coalago.NewCoAPMessage(coalago.CON, coalago.GET)
+	msg.SetURIPath("/info")
+	resp, err := client.Send(msg, nodeHost)
+	if err != nil {
+		return
+	}
+	duration = time.Since(start)
+	log.Debugf("node: %s, ping time: %d ms, %s", nodeHost, duration.Milliseconds(), string(resp.Body))
 	return
 }
