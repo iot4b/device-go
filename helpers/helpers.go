@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"device-go/shared/config"
 	"errors"
 	log "github.com/ndmsystems/golog"
 	"os"
@@ -29,7 +30,7 @@ func RoundRobin(cb func() error, interval time.Duration, attempts int) error {
 }
 
 func SaveContractLocal(contract []byte) error {
-	f, err := os.Create("device.contract")
+	f, err := os.Create(config.Get("device.contractFile"))
 	if err != nil {
 		return err
 	}

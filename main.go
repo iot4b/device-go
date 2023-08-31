@@ -26,43 +26,18 @@ import (
 func main() {
 	crypto.Init()
 
-	// todo get rndm from master nodes
-	nodeHost := config.Get("nodeHost")
-
-	var list []string
-	err := helpers.RoundRobin(func() error {
-		var err error
-		list, err = registration.NodeList(nodeHost)
-		return err
-	}, 3*time.Second, 10)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// check min ping time to host
-	var lastTime time.Duration
-	fasterHost := nodeHost
-	for _, host := range list {
-		t, err := registration.Ping(host + config.Get("coapServerPort"))
+	host, needRegistration := registration.GetNode()
+	if needRegistration {
+		err := helpers.RoundRobin(func() error {
+			return registration.Register(host+config.Get("coapServerPort"),
+				crypto.KeyPair.PublicStr(),
+				config.Get("version"),
+				config.Get("type"),
+				config.Get("vendor"))
+		}, 3*time.Second, 10)
 		if err != nil {
-			log.Error(err)
-			continue
+			log.Fatal(err)
 		}
-		if lastTime > t || lastTime == 0 {
-			lastTime = t
-			fasterHost = host
-		}
-	}
-
-	err = helpers.RoundRobin(func() error {
-		return registration.Register(fasterHost+config.Get("coapServerPort"),
-			crypto.KeyPair.PublicStr(),
-			config.Get("version"),
-			config.Get("type"),
-			config.Get("vendor"))
-	}, 3*time.Second, 10)
-	if err != nil {
-		log.Fatal(err)
 	}
 
 	handlers.Info = models.Info{
@@ -78,10 +53,10 @@ func main() {
 	server.POST("/cmd", handlers.ExecCmd)
 
 	// начинаем слать alive пакеты, чтобы сохранять соединение для udp punching
-	go aliver.Run(server, crypto.KeyPair.PublicStr(), fasterHost+config.Get("coapServerPort"), config.Time("aliveInterval"))
+	go aliver.Run(server, crypto.KeyPair.PublicStr(), host+config.Get("coapServerPort"), config.Time("aliveInterval"))
 
 	// стартуем сервер
-	err = server.Listen(config.Get("coapServerPort"))
+	err := server.Listen(config.Get("coapServerPort"))
 	if err != nil {
 		log.Fatal(err)
 	}

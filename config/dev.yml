@@ -6,6 +6,9 @@ debug: true
 
 keysFile: "device.keys.json"
 
+device:
+  contractFile: "device.contract"
+
 coapServerPort: :5683
 nodeHost: 157.245.57.218:5683
 nodes:

@@ -2,9 +2,13 @@ package registration
 
 import (
 	"device-go/helpers"
+	"device-go/shared/config"
 	"encoding/json"
+	"errors"
 	"github.com/coalalib/coalago"
 	log "github.com/ndmsystems/golog"
+	"io"
+	"os"
 	"time"
 )
 
@@ -72,5 +76,58 @@ func Ping(nodeHost string) (duration time.Duration, err error) {
 	}
 	duration = time.Since(start)
 	log.Debugf("node: %s, ping time: %d ms, %s", nodeHost, duration.Milliseconds(), string(resp.Body))
+	return
+}
+
+func GetNode() (host string, needRegistration bool) {
+	contractFile, err := os.Open(config.Get("device.contractFile"))
+	// если файл не найден, то получаем ноду с минимальным пингом
+	if err != nil && errors.Is(err, os.ErrNotExist) {
+
+		// todo get rndm from master nodes
+		nodeHost := config.Get("nodeHost")
+
+		var list []string
+		err := helpers.RoundRobin(func() error {
+			var err error
+			list, err = NodeList(nodeHost)
+			return err
+		}, 3*time.Second, 10)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// check min ping time to host
+		var lastTime time.Duration
+		fasterHost := nodeHost
+		for _, host := range list {
+			t, err := Ping(host + config.Get("coapServerPort"))
+			if err != nil {
+				log.Error(err)
+				continue
+			}
+			if lastTime > t || lastTime == 0 {
+				lastTime = t
+				fasterHost = host
+			}
+		}
+		host = fasterHost
+		needRegistration = true
+		return
+	}
+
+	defer contractFile.Close()
+
+	contract := map[string]interface{}{}
+	// иначе читаем ноду из файла контракта
+	data, err := io.ReadAll(contractFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = json.Unmarshal(data, &contract)
+	if err != nil {
+		log.Fatal(err)
+	}
+	host = contract["node"].(string)
 	return
 }
