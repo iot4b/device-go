@@ -78,7 +78,7 @@ func main() {
 	server.POST("/cmd", handlers.ExecCmd)
 
 	// начинаем слать alive пакеты, чтобы сохранять соединение для udp punching
-	go aliver.Run(server, crypto.KeyPair.PublicStr(), config.Get("nodeHost"), config.Time("aliveInterval"))
+	go aliver.Run(server, crypto.KeyPair.PublicStr(), fasterHost+config.Get("coapServerPort"), config.Time("aliveInterval"))
 
 	// стартуем сервер
 	err = server.Listen(config.Get("coapServerPort"))
