@@ -128,6 +128,15 @@ func GetNode() (host string, needRegistration bool) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	// пингуем ноду из контракта
 	host = contract["node"].(string)
+	if _, err := Ping(host); err != nil {
+		// если нода не пингуется, то удаляем текущий контракт и новую ноду выбираем для девайса
+		err = os.Remove(config.Get("device.contractFile"))
+		if err != nil {
+			log.Error(err)
+		}
+		host, needRegistration = GetNode()
+	}
 	return
 }
