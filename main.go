@@ -2,10 +2,11 @@ package main
 
 import (
 	"device-go/aliver"
-	"device-go/client"
 	"device-go/crypto"
 	"device-go/handlers"
+	"device-go/helpers"
 	"device-go/models"
+	"device-go/registration"
 	"device-go/shared/config"
 	"fmt"
 	"time"
@@ -23,26 +24,39 @@ import (
 // по клюбчам проверяем что команда подписана тем ключем, который стоит в разрешенных, и тогда выполняем ее.
 
 func main() {
-	//crypto.Init()
+	crypto.Init()
 
 	// todo get rndm from master nodes
 	nodeHost := config.Get("nodeHost")
-	cl := client.New(nodeHost)
-	list := cl.NodeList()
+
+	var list []string
+	err := helpers.RoundRobin(func() error {
+		var err error
+		list, err = registration.NodeList(nodeHost)
+		return err
+	}, 3*time.Second, 10)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// check min ping time to host
 	var lastTime time.Duration
 	fasterHost := nodeHost
 	for _, host := range list {
-		t := client.Ping(host)
+		t, err := registration.Ping(host + config.Get("coapServerPort"))
+		if err != nil {
+			log.Error(err)
+			continue
+		}
 		if lastTime > t || lastTime == 0 {
 			lastTime = t
 			fasterHost = host
 		}
 	}
 
-	cl = client.New(fasterHost)
-	err := cl.Register()
+	err = helpers.RoundRobin(func() error {
+		return registration.Register(fasterHost + config.Get("coapServerPort"))
+	}, 3*time.Second, 10)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -100,7 +100,7 @@ func Init() {
 
 	if len(data) == 0 {
 		data, err = io.ReadAll(keysFile)
-		if err == nil {
+		if err != nil {
 			log.Fatal(err)
 		}
 	}
@@ -108,7 +108,7 @@ func Init() {
 	KeyPair = keyPair{}
 	keys := map[string]string{}
 	err = json.Unmarshal(data, &keys)
-	if err == nil {
+	if err != nil {
 		log.Fatal(err)
 	}
 	KeyPair.setPublic(keys["public"])
