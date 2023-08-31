@@ -81,7 +81,7 @@ func main() {
 	go aliver.Run(server, crypto.KeyPair.PublicStr(), config.Get("nodeHost"), config.Time("aliveInterval"))
 
 	// стартуем сервер
-	err = server.Listen(config.Get("coapServerHost"))
+	err = server.Listen(config.Get("coapServerPort"))
 	if err != nil {
 		log.Fatal(err)
 	}
