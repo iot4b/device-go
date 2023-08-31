@@ -1,23 +1,45 @@
 package registration
 
 import (
+	"device-go/helpers"
 	"encoding/json"
 	"github.com/coalalib/coalago"
 	log "github.com/ndmsystems/golog"
 	"time"
 )
 
-func Register(nodeHost string) error {
+type register struct {
+	Key     string `json:"key"`
+	Version string `json:"version"`
+	Type    string `json:"type"`
+	Vendor  string `json:"vendor"`
+}
+
+func Register(nodeHost, public, version, Type, vendor string) error {
 	client := coalago.NewClient()
+
+	payload := register{
+		Key:     public,
+		Version: version,
+		Type:    Type,
+		Vendor:  vendor,
+	}
+	bytes, err := json.Marshal(payload)
+	if err != nil {
+		return err
+	}
 
 	msg := coalago.NewCoAPMessage(coalago.CON, coalago.POST)
 	msg.SetURIPath("/register")
-	_, err := client.Send(msg, nodeHost)
+	msg.SetStringPayload(string(bytes))
+	resp, err := client.Send(msg, nodeHost)
 	if err != nil {
 		log.Error(err)
 		return err
 	}
-	return nil
+
+	// сохраняем контракт девайса локально
+	return helpers.SaveContractLocal(resp.Body)
 }
 
 func NodeList(masterNode string) (list []string, err error) {

@@ -55,7 +55,11 @@ func main() {
 	}
 
 	err = helpers.RoundRobin(func() error {
-		return registration.Register(fasterHost + config.Get("coapServerPort"))
+		return registration.Register(fasterHost+config.Get("coapServerPort"),
+			crypto.KeyPair.PublicStr(),
+			config.Get("version"),
+			config.Get("type"),
+			config.Get("vendor"))
 	}, 3*time.Second, 10)
 	if err != nil {
 		log.Fatal(err)
