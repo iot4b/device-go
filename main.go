@@ -26,18 +26,16 @@ import (
 func main() {
 	crypto.Init()
 
-	host, needRegistration := registration.GetNode()
-	if needRegistration {
-		err := helpers.RoundRobin(func() error {
-			return registration.Register(host+config.Get("coapServerPort"),
-				crypto.KeyPair.PublicStr(),
-				config.Get("version"),
-				config.Get("type"),
-				config.Get("vendor"))
-		}, 3*time.Second, 10)
-		if err != nil {
-			log.Fatal(err)
-		}
+	host := registration.GetNode()
+	err := helpers.RoundRobin(func() error {
+		return registration.Register(host+config.Get("coapServerPort"),
+			crypto.KeyPair.PublicStr(),
+			config.Get("version"),
+			config.Get("type"),
+			config.Get("vendor"))
+	}, 3*time.Second, 10)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	handlers.Info = models.Info{
@@ -56,7 +54,7 @@ func main() {
 	go aliver.Run(server, crypto.KeyPair.PublicStr(), host+config.Get("coapServerPort"), config.Time("aliveInterval"))
 
 	// стартуем сервер
-	err := server.Listen(config.Get("coapServerPort"))
+	err = server.Listen(config.Get("coapServerPort"))
 	if err != nil {
 		log.Fatal(err)
 	}
