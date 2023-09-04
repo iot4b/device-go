@@ -4,13 +4,10 @@ import (
 	"device-go/aliver"
 	"device-go/crypto"
 	"device-go/handlers"
-	"device-go/helpers"
 	"device-go/models"
 	"device-go/registration"
 	"device-go/shared/config"
 	"fmt"
-	"time"
-
 	"os"
 	"os/signal"
 	"syscall"
@@ -26,17 +23,12 @@ import (
 func main() {
 	crypto.Init()
 
-	host := registration.GetNode()
-	err := helpers.RoundRobin(func() error {
-		return registration.Register(host+config.Get("coapServerPort"),
-			crypto.KeyPair.PublicStr(),
-			config.Get("version"),
-			config.Get("type"),
-			config.Get("vendor"))
-	}, 3*time.Second, 10)
-	if err != nil {
-		log.Fatal(err)
-	}
+	// nodeHost нужен, чтобы передать его в alive
+	nodeHost := registration.Register(
+		crypto.KeyPair.PublicStr(),
+		config.Get("version"),
+		config.Get("type"),
+		config.Get("vendor"))
 
 	handlers.Info = models.Info{
 		Key:     crypto.KeyPair.PublicStr(),
@@ -51,10 +43,10 @@ func main() {
 	server.POST("/cmd", handlers.ExecCmd)
 
 	// начинаем слать alive пакеты, чтобы сохранять соединение для udp punching
-	go aliver.Run(server, crypto.KeyPair.PublicStr(), host+config.Get("coapServerPort"), config.Time("aliveInterval"))
+	go aliver.Run(server, crypto.KeyPair.PublicStr(), nodeHost, config.Time("aliveInterval"))
 
 	// стартуем сервер
-	err = server.Listen(config.Get("coapServerPort"))
+	err := server.Listen(config.Get("coapServerPort"))
 	if err != nil {
 		log.Fatal(err)
 	}
