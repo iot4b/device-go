@@ -4,7 +4,6 @@ import (
 	"device-go/aliver"
 	"device-go/crypto"
 	"device-go/handlers"
-	"device-go/helpers"
 	"device-go/models"
 	"device-go/registration"
 	"device-go/shared/config"
@@ -14,6 +13,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 )
 
 //TODO  при старте девайса надо скачать смартконтракт девайса и сохранить локально.
@@ -24,18 +24,19 @@ func main() {
 	crypto.Init()
 
 	var nodeHost string
+	var err error
 	// nodeHost нужен, чтобы передать его в alive
-	err := helpers.RoundRobin(func() error {
-		var err error
+	for {
 		nodeHost, err = registration.Register(
 			crypto.KeyPair.PublicStr(),
 			config.Get("version"),
 			config.Get("type"),
 			config.Get("vendor"))
-		return err
-	}, config.Time("timeout.registerRepeat"), -1)
-	if err != nil {
-		log.Fatal(err)
+		if err == nil {
+			break
+		}
+		log.Error(err)
+		time.Sleep(config.Time("timeout.registerRepeat"))
 	}
 
 	handlers.Info = models.Info{

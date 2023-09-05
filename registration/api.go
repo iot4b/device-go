@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/coalalib/coalago"
 	log "github.com/ndmsystems/golog"
+	"github.com/pkg/errors"
 	"time"
 )
 
@@ -19,7 +20,7 @@ func Register(public, version, Type, vendor string) (string, error) {
 	// определив мастер ноду, получаем с нее список нод
 	list, err := getEndpoints(masterNode)
 	if err != nil {
-		return "", err
+		return "", errors.Wrap(err, "getEndpoints")
 	}
 
 	// check min ping time to host
@@ -47,7 +48,7 @@ func Register(public, version, Type, vendor string) (string, error) {
 	}
 	bytes, err := json.Marshal(payload)
 	if err != nil {
-		return "", err
+		return "", errors.Wrap(err, "json.Marshal(payload)")
 	}
 
 	msg := coalago.NewCoAPMessage(coalago.CON, coalago.POST)
@@ -55,7 +56,7 @@ func Register(public, version, Type, vendor string) (string, error) {
 	msg.SetStringPayload(string(bytes))
 	_, err = client.Send(msg, fasterHost)
 	if err != nil {
-		return "", err
+		return "", errors.Wrap(err, "client.Send")
 	}
 	return fasterHost, nil
 }
