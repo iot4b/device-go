@@ -4,6 +4,7 @@ import (
 	"device-go/aliver"
 	"device-go/crypto"
 	"device-go/handlers"
+	"device-go/helpers"
 	"device-go/models"
 	"device-go/registration"
 	"device-go/shared/config"
@@ -22,12 +23,20 @@ import (
 func main() {
 	crypto.Init()
 
+	var nodeHost string
 	// nodeHost нужен, чтобы передать его в alive
-	nodeHost := registration.Register(
-		crypto.KeyPair.PublicStr(),
-		config.Get("version"),
-		config.Get("type"),
-		config.Get("vendor"))
+	err := helpers.RoundRobin(func() error {
+		var err error
+		nodeHost, err = registration.Register(
+			crypto.KeyPair.PublicStr(),
+			config.Get("version"),
+			config.Get("type"),
+			config.Get("vendor"))
+		return err
+	}, config.Time("timeout.registerRepeat"), -1)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	handlers.Info = models.Info{
 		Key:     crypto.KeyPair.PublicStr(),
@@ -44,7 +53,7 @@ func main() {
 	// начинаем слать alive пакеты, чтобы сохранять соединение для udp punching
 	go aliver.Run(server, crypto.KeyPair.PublicStr(), nodeHost, config.Time("aliveInterval"))
 	// стартуем сервер
-	err := server.Listen(config.Get("device.port"))
+	err = server.Listen(config.Get("device.port"))
 	if err != nil {
 		log.Fatal(err)
 	}

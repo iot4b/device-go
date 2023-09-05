@@ -10,6 +10,9 @@ device:
   contractFile: "device.contract"
   port: :5683
 
+timeout:
+  registerRepeat: 3s
+
 masterNodes:
   - 157.245.57.218:5683
   - 188.166.71.64:5683

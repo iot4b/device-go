@@ -13,13 +13,13 @@ type node struct {
 }
 
 // Register - регистрируем устройство на ноде. Возвращает адрес ноды
-func Register(public, version, Type, vendor string) string {
+func Register(public, version, Type, vendor string) (string, error) {
 	masterNode := getMasterNode()
 
 	// определив мастер ноду, получаем с нее список нод
 	list, err := getEndpoints(masterNode)
 	if err != nil {
-		log.Fatal(err)
+		return "", err
 	}
 
 	// check min ping time to host
@@ -47,7 +47,7 @@ func Register(public, version, Type, vendor string) string {
 	}
 	bytes, err := json.Marshal(payload)
 	if err != nil {
-		log.Fatal(err)
+		return "", err
 	}
 
 	msg := coalago.NewCoAPMessage(coalago.CON, coalago.POST)
@@ -55,7 +55,7 @@ func Register(public, version, Type, vendor string) string {
 	msg.SetStringPayload(string(bytes))
 	_, err = client.Send(msg, fasterHost)
 	if err != nil {
-		log.Fatal(err)
+		return "", err
 	}
-	return fasterHost
+	return fasterHost, nil
 }
