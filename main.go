@@ -8,12 +8,11 @@ import (
 	"device-go/registration"
 	"device-go/shared/config"
 	"fmt"
+	"github.com/coalalib/coalago"
+	log "github.com/ndmsystems/golog"
 	"os"
 	"os/signal"
 	"syscall"
-
-	log "device-go/shared/golog"
-	"github.com/coalalib/coalago"
 )
 
 //TODO  при старте девайса надо скачать смартконтракт девайса и сохранить локально.
@@ -44,7 +43,6 @@ func main() {
 
 	// начинаем слать alive пакеты, чтобы сохранять соединение для udp punching
 	go aliver.Run(server, crypto.KeyPair.PublicStr(), nodeHost, config.Time("aliveInterval"))
-
 	// стартуем сервер
 	err := server.Listen(config.Get("device.port"))
 	if err != nil {

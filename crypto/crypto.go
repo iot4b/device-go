@@ -6,11 +6,11 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"device-go/shared/config"
-	log "device-go/shared/golog"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
+	log "github.com/ndmsystems/golog"
 
 	"io"
 	"os"

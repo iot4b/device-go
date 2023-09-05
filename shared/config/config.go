@@ -1,7 +1,7 @@
 package config
 
 import (
-	log "device-go/shared/golog"
+	log "github.com/ndmsystems/golog"
 	"github.com/spf13/viper"
 	"strconv"
 	"time"

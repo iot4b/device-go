@@ -1,9 +1,9 @@
 package registration
 
 import (
-	log "device-go/shared/golog"
 	"encoding/json"
 	"github.com/coalalib/coalago"
+	log "github.com/ndmsystems/golog"
 	"time"
 )
 

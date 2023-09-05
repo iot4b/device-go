@@ -4,6 +4,7 @@ go 1.20
 
 require (
 	github.com/coalalib/coalago v1.0.5
+	github.com/ndmsystems/golog v0.0.3
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/viper v1.16.0
 	go.uber.org/zap v1.23.0
@@ -15,7 +16,6 @@ require (
 	github.com/lucas-clemente/aes12 v0.0.0-20171027163421-cd47fb39b79f // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
-	github.com/ndmsystems/golog v0.0.3 // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	github.com/pelletier/go-toml/v2 v2.0.8 // indirect
 	github.com/spf13/afero v1.9.5 // indirect

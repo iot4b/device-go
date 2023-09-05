@@ -1,8 +1,8 @@
 package helpers
 
 import (
-	log "device-go/shared/golog"
 	"errors"
+	log "github.com/ndmsystems/golog"
 	"time"
 )
 

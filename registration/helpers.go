@@ -2,9 +2,9 @@ package registration
 
 import (
 	"device-go/shared/config"
-	log "device-go/shared/golog"
 	"encoding/json"
 	"github.com/coalalib/coalago"
+	log "github.com/ndmsystems/golog"
 	"math/rand"
 	"time"
 )
