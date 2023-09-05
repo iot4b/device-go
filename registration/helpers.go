@@ -26,14 +26,14 @@ func ping(nodeHost string) (duration time.Duration, err error) {
 	return
 }
 
-// getEndpoints - получаем список нод с мастер ноды
-func getEndpoints(masterNode string) (list []node, err error) {
+// getEndpoints - получаем список доступных нод с указанной ноды
+func getEndpoints(node string) (list []node, err error) {
 	client := coalago.NewClient()
 
 	msg := coalago.NewCoAPMessage(coalago.CON, coalago.GET)
 	msg.SetURIPath("/endpoints")
 
-	resp, err := client.Send(msg, masterNode)
+	resp, err := client.Send(msg, node)
 	if err != nil {
 		return nil, err
 	}
@@ -45,17 +45,18 @@ func getEndpoints(masterNode string) (list []node, err error) {
 	return
 }
 
-// endpointList - получаем ноду из списка в конфигах
+// endpointList - получаем список доступных нод для подключения
+// из masterNodeList выбирает случайным образом одну из мастер нод
 func endpointList(masterNodeList []string) (masterNode string, list []node, err error) {
 	// выбираем случайную ноду, чтобы одновременно на одну ноду не стучались все девайсы при инициализации,
 	// а было минимальное распределение
-	// Перемешиваем список нод для случайного выбора
+	// перемешиваем список нод для случайного выбора
 	rand.Seed(time.Now().UnixNano())
 	rand.Shuffle(len(masterNodeList), func(i, j int) {
 		masterNodeList[i], masterNodeList[j] = masterNodeList[j], masterNodeList[i]
 	})
 
-	// Пробегаемся по нодам и выбираем первую доступную
+	// пробегаемся по нодам и выбираем первую доступную
 	for _, masterNode = range masterNodeList {
 		// получаем с нее список нод
 		list, err = getEndpoints(masterNode)
