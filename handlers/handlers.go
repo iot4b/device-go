@@ -8,8 +8,8 @@ import (
 	"os/exec"
 	"strings"
 
+	log "device-go/shared/golog"
 	"github.com/coalalib/coalago"
-	log "github.com/ndmsystems/golog"
 )
 
 var Info models.Info

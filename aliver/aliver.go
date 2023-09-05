@@ -3,8 +3,8 @@ package aliver
 import (
 	"time"
 
+	log "device-go/shared/golog"
 	"github.com/coalalib/coalago"
-	log "github.com/ndmsystems/golog" //TODO переделать на свой простой лог, чтобы ndmsystems нигде не упоминалось
 	"github.com/pkg/errors"
 )
 

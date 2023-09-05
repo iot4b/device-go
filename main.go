@@ -12,8 +12,8 @@ import (
 	"os/signal"
 	"syscall"
 
+	log "device-go/shared/golog"
 	"github.com/coalalib/coalago"
-	log "github.com/ndmsystems/golog"
 )
 
 //TODO  при старте девайса надо скачать смартконтракт девайса и сохранить локально.

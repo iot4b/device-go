@@ -1,26 +1,22 @@
 package registration
 
 import (
-	"device-go/shared/config"
+	log "device-go/shared/golog"
 	"encoding/json"
-	"math/rand"
-	"time"
-
 	"github.com/coalalib/coalago"
-	log "github.com/ndmsystems/golog"
+	"time"
 )
 
+type node struct {
+	IpPort  string `json:"ipPort"`
+	Account string `json:"account"`
+}
+
 // Register - регистрируем устройство на ноде. Возвращает адрес ноды
-func Register(public, version, Type, vendor string) (string, error) { //TODO возвращать ошибку.   И гонять регистер по круту с интервалом timeout.registerRepeat
-	// если файл не найден, то получаем ноду с минимальным пингом
+func Register(public, version, Type, vendor string) string {
+	masterNode := getMasterNode()
 
-	// get random from master nodes
-	masterNodeList := config.List("masterNodes") //TODO а если матер не ответил?  переделать на цикл, пока хоть ктото не ответит
-
-	randomIndex := rand.Intn(len(masterNodeList))
-	masterNode := masterNodeList[randomIndex]
-
-	var list []string
+	// определив мастер ноду, получаем с нее список нод
 	list, err := getEndpoints(masterNode)
 	if err != nil {
 		log.Fatal(err)
@@ -30,14 +26,14 @@ func Register(public, version, Type, vendor string) (string, error) { //TODO в�
 	var lastTime time.Duration
 	fasterHost := masterNode
 	for _, host := range list {
-		t, err := ping(host + config.Get("coapServerPort")) //TODO порт прийдет с айпишником
+		t, err := ping(host.IpPort)
 		if err != nil {
 			log.Error(err)
 			continue
 		}
 		if lastTime > t || lastTime == 0 {
 			lastTime = t
-			fasterHost = host
+			fasterHost = host.IpPort
 		}
 	}
 
@@ -51,8 +47,7 @@ func Register(public, version, Type, vendor string) (string, error) { //TODO в�
 	}
 	bytes, err := json.Marshal(payload)
 	if err != nil {
-		log.Error(err)
-		return "", err
+		log.Fatal(err)
 	}
 
 	msg := coalago.NewCoAPMessage(coalago.CON, coalago.POST)
@@ -60,8 +55,7 @@ func Register(public, version, Type, vendor string) (string, error) { //TODO в�
 	msg.SetStringPayload(string(bytes))
 	_, err = client.Send(msg, fasterHost)
 	if err != nil {
-		log.Error(err)
-		return "", err
+		log.Fatal(err)
 	}
-	return fasterHost, nil
+	return fasterHost
 }

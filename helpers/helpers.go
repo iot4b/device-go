@@ -1,10 +1,8 @@
 package helpers
 
 import (
-	"device-go/shared/config"
+	log "device-go/shared/golog"
 	"errors"
-	log "github.com/ndmsystems/golog"
-	"os"
 	"time"
 )
 
@@ -25,20 +23,6 @@ func RoundRobin(cb func() error, interval time.Duration, attempts int) error {
 		if attempts == 0 {
 			return errors.New("round robin [max attempts]")
 		}
-	}
-	return nil
-}
-
-func SaveContractLocal(contract []byte) error {
-	f, err := os.Create(config.Get("device.contractFile"))
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-
-	_, err = f.Write(contract)
-	if err != nil {
-		return err
 	}
 	return nil
 }
