@@ -1,4 +1,4 @@
-package crypto
+package cryptoKeys
 
 import (
 	"bytes"
@@ -69,6 +69,7 @@ func (k *keyPair) setSecret(key string) {
 }
 
 func Init() {
+	log.Debug("init public/secret keys")
 	// читакм файл. если нет его, то генерим новый
 	var data []byte
 	keysFile, err := os.Open(config.Get("keysFile"))
@@ -114,5 +115,5 @@ func Init() {
 	}
 	KeyPair.setPublic(keys["public"])
 	KeyPair.setSecret(keys["secret"])
-	fmt.Printf("%+v", KeyPair)
+	log.Debugf("keypair: %+v", KeyPair)
 }

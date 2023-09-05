@@ -2,7 +2,7 @@ package main
 
 import (
 	"device-go/aliver"
-	"device-go/crypto"
+	"device-go/cryptoKeys"
 	"device-go/handlers"
 	"device-go/models"
 	"device-go/registration"
@@ -21,14 +21,19 @@ import (
 // по клюбчам проверяем что команда подписана тем ключем, который стоит в разрешенных, и тогда выполняем ее.
 
 func main() {
-	crypto.Init()
+	// инициируем ключи девайса. если есть файл, то читаем из него, если нет, то генерим новый
+	// для ключей используется алгоритм ed25519
+	cryptoKeys.Init()
 
-	var nodeHost string
+	var nodeHost string // nodeHost нужен, чтобы передать его в alive
 	var err error
-	// nodeHost нужен, чтобы передать его в alive
 	for {
+		// регистрируем устройство на ноде. в ответ приходит нода, к которой получилось подключиться
+		// если ошибка, то повторяем цикл регистрации
 		nodeHost, err = registration.Register(
-			crypto.KeyPair.PublicStr(),
+			// получаем список нод по-умолчанию
+			config.List("masterNodes"),
+			cryptoKeys.KeyPair.PublicStr(),
 			config.Get("version"),
 			config.Get("type"),
 			config.Get("vendor"))
@@ -39,20 +44,22 @@ func main() {
 		time.Sleep(config.Time("timeout.registerRepeat"))
 	}
 
+	// для хнедлера /info сохраняем глобально info о девайсе
 	handlers.Info = models.Info{
-		Key:     crypto.KeyPair.PublicStr(),
+		Key:     cryptoKeys.KeyPair.PublicStr(),
 		Version: config.Get("version"),
 		Type:    config.Get("type"),
 		Vendor:  config.Get("vendor"),
 	}
+	log.Debug("device info: %+v", handlers.Info)
 
-	//server := coalago.NewServerWithPrivateKey([]byte(crypto.KeyPair.Secret))
+	// сервер для запросов от клиентов и нод
 	server := coalago.NewServer()
 	server.GET("/info", handlers.GetInfo)
 	server.POST("/cmd", handlers.ExecCmd)
 
 	// начинаем слать alive пакеты, чтобы сохранять соединение для udp punching
-	go aliver.Run(server, crypto.KeyPair.PublicStr(), nodeHost, config.Time("aliveInterval"))
+	go aliver.Run(server, cryptoKeys.KeyPair.PublicStr(), nodeHost, config.Time("aliveInterval"))
 	// стартуем сервер
 	err = server.Listen(config.Get("device.port"))
 	if err != nil {

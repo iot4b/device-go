@@ -8,22 +8,16 @@ import (
 	"time"
 )
 
-type node struct {
-	IpPort  string `json:"ipPort"`
-	Account string `json:"account"`
-}
-
 // Register - регистрируем устройство на ноде. Возвращает адрес ноды
-func Register(public, version, Type, vendor string) (string, error) {
-	masterNode := getMasterNode()
-
-	// определив мастер ноду, получаем с нее список нод
-	list, err := getEndpoints(masterNode)
+func Register(masterNodes []string, public, version, Type, vendor string) (string, error) {
+	// получаем список доступных нод с рандомной мастер ноды
+	masterNode, list, err := endpointList(masterNodes)
 	if err != nil {
 		return "", errors.Wrap(err, "getEndpoints")
 	}
+	log.Debug("endpoints: %+v", list)
 
-	// check min ping time to host
+	// перебираем ноды и определяем самый низкий ping, далее используем эту ноду для регистрации и поддержания соединения
 	var lastTime time.Duration
 	fasterHost := masterNode
 	for _, host := range list {
@@ -38,22 +32,22 @@ func Register(public, version, Type, vendor string) (string, error) {
 		}
 	}
 
-	client := coalago.NewClient()
-
-	payload := register{
+	payload, err := json.Marshal(register{
 		Key:     public,
 		Version: version,
 		Type:    Type,
 		Vendor:  vendor,
-	}
-	bytes, err := json.Marshal(payload)
+	})
 	if err != nil {
 		return "", errors.Wrap(err, "json.Marshal(payload)")
 	}
 
+	// отправляем запрос на регистрацию
+	client := coalago.NewClient()
 	msg := coalago.NewCoAPMessage(coalago.CON, coalago.POST)
 	msg.SetURIPath("/register")
-	msg.SetStringPayload(string(bytes))
+	msg.SetStringPayload(string(payload))
+
 	_, err = client.Send(msg, fasterHost)
 	if err != nil {
 		return "", errors.Wrap(err, "client.Send")

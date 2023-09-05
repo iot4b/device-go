@@ -1,7 +1,6 @@
 package registration
 
 import (
-	"device-go/shared/config"
 	"encoding/json"
 	"github.com/coalalib/coalago"
 	log "github.com/ndmsystems/golog"
@@ -33,11 +32,12 @@ func getEndpoints(masterNode string) (list []node, err error) {
 
 	msg := coalago.NewCoAPMessage(coalago.CON, coalago.GET)
 	msg.SetURIPath("/endpoints")
+
 	resp, err := client.Send(msg, masterNode)
 	if err != nil {
 		return nil, err
 	}
-	log.Debug(string(resp.Body))
+
 	err = json.Unmarshal(resp.Body, &list)
 	if err != nil {
 		return nil, err
@@ -45,29 +45,25 @@ func getEndpoints(masterNode string) (list []node, err error) {
 	return
 }
 
-// getMasterNode - получаем ноду из списка в конфигах
-func getMasterNode() string {
-	// получаем список нод по-умолчанию
-	masterNodeList := config.List("masterNodes")
+// endpointList - получаем ноду из списка в конфигах
+func endpointList(masterNodeList []string) (masterNode string, list []node, err error) {
+	// выбираем случайную ноду, чтобы одновременно на одну ноду не стучались все девайсы при инициализации,
+	// а было минимальное распределение
+	// Перемешиваем список нод для случайного выбора
+	rand.Seed(time.Now().UnixNano())
+	rand.Shuffle(len(masterNodeList), func(i, j int) {
+		masterNodeList[i], masterNodeList[j] = masterNodeList[j], masterNodeList[i]
+	})
 
-	// выбираем случайную ноду, чтобы одновременно на одну ноду не стучались все девайсы при инициализации, а было минимальное распределение
-	randomIndex := rand.Intn(len(masterNodeList))
-	masterNode := masterNodeList[randomIndex]
-	// проверяем ноду на доступность, иначе пробуем следующую из списка
-	_, err := ping(masterNode)
-	if err != nil {
-		log.Error(err)
-		// удаляем ноду из списка и проходимся по оставшимся
-		masterNodeList = append(masterNodeList[:randomIndex], masterNode[randomIndex+1:])
-		for _, masterNode = range masterNodeList {
-			_, err := ping(masterNode)
-			if err != nil {
-				log.Error(err)
-			}
-			if err == nil {
-				break
-			}
+	// Пробегаемся по нодам и выбираем первую доступную
+	for _, masterNode = range masterNodeList {
+		// получаем с нее список нод
+		list, err = getEndpoints(masterNode)
+		if err == nil {
+			log.Debugf("masterNode: %s", masterNode)
+			return
 		}
+		log.Errorf("masterNode: %s, err: %s", masterNode, err.Error())
 	}
-	return masterNode
+	return
 }

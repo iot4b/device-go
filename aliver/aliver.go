@@ -9,7 +9,7 @@ import (
 )
 
 func Run(s *coalago.Server, publicKey, nodeHost string, aliveInterval time.Duration) {
-	log.Info("run alive")
+	log.Info("run aliver")
 	for {
 		// если ставим после alive, то соединение с нодой не успевает инициироваться
 		// todo пофиксить порядок запуска
