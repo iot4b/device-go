@@ -8,12 +8,11 @@ keysFile: "device.keys.json"
 
 device:
   contractFile: "device.contract"
+  port: :5683
 
-coapServerPort: :5683
-nodeHost: 157.245.57.218:5683
 masterNodes:
-  - 157.245.57.218
-  - 188.166.71.64
-  - 192.81.216.57
+  - 157.245.57.218:5683
+  - 188.166.71.64:5683
+  - 192.81.216.57:5683
 
 aliveInterval: 2s

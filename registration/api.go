@@ -3,21 +3,22 @@ package registration
 import (
 	"device-go/shared/config"
 	"encoding/json"
-	"github.com/coalalib/coalago"
-	log "github.com/ndmsystems/golog"
 	"math/rand"
 	"time"
+
+	"github.com/coalalib/coalago"
+	log "github.com/ndmsystems/golog"
 )
 
 // Register - регистрируем устройство на ноде. Возвращает адрес ноды
-func Register(public, version, Type, vendor string) string {
+func Register(public, version, Type, vendor string) (string, error) { //TODO возвращать ошибку.   И гонять регистер по круту с интервалом timeout.registerRepeat
 	// если файл не найден, то получаем ноду с минимальным пингом
 
 	// get random from master nodes
-	masterNodeList := config.List("masterNodes")
+	masterNodeList := config.List("masterNodes") //TODO а если матер не ответил?  переделать на цикл, пока хоть ктото не ответит
 
 	randomIndex := rand.Intn(len(masterNodeList))
-	masterNode := masterNodeList[randomIndex] + config.Get("coapServerPort")
+	masterNode := masterNodeList[randomIndex]
 
 	var list []string
 	list, err := getEndpoints(masterNode)
@@ -29,7 +30,7 @@ func Register(public, version, Type, vendor string) string {
 	var lastTime time.Duration
 	fasterHost := masterNode
 	for _, host := range list {
-		t, err := ping(host + config.Get("coapServerPort"))
+		t, err := ping(host + config.Get("coapServerPort")) //TODO порт прийдет с айпишником
 		if err != nil {
 			log.Error(err)
 			continue
@@ -50,7 +51,8 @@ func Register(public, version, Type, vendor string) string {
 	}
 	bytes, err := json.Marshal(payload)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
+		return "", err
 	}
 
 	msg := coalago.NewCoAPMessage(coalago.CON, coalago.POST)
@@ -58,7 +60,8 @@ func Register(public, version, Type, vendor string) string {
 	msg.SetStringPayload(string(bytes))
 	_, err = client.Send(msg, fasterHost)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
+		return "", err
 	}
-	return fasterHost
+	return fasterHost, nil
 }
