@@ -1,25 +1,38 @@
 package registration
 
 import (
+	"device-go/dsm"
 	"encoding/json"
 	"github.com/coalalib/coalago"
+	"github.com/jinzhu/copier"
 	log "github.com/ndmsystems/golog"
 	"github.com/pkg/errors"
 	"time"
 )
 
-// Register - регистрируем устройство на ноде. Возвращает адрес ноды
-func Register(masterNodes []string, public, version, Type, vendor string) (string, error) {
+type registerDeviceResp struct {
+	Address dsm.EverAddress `json:"a,omitempty"` //ever SC address текущего Device
+	Node    dsm.EverAddress `json:"n,omitempty"` //ever SC address Node, с которой девайс создал последнее соединение
+	Elector dsm.EverAddress `json:"e,omitempty"` //ever SC адрес Elector'a, который обслуживает сеть нод для текущего девайса
+	Vendor  dsm.EverAddress `json:"v,omitempty"` //ever SC address производителя текущего девайса
+
+	Stat bool `json:"s,omitempty"` // нужно ли девайсу слать статистику
+}
+
+// Register - регистрируем устройство на ноде.
+// Возвращает ip:port ноды
+func Register(masterNodes []string, address, vendorAddress dsm.EverAddress, public, version, Type, vendorData string) (*dsm.DeviceContract, string, error) {
 	// получаем список доступных нод с рандомной мастер ноды
 	masterNode, list, err := endpointList(masterNodes)
 	if err != nil {
-		return "", errors.Wrap(err, "getEndpoints")
+		return nil, "", errors.Wrap(err, "getEndpoints")
 	}
 	log.Debug("endpoints: %+v", list)
 
 	// перебираем ноды и определяем самый низкий ping, далее используем эту ноду для регистрации и поддержания соединения
 	var lastTime time.Duration
 	fasterHost := masterNode
+	log.Debug("fasterHost before ping: " + fasterHost)
 	for _, host := range list {
 		t, err := ping(host.IpPort)
 		if err != nil {
@@ -31,26 +44,49 @@ func Register(masterNodes []string, public, version, Type, vendor string) (strin
 			fasterHost = host.IpPort
 		}
 	}
+	log.Debug("fasterHost after ping: " + fasterHost)
 
-	payload, err := json.Marshal(register{
-		Key:     public,
-		Version: version,
-		Type:    Type,
-		Vendor:  vendor,
+	payload, err := json.Marshal(registerRequest{
+		Vendor:     vendorAddress,
+		Key:        public,
+		Version:    version,
+		Type:       Type,
+		VendorData: vendorData,
 	})
 	if err != nil {
-		return "", errors.Wrap(err, "json.Marshal(payload)")
+		return nil, "", errors.Wrap(err, "json.Marshal(payload)")
 	}
+	log.Debug("registerRequest: " + string(payload) + " address: " + address.String())
 
-	// отправляем запрос на регистрацию
+	// формируем запрос на регистрацию
 	client := coalago.NewClient()
 	msg := coalago.NewCoAPMessage(coalago.CON, coalago.POST)
 	msg.SetURIPath("/register")
+	// если девайс знает свой адрес контракта, то передаем ...?a= ...
+	if len(address) > 0 {
+		msg.SetURIQuery("a", string(address))
+	}
 	msg.SetStringPayload(string(payload))
 
-	_, err = client.Send(msg, fasterHost)
+	// отправляем запрос на регистрацию
+	resp, err := client.Send(msg, fasterHost)
 	if err != nil {
-		return "", errors.Wrap(err, "client.Send")
+		return nil, "", errors.Wrap(err, "client.Send")
 	}
-	return fasterHost, nil
+
+	// парсим ответ и обновляем локальный дамп контракта
+	registerResp := registerDeviceResp{}
+	err = json.Unmarshal(resp.Body, &registerResp)
+	if err != nil {
+		return nil, "", errors.Wrap(err, "json.Unmarshal(resp.Body, &registerResp)")
+	}
+	log.Debug("registerResponse: " + string(resp.Body))
+
+	// копируем актуальные поля
+	result := dsm.DeviceContract{}
+	copier.Copy(&result, registerResp)
+
+	log.Debugw("Register result", "RegisteredDevice", result, "fasterHost", fasterHost)
+
+	return &result, fasterHost, nil
 }

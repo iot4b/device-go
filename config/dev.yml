@@ -1,14 +1,15 @@
 version: 0.1mac
 type: test-device
-vendor: apple
+vendorName: apple
 
 debug: true
 
-keysFile: "device.keys.json"
+localFiles:
+  keys: "device.keys.json"
+  contractData: "device.contract.json"
 
 device:
-  contractFile: "device.contract"
-  port: :5683
+  port: 5683
 
 timeout:
   registerRepeat: 3s

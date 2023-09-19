@@ -4,10 +4,10 @@ go 1.20
 
 require (
 	github.com/coalalib/coalago v1.0.5
+	github.com/jinzhu/copier v0.4.0
 	github.com/ndmsystems/golog v0.0.3
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/viper v1.16.0
-	go.uber.org/zap v1.23.0
 )
 
 require (
@@ -25,6 +25,7 @@ require (
 	github.com/subosito/gotenv v1.4.2 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
+	go.uber.org/zap v1.23.0 // indirect
 	golang.org/x/crypto v0.12.0 // indirect
 	golang.org/x/sys v0.11.0 // indirect
 	golang.org/x/text v0.12.0 // indirect

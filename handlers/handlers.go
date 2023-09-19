@@ -2,27 +2,31 @@ package handlers
 
 import (
 	"bufio"
-	"device-go/models"
+	"device-go/dsm"
+	"device-go/shared"
 	"encoding/json"
 	"errors"
 	"os/exec"
 	"strings"
+	"time"
 
 	"github.com/coalalib/coalago"
 	log "github.com/ndmsystems/golog"
 )
 
-var Info models.Info
-
 // TOdO везде добавить описания методов и полей моделей
 
 // GetInfo - получить информацию о девайсе
 func GetInfo(_ *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
-	result, err := json.Marshal(Info)
+	shared.Info.Uptime = time.Since(shared.Info.RunFrom).String()
+
+	result, err := json.Marshal(shared.Info)
 	if err != nil {
 		log.Error(err)
 		return nil
 	}
+
+	log.Debug("device info", shared.Info)
 
 	handlerResult := coalago.NewResponse(coalago.NewStringPayload(string(result)), coalago.CoapCodeContent)
 	log.Debug(handlerResult)
@@ -34,7 +38,7 @@ func ExecCmd(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 	// decrypt
 
 	// parsing message from node
-	command := models.CMD{}
+	command := dsm.CMD{}
 	err := json.Unmarshal(message.Payload.Bytes(), &command)
 	if err != nil {
 		log.Error(err)

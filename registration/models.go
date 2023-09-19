@@ -1,11 +1,14 @@
 package registration
 
+import "device-go/dsm"
+
 // метод /register принимает на вход info текущего устройства для регистрации в блокчейне
-type register struct {
-	Key     string `json:"key"`     // public key для подписи сообщений
-	Version string `json:"version"` // версия прошивки
-	Type    string `json:"type"`    // название модели устройства
-	Vendor  string `json:"vendor"`  // вендор
+type registerRequest struct {
+	Vendor     dsm.EverAddress `json:"v"`            // адрес вендора
+	Key        string          `json:"k"`            // уникальный public key, который передаем для создания контракта
+	Version    string          `json:"ver"`          // версия прошивки
+	Type       string          `json:"t,omitempty"`  // название модели устройства
+	VendorData string          `json:"vd,omitempty"` //происзолный блок данных в любом формате
 }
 
 // getEndpoints возвращает список активных нод в таком формате

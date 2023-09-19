@@ -72,7 +72,7 @@ func Init() {
 	log.Debug("init public/secret keys")
 	// читакм файл. если нет его, то генерим новый
 	var data []byte
-	keysFile, err := os.Open(config.Get("keysFile"))
+	keysFile, err := os.Open(config.Get("localFiles.keys"))
 	if err != nil && errors.Is(err, os.ErrNotExist) {
 		public, private, err := ed25519.GenerateKey(rand.Reader)
 		if err != nil {
@@ -92,7 +92,7 @@ func Init() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		err = os.WriteFile(config.Get("keysFile"), data, 0644)
+		err = os.WriteFile(config.Get("localFiles.keys"), data, 0644)
 		if err != nil {
 			log.Fatal(err)
 		}

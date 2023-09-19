@@ -3,12 +3,15 @@ package main
 import (
 	"device-go/aliver"
 	"device-go/cryptoKeys"
+	"device-go/dsm"
 	"device-go/handlers"
-	"device-go/models"
 	"device-go/registration"
+	"device-go/shared"
 	"device-go/shared/config"
+	"device-go/storage"
 	"fmt"
 	"github.com/coalalib/coalago"
+	"github.com/jinzhu/copier"
 	log "github.com/ndmsystems/golog"
 	"os"
 	"os/signal"
@@ -24,19 +27,31 @@ func main() {
 	// инициируем ключи девайса. если есть файл, то читаем из него, если нет, то генерим новый
 	// для ключей используется алгоритм ed25519
 	cryptoKeys.Init()
+	storage.Init(
+		config.Get("localFiles.contractData"),
+		config.Get("vendorName"),
+		config.Get("type"),
+		config.Get("version"),
+		"")
 
 	var nodeHost string // nodeHost нужен, чтобы передать его в alive
+	var registeredDevice *dsm.DeviceContract
 	var err error
+
 	for {
 		// регистрируем устройство на ноде. в ответ приходит нода, к которой получилось подключиться
 		// если ошибка, то повторяем цикл регистрации
-		nodeHost, err = registration.Register(
+		registeredDevice, nodeHost, err = registration.Register(
 			// получаем список нод по-умолчанию
 			config.List("masterNodes"),
+			storage.Get().Address,
+			storage.Get().VendorAddress,
+
 			cryptoKeys.KeyPair.PublicStr(),
-			config.Get("version"),
-			config.Get("type"),
-			config.Get("vendor"))
+			storage.Get().Version,
+			storage.Get().Type,
+			storage.Get().VendorData)
+
 		if err == nil {
 			break
 		}
@@ -44,14 +59,18 @@ func main() {
 		time.Sleep(config.Time("timeout.registerRepeat"))
 	}
 
-	// для хнедлера /info сохраняем глобально info о девайсе
-	handlers.Info = models.Info{
-		Key:     cryptoKeys.KeyPair.PublicStr(),
-		Version: config.Get("version"),
-		Type:    config.Get("type"),
-		Vendor:  config.Get("vendor"),
+	// если регистрация прошла успешно, то нужно обновить данные о текущем девайсе в локальном хранилище
+	err = storage.Update(registeredDevice)
+	if err != nil {
+		log.Fatal(err)
 	}
-	log.Debug("device info: %+v", handlers.Info)
+
+	// копируем данные девайса в Info
+	copier.Copy(&shared.Info, storage.Get())
+	shared.Info.Key = cryptoKeys.KeyPair.PublicStr()
+	shared.Info.Uptime = time.Since(shared.Info.RunFrom).String()
+
+	log.Debug("device info: %+v", shared.Info)
 
 	// сервер для запросов от клиентов и нод
 	server := coalago.NewServer()
@@ -59,9 +78,9 @@ func main() {
 	server.POST("/cmd", handlers.ExecCmd)
 
 	// начинаем слать alive пакеты, чтобы сохранять соединение для udp punching
-	go aliver.Run(server, cryptoKeys.KeyPair.PublicStr(), nodeHost, config.Time("aliveInterval"))
+	go aliver.Run(server, storage.Get().Address.String(), nodeHost, config.Time("aliveInterval"))
 	// стартуем сервер
-	err = server.Listen(config.Get("device.port"))
+	err = server.Listen(":" + config.Get("device.port"))
 	if err != nil {
 		log.Fatal(err)
 	}
