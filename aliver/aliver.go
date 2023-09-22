@@ -23,7 +23,7 @@ func Run(s *coalago.Server, publicKey, nodeHost string, aliveInterval time.Durat
 
 func alive(server *coalago.Server, nodeHost, publicKey string) error {
 	aliveMessage := coalago.NewCoAPMessage(coalago.CON, coalago.GET)
-	aliveMessage.SetURIPath("/live")
+	aliveMessage.SetURIPath("/l")
 	aliveMessage.SetURIQuery("key", publicKey)
 	log.Debug(aliveMessage.Payload.String(), nodeHost, publicKey)
 	return errors.Wrap(server.SendToSocket(aliveMessage, nodeHost), "sendToSocket")
