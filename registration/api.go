@@ -1,6 +1,7 @@
 package registration
 
 import (
+	"device-go/storage"
 	"encoding/json"
 	"github.com/coalalib/coalago"
 	log "github.com/ndmsystems/golog"
@@ -32,8 +33,10 @@ func Register(masterNodes []string, public, version, Type, vendor string) (strin
 		}
 	}
 
+	address := storage.Id.Address
+
 	payload, err := json.Marshal(register{
-		Key:     public,
+		Address: address,
 		Version: version,
 		Type:    Type,
 		Vendor:  vendor,
@@ -48,9 +51,19 @@ func Register(masterNodes []string, public, version, Type, vendor string) (strin
 	msg.SetURIPath("/register")
 	msg.SetStringPayload(string(payload))
 
-	_, err = client.Send(msg, fasterHost)
+	res, err := client.Send(msg, fasterHost)
 	if err != nil {
 		return "", errors.Wrap(err, "client.Send")
 	}
+
+	log.Debug(string(res.Body))
+
+	if len(address) == 0 {
+		if err = json.Unmarshal(res.Body, &storage.Id); err != nil {
+			return "", errors.Wrap(err, "json.Unmarshal")
+		}
+		storage.Id.Save()
+	}
+
 	return fasterHost, nil
 }
