@@ -33,10 +33,8 @@ func Register(masterNodes []string, public, version, Type, vendor string) (strin
 		}
 	}
 
-	address := storage.Id.Address
-
 	payload, err := json.Marshal(register{
-		Address: address,
+		Address: storage.Device.Address,
 		Version: version,
 		Type:    Type,
 		Vendor:  vendor,
@@ -58,11 +56,11 @@ func Register(masterNodes []string, public, version, Type, vendor string) (strin
 
 	log.Debug(string(res.Body))
 
-	if len(address) == 0 {
-		if err = json.Unmarshal(res.Body, &storage.Id); err != nil {
+	if len(storage.Device.Address) == 0 {
+		if err = json.Unmarshal(res.Body, &storage.Device); err != nil {
 			return "", errors.Wrap(err, "json.Unmarshal")
 		}
-		storage.Id.Save()
+		storage.Device.Save()
 	}
 
 	return fasterHost, nil
