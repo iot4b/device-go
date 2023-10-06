@@ -7,21 +7,21 @@ import (
 	"os"
 )
 
-const deviceFile = "device.json"
+const contractFile = "contract.json"
 
-var Device = device{}
+var Contract = contract{}
 
-type device struct {
+type contract struct {
 	Address string `json:"a"` // deployed contract address
 	Public  string `json:"p"` // keys
 	Secret  string `json:"x"` // for signing
 }
 
 func init() {
-	file, err := os.Open(deviceFile)
+	file, err := os.Open(contractFile)
 	if err != nil && errors.Is(err, os.ErrNotExist) {
-		data, _ := json.Marshal(Device)
-		os.WriteFile(deviceFile, data, 0644)
+		data, _ := json.Marshal(Contract)
+		os.WriteFile(contractFile, data, 0644)
 		return
 	}
 	defer file.Close()
@@ -30,10 +30,10 @@ func init() {
 	if err != nil {
 		return
 	}
-	json.Unmarshal(data, &Device)
+	json.Unmarshal(data, &Contract)
 }
 
-func (id *device) Save() {
+func (id *contract) Save() {
 	data, _ := json.Marshal(id)
-	os.WriteFile(deviceFile, data, 0644)
+	os.WriteFile(contractFile, data, 0644)
 }
