@@ -1,5 +1,8 @@
 ## EVER-IOT DEVICE CLIENT APP
 
+### Related dependencies
+This repo requires to install and setup -lton_client: [guide](https://github.com/markgenuine/ever-client-go) in related lib
+
 ### Install
 
 ```shell
