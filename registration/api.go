@@ -47,6 +47,7 @@ func Register(masterNodes []string, address, vendorAddress dsm.EverAddress, publ
 	log.Debug("fasterHost after ping: " + fasterHost)
 
 	payload, err := json.Marshal(registerRequest{
+		Address:    address,
 		Vendor:     vendorAddress,
 		Key:        public,
 		Version:    version,
@@ -78,6 +79,7 @@ func Register(masterNodes []string, address, vendorAddress dsm.EverAddress, publ
 	registerResp := registerDeviceResp{}
 	err = json.Unmarshal(resp.Body, &registerResp)
 	if err != nil {
+		log.Debug("registerResponse: "+string(resp.Body), "code: "+string(resp.Code))
 		return nil, "", errors.Wrap(err, "json.Unmarshal(resp.Body, &registerResp)")
 	}
 	log.Debug("registerResponse: " + string(resp.Body))

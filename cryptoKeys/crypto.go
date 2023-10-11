@@ -3,15 +3,14 @@ package cryptoKeys
 import (
 	"bytes"
 	"crypto/ed25519"
-	"crypto/rand"
 	"crypto/sha256"
+	"device-go/everscale"
 	"device-go/shared/config"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
 	log "github.com/ndmsystems/golog"
-
 	"io"
 	"os"
 )
@@ -19,33 +18,33 @@ import (
 var KeyPair keyPair
 
 type keyPair struct {
-	public  []byte
-	private ed25519.PrivateKey
+	pub  []byte
+	priv ed25519.PrivateKey
 }
 
 func (k *keyPair) PublicStr() string {
-	return fmt.Sprintf("%x", k.public)
+	return fmt.Sprintf("%x", k.pub)
 }
 
 func (k *keyPair) SecretStr() string {
-	return fmt.Sprintf("%x", k.private)
+	return fmt.Sprintf("%x", k.priv)
 }
 
 func (k *keyPair) Public() []byte {
-	return k.public
+	return k.pub
 }
 
 func (k *keyPair) Secret() []byte {
-	return k.private
+	return k.priv
 }
 
 func (k *keyPair) Seed() []byte {
-	return k.private.Seed()
+	return k.priv.Seed()
 }
 
 func (k *keyPair) Verify(msg []byte) bool {
 	digest := sha256.Sum256(msg)
-	sig := ed25519.Sign(k.private, digest[:])
+	sig := ed25519.Sign(k.priv, digest[:])
 	return ed25519.Verify(k.Public(), msg, sig)
 }
 
@@ -55,7 +54,7 @@ func (k *keyPair) setPublic(key string) {
 		log.Error(err)
 		return
 	}
-	k.public = data
+	k.pub = data
 }
 
 func (k *keyPair) setSecret(key string) {
@@ -64,30 +63,26 @@ func (k *keyPair) setSecret(key string) {
 		log.Error(err)
 		return
 	}
-	k.private = ed25519.PrivateKey{}
-	k.private = bytes.Clone(data)
+	k.priv = ed25519.PrivateKey{}
+	k.priv = bytes.Clone(data)
 }
 
 func Init() {
-	log.Debug("init public/secret keys")
 	// читакм файл. если нет его, то генерим новый
 	var data []byte
 	keysFile, err := os.Open(config.Get("localFiles.keys"))
 	if err != nil && errors.Is(err, os.ErrNotExist) {
-		public, private, err := ed25519.GenerateKey(rand.Reader)
+		keys, err := everscale.GenerateKeyPair()
 		if err != nil {
 			log.Fatal(err)
 		}
-		k := keyPair{
-			public:  public,
-			private: private,
-		}
+		k := keyPair{}
+		k.setPublic(keys.Public)
+		k.setSecret(keys.Secret)
+
 		// пишем в файл
-		keys := map[string]string{
-			"public": fmt.Sprintf("%x", k.public),
-			"secret": fmt.Sprintf("%x", k.private),
-		}
-		log.Debug(keys, public)
+		log.Debugf("everscale generated keys: %+v", keys)
+		log.Debugf("converted keys to ed25519: public: %s secret: %s", k.PublicStr(), k.SecretStr())
 		data, err = json.Marshal(keys)
 		if err != nil {
 			log.Fatal(err)
@@ -106,7 +101,7 @@ func Init() {
 			log.Fatal(err)
 		}
 	}
-	log.Debug(data, string(data))
+	//log.Debug(data, string(data))
 	KeyPair = keyPair{}
 	keys := map[string]string{}
 	err = json.Unmarshal(data, &keys)
@@ -115,5 +110,5 @@ func Init() {
 	}
 	KeyPair.setPublic(keys["public"])
 	KeyPair.setSecret(keys["secret"])
-	log.Debugf("keypair: %+v", KeyPair)
+	//log.Debugf("%+v", KeyPair)
 }

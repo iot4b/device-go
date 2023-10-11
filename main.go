@@ -4,6 +4,7 @@ import (
 	"device-go/aliver"
 	"device-go/cryptoKeys"
 	"device-go/dsm"
+	"device-go/everscale"
 	"device-go/handlers"
 	"device-go/registration"
 	"device-go/shared"
@@ -24,15 +25,19 @@ import (
 // по клюбчам проверяем что команда подписана тем ключем, который стоит в разрешенных, и тогда выполняем ее.
 
 func main() {
+	everscale.Init(config.List("everscale.endpoints"))
 	// инициируем ключи девайса. если есть файл, то читаем из него, если нет, то генерим новый
 	// для ключей используется алгоритм ed25519
 	cryptoKeys.Init()
 	storage.Init(
-		config.Get("localFiles.contractData"),
-		config.Get("vendorName"),
+		config.Get("localFiles.contract"),
+		config.Get("elector"),
+		config.Get("vendor.address"),
+		config.Get("vendor.name"),
+		config.Get("vendor.data"),
 		config.Get("type"),
 		config.Get("version"),
-		"")
+		config.List("owners"))
 
 	var nodeHost string // nodeHost нужен, чтобы передать его в alive
 	var registeredDevice *dsm.DeviceContract
