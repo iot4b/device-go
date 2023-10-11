@@ -2,4 +2,5 @@
 config/local.yml
 ./device.contract
 ./device*
-device.*.json
+device.contract.json
+device.keys.json

@@ -1,0 +1,196 @@
+{
+	"ABI version": 2,
+	"version": "2.3",
+	"header": ["time", "expire"],
+	"functions": [
+		{
+			"name": "constructor",
+			"inputs": [
+				{"name":"elector","type":"address"},
+				{"name":"vendor","type":"address"},
+				{"name":"owners","type":"address[]"},
+				{"name":"dtype","type":"string"},
+				{"name":"version","type":"string"},
+				{"name":"vendorName","type":"string"},
+				{"name":"vendorData","type":"string"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "get",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"node","type":"address"},
+				{"name":"elector","type":"address"},
+				{"name":"vendor","type":"address"},
+				{"name":"owners","type":"address[]"},
+				{"name":"active","type":"bool"},
+				{"name":"lock","type":"bool"},
+				{"name":"stat","type":"bool"},
+				{"name":"dtype","type":"string"},
+				{"name":"version","type":"string"},
+				{"name":"vendorName","type":"string"},
+				{"name":"vendorData","type":"string"}
+			]
+		},
+		{
+			"name": "setNode",
+			"inputs": [
+				{"name":"value","type":"address"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "getNode",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"value0","type":"address"}
+			]
+		},
+		{
+			"name": "getElector",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"value0","type":"address"}
+			]
+		},
+		{
+			"name": "getVendor",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"value0","type":"address"}
+			]
+		},
+		{
+			"name": "getOwners",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"value0","type":"address[]"}
+			]
+		},
+		{
+			"name": "v",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"contractVersion","type":"string"}
+			]
+		},
+		{
+			"name": "_node",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_node","type":"address"}
+			]
+		},
+		{
+			"name": "_elector",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_elector","type":"address"}
+			]
+		},
+		{
+			"name": "_vendor",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_vendor","type":"address"}
+			]
+		},
+		{
+			"name": "_owners",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_owners","type":"address[]"}
+			]
+		},
+		{
+			"name": "_active",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_active","type":"bool"}
+			]
+		},
+		{
+			"name": "_lock",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_lock","type":"bool"}
+			]
+		},
+		{
+			"name": "_stat",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_stat","type":"bool"}
+			]
+		},
+		{
+			"name": "_dtype",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_dtype","type":"string"}
+			]
+		},
+		{
+			"name": "_version",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_version","type":"string"}
+			]
+		},
+		{
+			"name": "_vendorName",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_vendorName","type":"string"}
+			]
+		},
+		{
+			"name": "_vendorData",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"_vendorData","type":"string"}
+			]
+		}
+	],
+	"data": [
+	],
+	"events": [
+	],
+	"fields": [
+		{"name":"_pubkey","type":"uint256"},
+		{"name":"_timestamp","type":"uint64"},
+		{"name":"_constructorFlag","type":"bool"},
+		{"name":"_contractVersion","type":"string"},
+		{"name":"_node","type":"address"},
+		{"name":"_elector","type":"address"},
+		{"name":"_vendor","type":"address"},
+		{"name":"_owners","type":"address[]"},
+		{"name":"_active","type":"bool"},
+		{"name":"_lock","type":"bool"},
+		{"name":"_stat","type":"bool"},
+		{"name":"_dtype","type":"string"},
+		{"name":"_version","type":"string"},
+		{"name":"_vendorName","type":"string"},
+		{"name":"_vendorData","type":"string"}
+	]
+}
