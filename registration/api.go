@@ -1,7 +1,9 @@
 package registration
 
 import (
+	"device-go/cryptoKeys"
 	"device-go/dsm"
+	"device-go/everscale"
 	"encoding/json"
 	"github.com/coalalib/coalago"
 	"github.com/jinzhu/copier"
@@ -32,6 +34,7 @@ func Register(masterNodes []string, address, vendorAddress dsm.EverAddress, publ
 	// перебираем ноды и определяем самый низкий ping, далее используем эту ноду для регистрации и поддержания соединения
 	var lastTime time.Duration
 	fasterHost := masterNode
+	fasterAddress := ""
 	log.Debug("fasterHost before ping: " + fasterHost)
 	for _, host := range list {
 		t, err := ping(host.IpPort)
@@ -42,6 +45,7 @@ func Register(masterNodes []string, address, vendorAddress dsm.EverAddress, publ
 		if lastTime > t || lastTime == 0 {
 			lastTime = t
 			fasterHost = host.IpPort
+			fasterAddress = host.Account
 		}
 	}
 	log.Debug("fasterHost after ping: " + fasterHost)
@@ -87,6 +91,17 @@ func Register(masterNodes []string, address, vendorAddress dsm.EverAddress, publ
 	// копируем актуальные поля
 	result := dsm.DeviceContract{}
 	copier.Copy(&result, registerResp)
+
+	// set node to blockchain
+	input := map[string]interface{}{}
+	input["value"] = fasterAddress
+	s := everscale.NewSigner(cryptoKeys.KeyPair.PublicStr(), cryptoKeys.KeyPair.SecretStr())
+	r, err := everscale.Execute("device", string(address), "setNode", input, s)
+	if err != nil {
+		log.Debug(err, "setNode: "+string(r), input)
+		return nil, "", errors.Wrap(err, "setNode")
+	}
+	result.Node = dsm.EverAddress(fasterAddress)
 
 	log.Debugw("Register result", "RegisteredDevice", result, "fasterHost", fasterHost)
 

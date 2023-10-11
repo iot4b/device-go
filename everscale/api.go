@@ -125,7 +125,7 @@ func GenKeys() (public, secret string) {
 }
 
 // Execute a [method] on a contract [name] deployed to [address]
-func Execute(name, address, method string, input interface{}) ([]byte, error) {
+func Execute(name, address, method string, input interface{}, signer *domain.Signer) ([]byte, error) {
 	fmt.Println("executing", method, "on", name, "contract at address", address)
 
 	abiFile := fmt.Sprintf("contracts/%s.abi.json", name)
@@ -134,7 +134,7 @@ func Execute(name, address, method string, input interface{}) ([]byte, error) {
 		return nil, errors.Wrapf(err, "getAbiFromFile(%s)", abiFile)
 	}
 
-	result, err := processMessage(abi, address, method, input, domain.NewSigner(domain.SignerNone{}))
+	result, err := processMessage(abi, address, method, input, signer)
 	if err != nil {
 		return nil, errors.Wrap(err, "processMessage")
 	}
