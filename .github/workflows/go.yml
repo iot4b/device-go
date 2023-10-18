@@ -29,7 +29,7 @@ jobs:
         playbook: deploy_dev.yml
         directory: ./ansible/playbooks
         options: |
-          -i ../inventory/dev.yml --extra-vars "service=device-1 port=5684"
+          -i ../inventory/dev.yml --extra-vars "service=device-1 coala_port=5684"
 
   build-device-2:
     runs-on: self-hosted
@@ -49,7 +49,7 @@ jobs:
         playbook: deploy_dev.yml
         directory: ./ansible/playbooks
         options: |
-          -i ../inventory/dev.yml --extra-vars "service=device-2 port=5685"
+          -i ../inventory/dev.yml --extra-vars "service=device-2 coala_port=5685"
 
   build-device-3:
     runs-on: self-hosted
@@ -69,4 +69,4 @@ jobs:
         playbook: deploy_dev.yml
         directory: ./ansible/playbooks
         options: |
-          -i ../inventory/dev.yml --extra-vars "service=device-3 port=5686"
+          -i ../inventory/dev.yml --extra-vars "service=device-3 coala_port=5686"
