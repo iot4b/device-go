@@ -6,6 +6,7 @@
   vars: 
     SERVICEBIN: "{{service}}-{{config}}"
     CONFIG: "{{config}}"
+    DEPLOYPATH: "{{DEPLOYROOT}}/{{port}}"
 
   tasks:
     - include_tasks: tasks/build_golang.yml

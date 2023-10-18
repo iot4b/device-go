@@ -1,6 +1,4 @@
 .idea
 config/local.yml
-./device.contract
-./device*
 device.contract.json
 device.keys.json

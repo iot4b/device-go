@@ -1,14 +1,13 @@
 dev:
   hosts:
-    node-1:
+    device:
       ansible_host: 144.126.201.225
 
   ##################################################
   vars:
-    service: device
     config: dev
     PROJECTPATH: ../../
-    DEPLOYPATH: /opt/everiot
+    DEPLOYROOT: /opt/everiot
     BuildBin: device_bin
     monit_alert: mobile@.com # адрес для монита
     ansible_ssh_user: root

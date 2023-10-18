@@ -84,8 +84,13 @@ func main() {
 
 	// начинаем слать alive пакеты, чтобы сохранять соединение для udp punching
 	go aliver.Run(server, storage.Get().Address.String(), nodeHost, config.Time("aliveInterval"))
+
 	// стартуем сервер
-	err = server.Listen(":" + config.Get("device.port"))
+	port := config.Get("device.port")
+	if len(os.Args) > 2 {
+		port = os.Args[2]
+	}
+	err = server.Listen(":" + port)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -97,7 +102,7 @@ func main() {
 
 // инитим конфиги и logger
 func init() {
-	if len(os.Args) < 1 {
+	if len(os.Args) < 2 {
 		fmt.Println(`Usage: server [env]`)
 		fmt.Println("Not enough arguments. Use defaults : dev")
 		os.Exit(0)
