@@ -3,3 +3,6 @@
 
 - name: Creates config directory {{DEPLOYPATH}}/config
   file: path={{DEPLOYPATH}}/config state=directory
+
+- name: Creates contracts directory {{DEPLOYPATH}}/contracts
+  file: path={{DEPLOYPATH}}/contracts state=directory
