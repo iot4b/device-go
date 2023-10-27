@@ -1,27 +1,39 @@
 package everscale
 
-import (
-	"github.com/pkg/errors"
-)
+import "device-go/utils"
 
-// GetTokensFromGiver transfer a [value] of test nanotokens from giverAddress to [account]
-func GetTokensFromGiver(g Giver, giverAbiFile, account string, value int) (err error) {
+type Giver struct {
+	Address string
+	Public  string
+	Secret  string
+}
+
+// request for sendTransaction method of giver contract
+type sendTransaction struct {
+	Dest    string `json:"dest"`              // dest address
+	Value   int    `json:"value"`             // amount in nano EVER
+	Bounce  bool   `json:"bounce"`            // false for contract deploy
+	Flags   int    `json:"flags,omitempty"`   // ???
+	Payload string `json:"payload,omitempty"` // ???
+}
+
+func (g *Giver) SendTokens(address string, amount int) error {
 	signer := NewSigner(g.Public, g.Secret)
 
-	abi, err := getAbiFromFile(giverAbiFile)
+	abi, err := utils.GetAbi("giver")
 	if err != nil {
-		return errors.Wrapf(err, "getAbiFromFile(%s)", giverAbiFile)
+		return err
 	}
 
 	input := sendTransaction{
-		Dest:   account,
-		Value:  value,
+		Dest:   address,
+		Value:  amount,
 		Bounce: false,
 	}
-	_, err = processMessage(
-		abi,
+	_, err = processMessage(abi,
 		g.Address,
 		"sendTransaction",
-		input, signer)
-	return
+		input,
+		signer)
+	return err
 }

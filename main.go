@@ -25,6 +25,8 @@ import (
 
 func main() {
 	everscale.Init(config.List("everscale.endpoints"))
+	defer everscale.Destroy()
+
 	// инициируем ключи девайса. если есть файл, то читаем из него, если нет, то генерим новый
 	// для ключей используется алгоритм ed25519
 	cryptoKeys.Init()

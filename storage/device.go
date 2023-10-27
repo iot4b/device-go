@@ -97,8 +97,7 @@ func deploy(public, secret string, data initialData) (out dsm.DeviceContract, er
 	}
 	log.Debug("validate initial data OK!")
 
-	// giver - это такой кошелек, который по
-	abi, tvc, err := everscale.ReadContract("./contracts", "device")
+	abi, tvc, err := utils.ReadContract()
 	if err != nil {
 		return
 	}
@@ -114,14 +113,14 @@ func deploy(public, secret string, data initialData) (out dsm.DeviceContract, er
 
 	// пополняем баланс wallet'a нового девайса
 	giver := &everscale.Giver{
-		Address: config.Get("giver.address"),
-		Public:  config.Get("giver.public"),
-		Secret:  config.Get("giver.secret"),
+		Address: config.Get("everscale.giver.address"),
+		Public:  config.Get("everscale.giver.public"),
+		Secret:  config.Get("everscale.giver.secret"),
 	}
 	amount := 1_500_000_000
 	log.Debugf("Giver: %s", giver.Address)
 	log.Debug("Send Tokens from giver", "amount", amount, "from", giver.Address, "to", walletAddress, "amount", amount)
-	err = giver.SendTokens("./contracts/giverv3.abi.json", walletAddress, amount)
+	err = giver.SendTokens(walletAddress, amount)
 	if err != nil {
 		err = errors.Wrapf(err, "giver.SendTokens()")
 		return

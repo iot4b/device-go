@@ -1,19 +1,33 @@
 package utils
 
 import (
-	"device-go/dsm"
-	"math/rand"
+	"fmt"
+	"github.com/markgenuine/ever-client-go/domain"
+	"github.com/pkg/errors"
 )
 
-func RandomString(length int) string {
-	var letters = []rune("1234567890abcdef")
-	b := make([]rune, length)
-	for i := range b {
-		b[i] = letters[rand.Intn(len(letters))]
+const scPath = "../smartcontracts/"
+
+func ReadContract() (abi *domain.Abi, tvc []byte, err error) {
+	abi, err = GetAbi("device")
+	if err != nil {
+		err = errors.Wrap(err, "GetAbi")
+		return
 	}
-	return string(b)
+
+	tvc, err = ReadFile(scPath + "device.tvc")
+	if err != nil {
+		err = errors.Wrapf(err, "readFile(%s)", scPath+"device.tvc")
+	}
+	return
 }
 
-func GenerateRandomAddress() dsm.EverAddress {
-	return dsm.EverAddress("0:" + RandomString(64))
+func GetAbi(cType string) (*domain.Abi, error) {
+	path := scPath + fmt.Sprintf("_%s/%s.abi.json", cType, cType)
+	ac := &domain.AbiContract{}
+	err := ReadJSONFile(path, ac)
+	if err != nil {
+		return nil, errors.Wrapf(err, "ReadJSONFile(%s)", path)
+	}
+	return domain.NewAbiContract(ac), nil
 }

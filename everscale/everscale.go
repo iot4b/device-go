@@ -15,3 +15,8 @@ func Init(endpoints []string) {
 		log.Fatal(err)
 	}
 }
+
+// Destroy client when finished
+func Destroy() {
+	ever.Client.Destroy()
+}

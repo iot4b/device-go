@@ -11,12 +11,6 @@
     dest={{DEPLOYPATH}}/config
     delete=yes
 
-- name: Sync assets file {{PROJECTPATH}}contracts/ to {{DEPLOYPATH}}/contracts
-  ansible.posix.synchronize:
-    src={{PROJECTPATH}}contracts/
-    dest={{DEPLOYPATH}}/contracts
-    delete=yes
-
 - name: Deliver monit script for {{SERVICEBIN}}
   template:
     src={{PROJECTPATH}}/ansible/templates/monit_conf.j2
