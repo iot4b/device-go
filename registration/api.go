@@ -39,7 +39,9 @@ func Register(masterNodes []string, address, vendorAddress dsm.EverAddress, publ
 	for _, host := range list {
 		t, err := ping(host.IpPort)
 		if err != nil {
-			log.Error(err)
+			if host.IpPort != "240.0.0.0:65535" { // non-existent node
+				log.Error(err)
+			}
 			continue
 		}
 		if lastTime > t || lastTime == 0 {
@@ -48,7 +50,7 @@ func Register(masterNodes []string, address, vendorAddress dsm.EverAddress, publ
 			fasterAddress = host.Account
 		}
 	}
-	log.Debug("fasterHost after ping: " + fasterHost)
+	log.Info("Registering device on node:", fasterHost)
 
 	payload, err := json.Marshal(registerRequest{
 		Address:    address,

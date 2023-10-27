@@ -89,7 +89,7 @@ func Init(path, elector, vendor, vendorName, vendorData, Type, version string, o
 }
 
 func deploy(public, secret string, data initialData) (out dsm.DeviceContract, err error) {
-	log.Info("Deploy device contract")
+	log.Debug("Deploy device contract")
 	// валидируем
 	err = data.validate()
 	if err != nil {
@@ -110,6 +110,8 @@ func deploy(public, secret string, data initialData) (out dsm.DeviceContract, er
 	// вычислив адрес, нужно на него завести средства, чтобы вы
 	walletAddress := device.CalcWalletAddress()
 
+	log.Info("Deploying device contract at address:", walletAddress)
+
 	// пополняем баланс wallet'a нового девайса
 	giver := &everscale.Giver{
 		Address: config.Get("giver.address"),
@@ -126,7 +128,7 @@ func deploy(public, secret string, data initialData) (out dsm.DeviceContract, er
 	}
 
 	wait := 15 * time.Second
-	log.Debugf("Wait %d seconds ...", wait.Seconds())
+	log.Debugf("Wait %v seconds ...", wait.Seconds())
 	time.Sleep(wait)
 
 	// после всех сборок деплоим контракт

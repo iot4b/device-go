@@ -1,7 +1,7 @@
 version: 0.1mac
 type: test-device
 
-debug: true
+debug: false
 elector: "0:ad9b91295fd78479b4b20ae27a22d40ff5e58bed7a27ccb1110d0901b70b2dfe"
 vendor:
   address: "0:cf59bb48dac2b1234bce4b5c8108f8c884852ca1333065caa16adf4a86051337"
