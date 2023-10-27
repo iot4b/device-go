@@ -1,42 +1,39 @@
-version: 0.1mac
-type: test-device
 
 debug: false
-elector: "0:ad9b91295fd78479b4b20ae27a22d40ff5e58bed7a27ccb1110d0901b70b2dfe"
-vendor:
-  address: "0:cf59bb48dac2b1234bce4b5c8108f8c884852ca1333065caa16adf4a86051337"
-  name: "apple"
-  data: "{\"serialNumber\":\"DSF34-G4FG34GF\"}"
-owners:
-  - "0:cca8508cffa8ec293129a200590643f2a74cb90fdc132dee84a293fa72ffaee7"
+env: dev
 
-
-# giver account for transfering tokens to newly deployed contracts
-giver:
-  address: "0:8de799e17832c2380235e8ff508cca308ca8ff8ec633aae2efbca9abfb3dbe55"
-  public: "8f3bfb0c5bdc6cc47c3683ec57438b27212dc29441a6bf2d8a4059d97fc9d28a"
-  secret: "1ccb927f91d202621fd25d2d5e747dd22fac7223106ca602da8494f8bcf32ad6"
+info:
+  version: "0.0.1"
+  type: "golang device emulator"
 
 localFiles:
   keys: "device.keys.json"
   contract: "device.contract.json"
 
-device:
-  port: 5683
+port:
+  device: 5683
 
 timeout:
   registerRepeat: 3s
+  alive: 10s
 
 masterNodes:
   - 157.245.57.218:5683
   - 188.166.71.64:5683
   - 192.81.216.57:5683
 
-aliveInterval: 2s
-
 everscale:
+  elector: "0:ad9b91295fd78479b4b20ae27a22d40ff5e58bed7a27ccb1110d0901b70b2dfe"
+  vendor:
+    address: "0:cf59bb48dac2b1234bce4b5c8108f8c884852ca1333065caa16adf4a86051337"
+    name: "apple"
+    data: "{\"serialNumber\":\"DSF34-G4FG34GF\"}"
+  owners:
+    - "0:cca8508cffa8ec293129a200590643f2a74cb90fdc132dee84a293fa72ffaee7"
   endpoints:
     - https://devnet.evercloud.dev/5c41d775a6ab4bacb3cc25666b93de60/graphql
+
+  #used only for devnet
   giver: # giver account for transfering tokens to newly deployed contracts
     address: 0:8de799e17832c2380235e8ff508cca308ca8ff8ec633aae2efbca9abfb3dbe55
     public: 8f3bfb0c5bdc6cc47c3683ec57438b27212dc29441a6bf2d8a4059d97fc9d28a

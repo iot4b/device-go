@@ -3,34 +3,41 @@ package handlers
 import (
 	"bufio"
 	"device-go/dsm"
-	"device-go/shared"
+	"device-go/shared/config"
+	"device-go/storage"
 	"encoding/json"
 	"errors"
 	"os/exec"
 	"strings"
-	"time"
 
 	"github.com/coalalib/coalago"
 	log "github.com/ndmsystems/golog"
 )
 
-// TOdO везде добавить описания методов и полей моделей
+type info struct {
+	Addres  string
+	Version string
+	Elector string
+	Node    string
+	Type    string
+}
 
-// GetInfo - получить информацию о девайсе
+// info для коалы
 func GetInfo(_ *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
-	shared.Info.Uptime = time.Since(shared.Info.RunFrom).String()
-
-	result, err := json.Marshal(shared.Info)
-	if err != nil {
-		log.Error(err)
-		return nil
+	i := info{
+		Addres:  string(storage.Get().Address),
+		Version: config.Get("info.version"),
+		Type:    config.Get("info.type"),
+		Elector: config.Get("everscale.elector"),
+		Node:    "TODO add current node",
 	}
-
-	log.Debug("device info", shared.Info)
-
-	handlerResult := coalago.NewResponse(coalago.NewStringPayload(string(result)), coalago.CoapCodeContent)
-	log.Debug(handlerResult)
-	return handlerResult
+	info, err := json.Marshal(i)
+	if err != nil {
+		log.Errorw(err.Error(), "info", i)
+		return coalago.NewResponse(coalago.NewStringPayload(err.Error()), coalago.CoapCodeBadRequest)
+	}
+	log.Debug(string(info))
+	return coalago.NewResponse(coalago.NewBytesPayload(info), coalago.CoapCodeContent)
 }
 
 func ExecCmd(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {

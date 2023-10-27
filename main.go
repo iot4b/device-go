@@ -7,17 +7,16 @@ import (
 	"device-go/everscale"
 	"device-go/handlers"
 	"device-go/registration"
-	"device-go/shared"
 	"device-go/shared/config"
 	"device-go/storage"
 	"fmt"
-	"github.com/coalalib/coalago"
-	"github.com/jinzhu/copier"
-	log "github.com/ndmsystems/golog"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/coalalib/coalago"
+	log "github.com/ndmsystems/golog"
 )
 
 //TODO  при старте девайса надо скачать смартконтракт девайса и сохранить локально.
@@ -31,13 +30,13 @@ func main() {
 	cryptoKeys.Init()
 	storage.Init(
 		config.Get("localFiles.contract"),
-		config.Get("elector"),
-		config.Get("vendor.address"),
-		config.Get("vendor.name"),
-		config.Get("vendor.data"),
-		config.Get("type"),
-		config.Get("version"),
-		config.List("owners"))
+		config.Get("everscale.elector"),
+		config.Get("everscale.vendor.address"),
+		config.Get("everscale.vendor.name"),
+		config.Get("everscale.vendor.data"),
+		config.Get("info.type"),
+		config.Get("info.version"),
+		config.List("everscale.owners"))
 
 	var nodeHost string // nodeHost нужен, чтобы передать его в alive
 	var registeredDevice *dsm.DeviceContract
@@ -70,23 +69,16 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// копируем данные девайса в Info
-	copier.Copy(&shared.Info, storage.Get())
-	shared.Info.Key = cryptoKeys.KeyPair.PublicStr()
-	shared.Info.Uptime = time.Since(shared.Info.RunFrom).String()
-
-	log.Debug("device info: %+v", shared.Info)
-
 	// сервер для запросов от клиентов и нод
 	server := coalago.NewServer()
 	server.GET("/info", handlers.GetInfo)
 	server.POST("/cmd", handlers.ExecCmd)
 
 	// начинаем слать alive пакеты, чтобы сохранять соединение для udp punching
-	go aliver.Run(server, storage.Get().Address.String(), nodeHost, config.Time("aliveInterval"))
+	go aliver.Run(server, storage.Get().Address.String(), nodeHost, config.Time("timeout.alive"))
 
 	// стартуем сервер
-	port := config.Get("device.port")
+	port := config.Get("port.device")
 	if len(os.Args) > 2 {
 		port = os.Args[2]
 	}
