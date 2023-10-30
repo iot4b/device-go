@@ -15,9 +15,9 @@ func ReadContract() (abi *domain.Abi, tvc []byte, err error) {
 		return
 	}
 
-	tvc, err = ReadFile(scPath + "device.tvc")
+	tvc, err = ReadFile(scPath + "_device/device.tvc")
 	if err != nil {
-		err = errors.Wrapf(err, "readFile(%s)", scPath+"device.tvc")
+		err = errors.Wrapf(err, "readFile(%s)", scPath+"_device/device.tvc")
 	}
 	return
 }

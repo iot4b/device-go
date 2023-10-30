@@ -15,7 +15,7 @@ import (
 )
 
 type info struct {
-	Addres  string
+	Address string
 	Version string
 	Elector string
 	Node    string
@@ -25,7 +25,7 @@ type info struct {
 // info для коалы
 func GetInfo(_ *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 	i := info{
-		Addres:  string(storage.Get().Address),
+		Address: string(storage.Get().Address),
 		Version: config.Get("info.version"),
 		Type:    config.Get("info.type"),
 		Elector: config.Get("everscale.elector"),
