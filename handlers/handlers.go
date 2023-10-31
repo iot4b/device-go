@@ -15,11 +15,11 @@ import (
 )
 
 type info struct {
-	Address string
-	Version string
-	Elector string
-	Node    string
-	Type    string
+	Address string `json:"address"`
+	Version string `json:"version"`
+	Elector string `json:"elector"`
+	Node    string `json:"node"`
+	Type    string `json:"type"`
 }
 
 // info для коалы
@@ -29,7 +29,7 @@ func GetInfo(_ *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 		Version: config.Get("info.version"),
 		Type:    config.Get("info.type"),
 		Elector: config.Get("everscale.elector"),
-		Node:    "TODO add current node",
+		Node:    string(storage.Get().Node),
 	}
 	info, err := json.Marshal(i)
 	if err != nil {
