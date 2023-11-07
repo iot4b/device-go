@@ -13,12 +13,12 @@ func Run(s *coalago.Server, address string, nodeHost string, aliveInterval time.
 	for {
 		// если ставим после alive, то соединение с нодой не успевает инициироваться
 		time.Sleep(aliveInterval)
-		start := time.Now()
+		//start := time.Now()
 		err := alive(s, nodeHost, address)
 		if err != nil {
 			log.Error(err)
 		}
-		log.Infof("time: %dµs node: %s address: %s", time.Since(start).Nanoseconds(), nodeHost, address)
+		//log.Infof("time: %dµs node: %s address: %s", time.Since(start).Nanoseconds(), nodeHost, address)
 	}
 }
 
