@@ -10,10 +10,17 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	log "github.com/ndmsystems/golog"
 	"io"
 	"os"
+
+	log "github.com/ndmsystems/golog"
 )
+
+//TODO на замену это все
+//  key.Sign(msg) (sign string)
+//  key.Validate(message, sign, pub_key) bool
+//  Load(file) -> KeyPair
+//  key.Public() -> string
 
 var KeyPair keyPair
 
