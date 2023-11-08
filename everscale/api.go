@@ -24,8 +24,3 @@ func Execute(name, address, method string, input interface{}, signer *domain.Sig
 	fmt.Println(string(result.Decoded.Output))
 	return result.Decoded.Output, nil
 }
-
-func GenerateKeyPair() (domain.KeyPair, error) {
-	keys, err := ever.Crypto.GenerateRandomSignKeys()
-	return *keys, err
-}

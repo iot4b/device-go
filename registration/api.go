@@ -1,7 +1,7 @@
 package registration
 
 import (
-	"device-go/cryptoKeys"
+	"device-go/crypto"
 	"device-go/dsm"
 	"device-go/everscale"
 	"encoding/json"
@@ -97,7 +97,7 @@ func Register(masterNodes []string, address, vendorAddress dsm.EverAddress, publ
 	// set node to blockchain
 	input := map[string]interface{}{}
 	input["value"] = fasterAddress
-	s := everscale.NewSigner(cryptoKeys.KeyPair.PublicStr(), cryptoKeys.KeyPair.SecretStr())
+	s := everscale.NewSigner(crypto.KeyPair.Public, crypto.KeyPair.Secret)
 	r, err := everscale.Execute("device", string(address), "setNode", input, s)
 	if err != nil {
 		log.Debug(err, "setNode: "+string(r), input)

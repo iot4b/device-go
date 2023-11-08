@@ -1,7 +1,7 @@
 package storage
 
 import (
-	"device-go/cryptoKeys"
+	"device-go/crypto"
 	"device-go/dsm"
 	"device-go/everscale"
 	"device-go/shared/config"
@@ -68,7 +68,7 @@ func Init(path, elector, vendor, vendorName, vendorData, Type, version string, o
 			}
 			log.Debug("initial contract data", data)
 
-			device, err := deploy(cryptoKeys.KeyPair.PublicStr(), cryptoKeys.KeyPair.SecretStr(), data)
+			device, err := deploy(crypto.KeyPair.Public, crypto.KeyPair.Secret, data)
 			if err != nil {
 				log.Fatal(err)
 			}
