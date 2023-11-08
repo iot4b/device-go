@@ -2,7 +2,7 @@ package main
 
 import (
 	"device-go/aliver"
-	"device-go/cryptoKeys"
+	"device-go/crypto"
 	"device-go/dsm"
 	"device-go/everscale"
 	"device-go/handlers"
@@ -29,7 +29,9 @@ func main() {
 
 	// инициируем ключи девайса. если есть файл, то читаем из него, если нет, то генерим новый
 	// для ключей используется алгоритм ed25519
-	cryptoKeys.Init()
+	crypto.Init()
+	log.Debug(crypto.KeyPair)
+	os.Exit(0)
 	storage.Init(
 		config.Get("localFiles.contract"),
 		config.Get("everscale.elector"),
@@ -53,7 +55,7 @@ func main() {
 			storage.Get().Address,
 			storage.Get().VendorAddress,
 
-			cryptoKeys.KeyPair.PublicStr(),
+			crypto.KeyPair.Public,
 			storage.Get().Version,
 			storage.Get().Type,
 			storage.Get().VendorData)
