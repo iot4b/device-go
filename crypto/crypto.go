@@ -12,13 +12,10 @@ import (
 	log "github.com/ndmsystems/golog"
 )
 
-//TODO на замену это все
 //  key := Generate() (KeyPair)
 //  key := Load(file) (KeyPair)
+//  key.Save(file) (err)
 //  key.Sign(msg) (sign string)
-//  key.Public() (string)
-//
-//  Save(path, key) err
 //  Validate(msg.body, message.sign, msg.sender) (bool)
 
 var KeyPair keyPair
