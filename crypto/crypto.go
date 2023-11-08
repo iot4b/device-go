@@ -4,18 +4,22 @@ import (
 	"device-go/everscale"
 	"device-go/shared/config"
 	"encoding/json"
-	"github.com/jinzhu/copier"
 	"io"
 	"os"
+
+	"github.com/jinzhu/copier"
 
 	log "github.com/ndmsystems/golog"
 )
 
 //TODO на замену это все
+//  key := Generate() (KeyPair)
+//  key := Load(file) (KeyPair)
 //  key.Sign(msg) (sign string)
-//  key.Validate(message, sign, pub_key) bool
-//  Load(file) -> KeyPair
-//  key.Public() -> string
+//  key.Public() (string)
+//
+//  Save(path, key) err
+//  Validate(msg.body, message.sign, msg.sender) (bool)
 
 var KeyPair keyPair
 
@@ -32,8 +36,8 @@ func (k *keyPair) Sign(unsigned string) string {
 	return sign.Signature
 }
 
-func Init() {
-	file, err := os.Open(config.Get("localFiles.keys"))
+func Init(path string) {
+	file, err := os.Open(path)
 	defer file.Close()
 
 	if err == nil { // get data from existing keys file
