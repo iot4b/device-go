@@ -2,11 +2,13 @@ package handlers
 
 import (
 	"bufio"
+	"device-go/crypto"
 	"device-go/dsm"
 	"device-go/shared/config"
 	"device-go/storage"
 	"encoding/json"
 	"errors"
+	"os"
 	"os/exec"
 	"strings"
 
@@ -52,10 +54,14 @@ func ExecCmd(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 		return coalago.NewResponse(coalago.NewStringPayload(err.Error()), coalago.CoapCodeBadRequest)
 	}
 
-	// todo разобрать команду приватным ключом из sight, иначе вернуть ошибку
+	hash, valid := crypto.KeyPair.Verify(command.Sign)
+	if !valid || hash != command.Hash || !(os.Args[1] == "dev" && command.Sign == "testing") {
+		return coalago.NewResponse(coalago.NewStringPayload("invalid signature"), coalago.CoapCodeUnauthorized)
+	}
+
 	// exec command from node
-	log.Debug(command.Cmd)
-	cmdArr := strings.Split(command.Cmd, " ")
+	log.Debug(command.Body)
+	cmdArr := strings.Split(command.Body, " ")
 	var args []string
 	if len(cmdArr) > 1 {
 		args = cmdArr[1:]

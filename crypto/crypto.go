@@ -2,7 +2,6 @@ package crypto
 
 import (
 	"device-go/everscale"
-	"device-go/shared/config"
 	"encoding/json"
 	"io"
 	"os"
@@ -12,11 +11,11 @@ import (
 	log "github.com/ndmsystems/golog"
 )
 
-//  key := Generate() (KeyPair)
-//  key := Load(file) (KeyPair)
-//  key.Save(file) (err)
+//TODO на замену это все
 //  key.Sign(msg) (sign string)
-//  Validate(msg.body, message.sign, msg.sender) (bool)
+//  key.Validate(message, sign, pub_key) bool
+//  Load(file) -> KeyPair
+//  key.Public() -> string
 
 var KeyPair keyPair
 
@@ -25,16 +24,17 @@ type keyPair struct {
 	Secret string
 }
 
+// Sign unsigned message using sign key pair, returns signed message
 func (k *keyPair) Sign(unsigned string) string {
-	sign, err := everscale.Sign(unsigned, k.Public, k.Secret)
+	res, err := everscale.Sign(unsigned, k.Public, k.Secret)
 	if err != nil {
 		return ""
 	}
 	return sign.Signature
 }
 
-func Init(path string) {
-	file, err := os.Open(path)
+func Init() {
+	file, err := os.Open(config.Get("localFiles.keys"))
 	defer file.Close()
 
 	if err == nil { // get data from existing keys file
@@ -42,26 +42,46 @@ func Init(path string) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		err = json.Unmarshal(data, &KeyPair)
+		err = save(path, KeyPair)
 		if err != nil {
 			log.Fatal(err)
 		}
-	} else { // generate new key pair and save to file
-		keys, err := everscale.GenerateKeyPair()
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		log.Debugf("everscale generated keys: %+v", keys)
-		data, err := json.Marshal(keys)
-		if err != nil {
-			log.Fatal(err)
-		}
-		err = os.WriteFile(config.Get("localFiles.keys"), data, 0644)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		copier.Copy(&KeyPair, keys)
 	}
+}
+
+// load key pair from json file
+func load(path string) (k keyPair, err error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return
+	}
+	defer file.Close()
+
+	data, err := io.ReadAll(file)
+	if err != nil {
+		return
+	}
+	err = json.Unmarshal(data, &k)
+
+	return
+}
+
+// generate everscale key pair
+func generate() (k keyPair, err error) {
+	keys, err := everscale.GenerateKeyPair()
+	if err != nil {
+		return
+	}
+	copier.Copy(&k, keys)
+
+	return
+}
+
+// save key pair to json file
+func save(path string, key keyPair) error {
+	data, err := json.Marshal(key)
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(path, data, 0644)
 }
