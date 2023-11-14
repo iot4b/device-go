@@ -23,9 +23,11 @@ type DeviceContract struct {
 }
 
 type CMD struct {
-	Cmd   string `json:"cmd"`   // команда, которую необходимо выполнить
-	Sight string `json:"sight"` // подпись, которую нужно
-	Uid   string `json:"uid"`   // todo уникальный uid (для чего ???)
+	Sender   string `json:"sender"`
+	Receiver string `json:"receiver"`
+	Hash     string `json:"hash"`
+	Sign     string `json:"sign"`
+	Body     string `json:"body"`
 }
 
 // Info - собирает данные по устройству с момента старта. Отдается при запросе на coap://device/info

@@ -29,7 +29,7 @@ everscale:
     name: "apple"
     data: "{\"serialNumber\":\"DSF34-G4FG34GF\"}"
   owners:
-    - "0:cca8508cffa8ec293129a200590643f2a74cb90fdc132dee84a293fa72ffaee7"
+    - "6bbadda1506aeb790dcc8a03aa94c1b25f81edf20892c24cc81a062e788bfa7b"
   endpoints:
     - https://devnet.evercloud.dev/5c41d775a6ab4bacb3cc25666b93de60/graphql
 

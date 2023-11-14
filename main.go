@@ -29,9 +29,7 @@ func main() {
 
 	// инициируем ключи девайса. если есть файл, то читаем из него, если нет, то генерим новый
 	// для ключей используется алгоритм ed25519
-	crypto.Init()
-	log.Debug(crypto.KeyPair)
-	os.Exit(0)
+	crypto.Init(config.Get("localFiles.keys"))
 	storage.Init(
 		config.Get("localFiles.contract"),
 		config.Get("everscale.elector"),
