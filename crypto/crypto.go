@@ -12,10 +12,13 @@ import (
 )
 
 //TODO на замену это все
+//  key := Generate() (KeyPair)
+//  key := Load(file) (KeyPair)
 //  key.Sign(msg) (sign string)
-//  key.Validate(message, sign, pub_key) bool
-//  Load(file) -> KeyPair
-//  key.Public() -> string
+//  key.Public() (string)
+//
+//  Save(path, key) err
+//  Validate(msg.body, message.sign, msg.sender) (bool)
 
 var KeyPair keyPair
 
@@ -30,15 +33,24 @@ func (k *keyPair) Sign(unsigned string) string {
 	if err != nil {
 		return ""
 	}
-	return sign.Signature
+	return res.Signed
 }
 
-func Init() {
-	file, err := os.Open(config.Get("localFiles.keys"))
-	defer file.Close()
+// Verify signed message using public key, returns unsigned message and a flag
+func (k *keyPair) Verify(signed string) (string, bool) {
+	res, err := everscale.VerifySignature(signed, k.Public)
+	if err != nil {
+		return "", false
+	}
+	return res.Unsigned, true
+}
 
-	if err == nil { // get data from existing keys file
-		data, err := io.ReadAll(file)
+// Init key storage, load from existing file or generate a new one
+func Init(path string) {
+	var err error
+	KeyPair, err = load(path)
+	if err != nil {
+		KeyPair, err = generate()
 		if err != nil {
 			log.Fatal(err)
 		}
