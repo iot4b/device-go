@@ -23,8 +23,8 @@ import (
 var KeyPair keyPair
 
 type keyPair struct {
-	Public string
-	Secret string
+	Public string `json:"public"`
+	Secret string `json:"secret"`
 }
 
 // Sign unsigned message using sign key pair, returns signed message

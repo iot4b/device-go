@@ -55,7 +55,9 @@ func ExecCmd(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 	}
 
 	hash, valid := crypto.KeyPair.Verify(command.Sign)
-	if !valid || hash != command.Hash || !(os.Args[1] == "dev" && command.Sign == "testing") {
+	// for production: only valid signature is allowed
+	// for other env: "testing" can be used as a signature
+	if (!valid || hash != command.Hash) && (os.Args[1] == "prod" || command.Sign != "testing") {
 		return coalago.NewResponse(coalago.NewStringPayload("invalid signature"), coalago.CoapCodeUnauthorized)
 	}
 
