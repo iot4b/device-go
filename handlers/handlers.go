@@ -54,10 +54,16 @@ func ExecCmd(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 		return coalago.NewResponse(coalago.NewStringPayload(err.Error()), coalago.CoapCodeBadRequest)
 	}
 
-	hash, valid := crypto.KeyPair.Verify(command.Sign)
+	// check if the command is sent by one of the device owners
+	if !storage.IsOwner(command.Sender) {
+		return coalago.NewResponse(coalago.NewStringPayload("invalid sender"), coalago.CoapCodeUnauthorized)
+	}
+
+	// verify signature
 	// for production: only valid signature is allowed
 	// for other env: "testing" can be used as a signature
-	if (!valid || hash != command.Hash) && (os.Args[1] == "prod" || command.Sign != "testing") {
+	hash, valid := crypto.KeyPair.Verify(command.Sign)
+	if (!valid || hash != command.GetHash()) && (os.Args[1] == "prod" || command.Sign != "testing") {
 		return coalago.NewResponse(coalago.NewStringPayload("invalid signature"), coalago.CoapCodeUnauthorized)
 	}
 

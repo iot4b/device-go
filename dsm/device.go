@@ -1,33 +1,21 @@
 package dsm
 
-import (
-	"crypto/ed25519"
-	"time"
-)
+import "time"
 
 // DeviceContract - контракт Vendor'a имеет возможность делать подпись транзакций для девайса
 type DeviceContract struct {
-	Address       EverAddress `json:"address,omitempty"` //ever SC address текущего Device
-	Node          EverAddress `json:"node,omitempty"`    //ever SC address Node, с которой девайс создал последнее соединение
-	Elector       EverAddress `json:"elector,omitempty"` //ever SC адрес Elector'a, который обслуживает сеть нод для текущего девайса
-	VendorAddress EverAddress `json:"vendor,omitempty"`  //ever SC address производителя текущего девайса. по-умолчанию из конфигов берем
+	Address EverAddress `json:"address,omitempty"` //ever SC address текущего Device
+	Node    EverAddress `json:"node,omitempty"`    //ever SC address Node, с которой девайс создал последнее соединение
+	Elector EverAddress `json:"elector,omitempty"` //ever SC адрес Elector'a, который обслуживает сеть нод для текущего девайса
+	Vendor  EverAddress `json:"vendor,omitempty"`  //ever SC address производителя текущего девайса. по-умолчанию из конфигов берем
 
-	PublicKey []byte             `json:"publicKey,omitempty"`
-	SecretKey ed25519.PrivateKey `json:"-"`
+	Owners []string `json:"owners,omitempty"` // owners public keys list
 
 	Stat       bool   `json:"stat,omitempty"`       // нужно ли девайсу слать статистику
-	Type       string `json:"type,omitempty"`       // модель/тип девайса
+	Type       string `json:"dtype,omitempty"`      // модель/тип девайса
 	Version    string `json:"version,omitempty"`    // версия текущей прошивки на девайсе
 	VendorName string `json:"vendorName,omitempty"` // название производителя
 	VendorData string `json:"vendorData,omitempty"` // данные, которые идут от производителя девайса
-}
-
-type CMD struct {
-	Sender   string `json:"sender"`
-	Receiver string `json:"receiver"`
-	Hash     string `json:"hash"`
-	Sign     string `json:"sign"`
-	Body     string `json:"body"`
 }
 
 // Info - собирает данные по устройству с момента старта. Отдается при запросе на coap://device/info

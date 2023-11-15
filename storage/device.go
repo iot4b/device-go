@@ -20,9 +20,9 @@ var (
 )
 
 type initialData struct {
-	Elector dsm.EverAddress   `json:"elector"`
-	Vendor  dsm.EverAddress   `json:"vendor"`
-	Owners  []dsm.EverAddress `json:"owners"`
+	Elector dsm.EverAddress `json:"elector"`
+	Vendor  dsm.EverAddress `json:"vendor"`
+	Owners  []string        `json:"owners"`
 
 	Type       string `json:"dtype"`
 	Version    string `json:"version"`
@@ -53,14 +53,10 @@ func Init(path, elector, vendor, vendorName, vendorData, Type, version string, o
 		if errors.Is(err, utils.ErrUnmarshal) || errors.Is(err, os.ErrNotExist) {
 			// todo заменить mock данные на реальные адреса в блокчейне
 			// локальный файл не найден, инициируем пустой mock
-			o := make([]dsm.EverAddress, 0)
-			for _, owner := range owners {
-				o = append(o, dsm.EverAddress(owner))
-			}
 			data := initialData{
 				Elector:    dsm.EverAddress(elector),
 				Vendor:     dsm.EverAddress(vendor),
-				Owners:     o,
+				Owners:     owners,
 				Type:       Type,
 				Version:    version,
 				VendorName: vendorName,
@@ -230,4 +226,14 @@ func (d initialData) toMap() (result map[string]interface{}) {
 	data, _ := json.Marshal(d)
 	json.Unmarshal(data, &result)
 	return
+}
+
+// IsOwner checks if key is one of the owners from device contract
+func IsOwner(key string) bool {
+	for _, owner := range Get().Owners {
+		if key == owner {
+			return true
+		}
+	}
+	return false
 }

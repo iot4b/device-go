@@ -51,7 +51,7 @@ func main() {
 			// получаем список нод по-умолчанию
 			config.List("masterNodes"),
 			storage.Get().Address,
-			storage.Get().VendorAddress,
+			storage.Get().Vendor,
 
 			crypto.KeyPair.Public,
 			storage.Get().Version,
