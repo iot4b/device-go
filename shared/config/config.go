@@ -1,23 +1,25 @@
 package config
 
 import (
-	log "github.com/ndmsystems/golog"
-	"github.com/spf13/viper"
 	"strconv"
 	"time"
+
+	log "github.com/ndmsystems/golog"
+	"github.com/spf13/viper"
 )
 
 var (
-	Debug bool
+	Debug bool   // режим отладки
 	Ip    string // Ip текущей ноды
+	env   string // текущее окружение
 )
 
 // эта обертка нужна, чтобы логировать отсутствие параметра
 var config *viper.Viper
 
-func Init(env string) {
+func Init(e string) {
 	config = viper.New()
-
+	env = e
 	config.AddConfigPath("./config") // path to folder
 
 	config.SetConfigName(env) // (without extension)
@@ -114,8 +116,14 @@ func Time(key string) time.Duration {
 	return value
 }
 
+// Info returns info about device
 func Info() map[string]interface{} {
 	info := Map("info")
 	info["ts"] = time.Now().Unix()
 	return info
+}
+
+// IsProd returns true if env is prod
+func IsProd() bool {
+	return env == "prod"
 }

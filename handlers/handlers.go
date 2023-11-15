@@ -1,16 +1,10 @@
 package handlers
 
 import (
-	"bufio"
-	"device-go/crypto"
-	"device-go/dsm"
+	"device-go/cmd"
 	"device-go/shared/config"
 	"device-go/storage"
 	"encoding/json"
-	"errors"
-	"os"
-	"os/exec"
-	"strings"
 
 	"github.com/coalalib/coalago"
 	log "github.com/ndmsystems/golog"
@@ -44,15 +38,13 @@ func GetInfo(_ *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 
 func ExecCmd(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 	log.Debug(message.Payload.String())
-	// decrypt
-
 	// parsing message from node
-	command := dsm.CMD{}
-	err := json.Unmarshal(message.Payload.Bytes(), &command)
+	command, err := cmd.Build(message.Payload.Bytes())
 	if err != nil {
 		log.Error(err)
 		return coalago.NewResponse(coalago.NewStringPayload(err.Error()), coalago.CoapCodeBadRequest)
 	}
+	log.Debug(command.Readable())
 
 	// check if the command is sent by one of the device owners
 	if !storage.IsOwner(command.Sender) {
@@ -63,49 +55,16 @@ func ExecCmd(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 	// for production: only valid signature is allowed
 	// for other env: "testing" can be used as a signature
 	if !command.Valid() {
-		return coalago.NewResponse(coalago.NewStringPayload("invalid cmd"), coalago.CoapCodeUnauthorized)
+		return coalago.NewResponse(coalago.NewStringPayload("invalid cmd params"), coalago.CoapCodeUnauthorized)
 	}
-	hash, valid := crypto.KeyPair.Verify(command.Sign)
-	if (!valid || hash != command.GetHash()) && (os.Args[1] == "prod" || command.Sign != "testing") {
+	// verify signature
+	if _, result := command.Verify(); !result {
 		return coalago.NewResponse(coalago.NewStringPayload("invalid signature"), coalago.CoapCodeUnauthorized)
 	}
-
-	// exec command from node
-	log.Debug(command.Body)
-	cmdArr := strings.Split(command.Body, " ")
-	var args []string
-	if len(cmdArr) > 1 {
-		args = cmdArr[1:]
+	// execute command
+	out, err := command.Execute()
+	if err != nil {
+		return coalago.NewResponse(coalago.NewStringPayload(err.Error()), coalago.CoapCodeBadRequest)
 	}
-	log.Debug(cmdArr[0], args)
-	c := exec.Command(cmdArr[0], args...)
-	if errors.Is(c.Err, exec.ErrDot) {
-		c.Err = nil
-	}
-	log.Debug(c.String(), args)
-
-	stderr, _ := c.StderrPipe()
-	stdout, _ := c.StdoutPipe()
-	if err = c.Start(); err != nil {
-		log.Error(err)
-		return coalago.NewResponse(coalago.NewStringPayload(err.Error()), coalago.CoapCodeInternalServerError)
-	}
-
-	var errOut string
-	scanner := bufio.NewScanner(stderr)
-	for scanner.Scan() {
-		errOut += scanner.Text() + "\n"
-	}
-	if len(errOut) > 0 {
-		log.Error(errOut)
-		return coalago.NewResponse(coalago.NewStringPayload(errOut), coalago.CoapCodeInternalServerError)
-	}
-
-	var out string
-	scanner = bufio.NewScanner(stdout)
-	for scanner.Scan() {
-		out += scanner.Text() + "\n"
-	}
-	log.Debug(out)
 	return coalago.NewResponse(coalago.NewStringPayload(out), coalago.CoapCodeContent)
 }
