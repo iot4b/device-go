@@ -22,7 +22,11 @@ func Build(b []byte) (CMD, error) {
 
 // convert cmd to readable string with limit by body by 50
 func (c CMD) Readable() string {
-	return "uuid: " + c.UUID + " ts: " + string(c.Ts) + " sender: " + c.Sender + " receiver: " + string(c.Receiver) + " hash: " + c.Hash + " sign: " + c.Sign + " body: " + c.Body[:50]
+	body := c.Body
+	if len(body) > 50 {
+		body = body[:50]
+	}
+	return "uuid: " + c.UUID + " ts: " + string(c.Ts) + " sender: " + c.Sender + " receiver: " + string(c.Receiver) + " hash: " + c.Hash + " sign: " + c.Sign + " body: " + body
 }
 
 // Valid checks if all fields are filled
@@ -69,25 +73,25 @@ func (c CMD) Verify() (string, bool) {
 }
 
 // Execute executes command and returns result and error if any occurs
-func (command CMD) Execute() (string, error) {
+func (c CMD) Execute() (string, error) {
 
-	log.Debug(command.Readable())
+	log.Debug(c.Readable())
 
-	cmdArr := strings.Split(command.Body, " ")
+	cmdArr := strings.Split(c.Body, " ")
 	var args []string
 	if len(cmdArr) > 1 {
 		args = cmdArr[1:]
 	}
 	log.Debug(cmdArr[0], args)
-	c := exec.Command(cmdArr[0], args...)
-	if errors.Is(c.Err, exec.ErrDot) {
-		c.Err = nil
+	cmd := exec.Command(cmdArr[0], args...)
+	if errors.Is(cmd.Err, exec.ErrDot) {
+		cmd.Err = nil
 	}
-	log.Debug(c.String(), args)
+	log.Debug(cmd.String(), args)
 
-	stderr, _ := c.StderrPipe()
-	stdout, _ := c.StdoutPipe()
-	if err := c.Start(); err != nil {
+	stderr, _ := cmd.StderrPipe()
+	stdout, _ := cmd.StdoutPipe()
+	if err := cmd.Start(); err != nil {
 		log.Error(err)
 		return "", err
 	}
