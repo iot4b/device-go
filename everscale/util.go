@@ -5,7 +5,7 @@ import (
 )
 
 func processMessage(abi *domain.Abi, address, method string, input interface{}, signer *domain.Signer) (*domain.ResultOfProcessMessage, error) {
-	return ever.Processing.ProcessMessage(&domain.ParamsOfProcessMessage{
+	return Ever.Processing.ProcessMessage(&domain.ParamsOfProcessMessage{
 		MessageEncodeParams: &domain.ParamsOfEncodeMessage{
 			Address: address,
 			Abi:     abi,

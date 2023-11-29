@@ -41,7 +41,7 @@ func (cd *ContractBuilder) InitDeployOptions() *ContractBuilder {
 }
 
 func (cd *ContractBuilder) CalcWalletAddress() string {
-	message, err := ever.Abi.EncodeMessage(cd.deployOptions)
+	message, err := Ever.Abi.EncodeMessage(cd.deployOptions)
 	if err != nil {
 		log.Error(err)
 		return ""
@@ -60,7 +60,7 @@ func (cd *ContractBuilder) Deploy(input interface{}) error {
 		MessageEncodeParams: &deployOptions,
 		SendEvents:          false,
 	}
-	resp, err := ever.Processing.ProcessMessage(params, nil)
+	resp, err := Ever.Processing.ProcessMessage(params, nil)
 	if err != nil {
 		return err
 	}

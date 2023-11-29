@@ -6,11 +6,11 @@ import (
 	"github.com/markgenuine/ever-client-go"
 )
 
-var ever *goever.Ever
+var Ever *goever.Ever
 
 func Init(endpoints []string) {
 	var err error
-	ever, err = goever.NewEver("", endpoints, "")
+	Ever, err = goever.NewEver("", endpoints, "")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -18,5 +18,5 @@ func Init(endpoints []string) {
 
 // Destroy client when finished
 func Destroy() {
-	ever.Client.Destroy()
+	Ever.Client.Destroy()
 }

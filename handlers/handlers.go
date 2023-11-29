@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"device-go/cmd"
+	"device-go/crypto"
 	"device-go/shared/config"
 	"device-go/storage"
 	"encoding/json"
@@ -11,21 +12,25 @@ import (
 )
 
 type info struct {
-	Address string `json:"address"`
-	Version string `json:"version"`
-	Elector string `json:"elector"`
-	Node    string `json:"node"`
-	Type    string `json:"type"`
+	Address    string `json:"address"`
+	Version    string `json:"version"`
+	Elector    string `json:"elector"`
+	Node       string `json:"node"`
+	Type       string `json:"type"`
+	PublicSign string `json:"public_sign"`
+	PublicNacl string `json:"public_nacl"`
 }
 
 // info для коалы
 func GetInfo(_ *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 	i := info{
-		Address: string(storage.Get().Address),
-		Version: config.Get("info.version"),
-		Type:    config.Get("info.type"),
-		Elector: config.Get("everscale.elector"),
-		Node:    string(storage.Get().Node),
+		Address:    string(storage.Get().Address),
+		Version:    config.Get("info.version"),
+		Type:       config.Get("info.type"),
+		Elector:    config.Get("everscale.elector"),
+		Node:       string(storage.Get().Node),
+		PublicSign: crypto.Keys.PublicSign,
+		PublicNacl: crypto.Keys.PublicNacl,
 	}
 	info, err := json.Marshal(i)
 	if err != nil {

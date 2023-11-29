@@ -26,7 +26,7 @@ func (c CMD) Readable() string {
 	if len(body) > 50 {
 		body = body[:50]
 	}
-	return "uuid: " + c.UUID + " ts: " + string(c.Ts) + " sender: " + c.Sender + " receiver: " + string(c.Receiver) + " hash: " + c.Hash + " sign: " + c.Sign + " body: " + body
+	return "uuid: " + c.UUID + " ts: " + string(c.Ts) + " sender: " + c.Sender + " sender_nacl: " + c.SenderNacl + " receiver: " + string(c.Receiver) + " hash: " + c.Hash + " sign: " + c.Sign + " body: " + body
 }
 
 // Valid checks if all fields are filled
@@ -42,6 +42,9 @@ func (c CMD) Valid() bool {
 	if len(c.Sender) == 0 {
 		return false
 	}
+	if len(c.SenderNacl) == 0 {
+		return false
+	}
 	if len(c.Receiver) == 0 {
 		return false
 	}
@@ -51,6 +54,9 @@ func (c CMD) Valid() bool {
 	if len(c.Sign) == 0 {
 		return false
 	}
+	if len(c.Body) == 0 {
+		return false
+	}
 	return true
 }
 
@@ -58,7 +64,7 @@ func (c CMD) Valid() bool {
 func (c CMD) GetHash() string {
 	log.Debug(c.UUID)
 	h := sha256.New()
-	bt := []byte(string(c.Sender + string(c.Receiver) + c.Body + string(c.Ts) + string(c.UUID)))
+	bt := []byte(c.UUID + string(c.Ts) + c.Sender + c.SenderNacl + string(c.Receiver) + c.Body)
 	h.Write(bt)
 	return string(h.Sum(nil))
 }
@@ -69,7 +75,7 @@ func (c CMD) Verify() (string, bool) {
 	if !config.IsProd() || c.Sign != "testing" { // for testing purposes only "testing" signature is allowed
 		return c.Sender, true
 	}
-	return crypto.KeyPair.Verify(c.Sign)
+	return crypto.Keys.Verify(c.Sign)
 }
 
 // Execute executes command and returns result and error if any occurs
@@ -77,7 +83,12 @@ func (c CMD) Execute() (string, error) {
 
 	log.Debug(c.Readable())
 
-	cmdArr := strings.Split(c.Body, " ")
+	body, err := crypto.Keys.Decrypt(c.Body, c.SenderNacl)
+	if err != nil {
+		return "", err
+	}
+
+	cmdArr := strings.Split(body, " ")
 	var args []string
 	if len(cmdArr) > 1 {
 		args = cmdArr[1:]

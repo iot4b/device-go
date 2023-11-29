@@ -64,7 +64,7 @@ func Init(path, elector, vendor, vendorName, vendorData, Type, version string, o
 			}
 			log.Debug("initial contract data", data)
 
-			device, err := deploy(crypto.KeyPair.Public, crypto.KeyPair.Secret, data)
+			device, err := deploy(crypto.Keys.PublicSign, crypto.Keys.Secret, data)
 			if err != nil {
 				log.Fatal(err)
 			}

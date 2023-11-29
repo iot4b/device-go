@@ -2,34 +2,26 @@ package crypto
 
 import (
 	"device-go/everscale"
+	"encoding/base64"
 	"encoding/json"
+	"github.com/markgenuine/ever-client-go/domain"
 	"io"
 	"os"
-
-	"github.com/jinzhu/copier"
 
 	log "github.com/ndmsystems/golog"
 )
 
-//TODO на замену это все
-//  key := Generate() (KeyPair)
-//  key := Load(file) (KeyPair)
-//  key.Sign(msg) (sign string)
-//  key.Public() (string)
-//
-//  Save(path, key) err
-//  Validate(msg.body, message.sign, msg.sender) (bool)
+var Keys keys
 
-var KeyPair keyPair
-
-type keyPair struct {
-	Public string `json:"public"`
-	Secret string `json:"secret"`
+type keys struct {
+	PublicSign string `json:"public_sign"` // public key for signing
+	PublicNacl string `json:"public_nacl"` // public key for nacl box encryption
+	Secret     string `json:"secret"`      // shared secret key for both public keys
 }
 
 // Sign unsigned message using sign key pair, returns signed message
-func (k *keyPair) Sign(unsigned string) string {
-	res, err := everscale.Sign(unsigned, k.Public, k.Secret)
+func (k *keys) Sign(unsigned string) string {
+	res, err := everscale.Sign(unsigned, k.PublicSign, k.Secret)
 	if err != nil {
 		return ""
 	}
@@ -37,24 +29,48 @@ func (k *keyPair) Sign(unsigned string) string {
 }
 
 // Verify signed message using public key, returns unsigned message and a flag
-func (k *keyPair) Verify(signed string) (string, bool) {
-	res, err := everscale.VerifySignature(signed, k.Public)
+func (k *keys) Verify(signed string) (string, bool) {
+	res, err := everscale.VerifySignature(signed, k.PublicSign)
 	if err != nil {
 		return "", false
 	}
 	return res.Unsigned, true
 }
 
+// Decrypt data with nacl box using sender public key.
+// First 48 chars of data is a nonce hex string
+func (k *keys) Decrypt(data, sender string) (string, error) {
+	encrypted := data[48:]
+	nonce := data[:48]
+
+	res, err := everscale.Ever.Crypto.NaclBoxOpen(&domain.ParamsOfNaclBoxOpen{
+		Encrypted:   encrypted,
+		Nonce:       nonce,
+		TheirPublic: sender,
+		Secret:      Keys.Secret,
+	})
+	if err != nil {
+		return "", err
+	}
+
+	decrypted, err := base64.StdEncoding.DecodeString(res.Decrypted)
+	if err != nil {
+		return "", err
+	}
+
+	return string(decrypted), nil
+}
+
 // Init key storage, load from existing file or generate a new one
 func Init(path string) {
 	var err error
-	KeyPair, err = load(path)
+	Keys, err = load(path)
 	if err != nil {
-		KeyPair, err = generate()
+		Keys, err = generate()
 		if err != nil {
 			log.Fatal(err)
 		}
-		err = save(path, KeyPair)
+		err = save(path, Keys)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -62,7 +78,7 @@ func Init(path string) {
 }
 
 // load key pair from json file
-func load(path string) (k keyPair, err error) {
+func load(path string) (k keys, err error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return
@@ -78,19 +94,28 @@ func load(path string) (k keyPair, err error) {
 	return
 }
 
-// generate everscale key pair
-func generate() (k keyPair, err error) {
-	keys, err := everscale.GenerateKeyPair()
+// generate everscale crypto keys
+func generate() (k keys, err error) {
+	sign, err := everscale.Ever.Crypto.GenerateRandomSignKeys()
 	if err != nil {
 		return
 	}
-	copier.Copy(&k, keys)
+	nacl, err := everscale.Ever.Crypto.NaclBoxKeypairFromSecretKey(
+		&domain.ParamsOfNaclBoxKeyPairFromSecret{Secret: sign.Secret},
+	)
+	if err != nil {
+		return
+	}
+
+	k.Secret = sign.Secret
+	k.PublicSign = sign.Public
+	k.PublicNacl = nacl.Public
 
 	return
 }
 
 // save key pair to json file
-func save(path string, key keyPair) error {
+func save(path string, key keys) error {
 	data, err := json.Marshal(key)
 	if err != nil {
 		return err

@@ -97,7 +97,7 @@ func Register(masterNodes []string, address, vendorAddress dsm.EverAddress, publ
 	// set node to blockchain
 	input := map[string]interface{}{}
 	input["value"] = fasterAddress
-	s := everscale.NewSigner(crypto.KeyPair.Public, crypto.KeyPair.Secret)
+	s := everscale.NewSigner(crypto.Keys.PublicSign, crypto.Keys.Secret)
 	r, err := everscale.Execute("device", string(address), "setNode", input, s)
 	if err != nil {
 		log.Debug(err, "setNode: "+string(r), input)

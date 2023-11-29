@@ -18,9 +18,9 @@ func Test(t *testing.T) {
 
 	original := "unsigned"
 
-	signed := KeyPair.Sign(original)
+	signed := Keys.Sign(original)
 
-	unsigned, valid := KeyPair.Verify(signed)
+	unsigned, valid := Keys.Verify(signed)
 
 	if unsigned != original {
 		t.Errorf("have: %s, want: %s", unsigned, original)

@@ -53,7 +53,7 @@ func main() {
 			storage.Get().Address,
 			storage.Get().Vendor,
 
-			crypto.KeyPair.Public,
+			crypto.Keys.PublicSign,
 			storage.Get().Version,
 			storage.Get().Type,
 			storage.Get().VendorData)
