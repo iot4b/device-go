@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"device-go/crypto"
 	"device-go/shared/config"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"os/exec"
@@ -66,7 +67,7 @@ func (c CMD) GetHash() string {
 	h := sha256.New()
 	bt := []byte(c.UUID + string(c.Ts) + c.Sender + c.SenderNacl + string(c.Receiver) + c.Body)
 	h.Write(bt)
-	return string(h.Sum(nil))
+	return base64.StdEncoding.EncodeToString(h.Sum(nil))
 }
 
 // check signature of command result of verification with public key of sender
