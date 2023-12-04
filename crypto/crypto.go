@@ -1,10 +1,14 @@
 package crypto
 
 import (
-	"device-go/everscale"
+	"crypto/ed25519"
+	"crypto/rand"
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
-	"github.com/markgenuine/ever-client-go/domain"
+	"errors"
+	"golang.org/x/crypto/curve25519"
+	"golang.org/x/crypto/nacl/box"
 	"io"
 	"os"
 
@@ -19,43 +23,34 @@ type keys struct {
 	Secret     string `json:"secret"`      // shared secret key for both public keys
 }
 
-// Sign unsigned message using sign key pair, returns signed message
-func (k *keys) Sign(unsigned string) string {
-	res, err := everscale.Sign(unsigned, k.PublicSign, k.Secret)
+// VerifySignature reports whether sig is a valid signature of message by public key
+func (k *keys) VerifySignature(pubKey string, message []byte, sig string) bool {
+	public, err := hex.DecodeString(pubKey)
 	if err != nil {
-		return ""
+		return false
 	}
-	return res.Signed
-}
+	sigDecoded, err := base64.StdEncoding.DecodeString(sig)
+	if err != nil {
+		return false
+	}
 
-// Verify signed message using public key, returns unsigned message and a flag
-func (k *keys) Verify(signed string) (string, bool) {
-	res, err := everscale.VerifySignature(signed, k.PublicSign)
-	if err != nil {
-		return "", false
-	}
-	return res.Unsigned, true
+	return ed25519.Verify(public, message, sigDecoded)
 }
 
 // Decrypt data with nacl box using sender public key.
-// First 48 chars of data is a nonce hex string
 func (k *keys) Decrypt(data, sender string) (string, error) {
-	encrypted := data[48:]
-	nonce := data[:48]
-
-	res, err := everscale.Ever.Crypto.NaclBoxOpen(&domain.ParamsOfNaclBoxOpen{
-		Encrypted:   encrypted,
-		Nonce:       nonce,
-		TheirPublic: sender,
-		Secret:      Keys.Secret,
-	})
+	encrypted, err := base64.StdEncoding.DecodeString(data)
 	if err != nil {
 		return "", err
 	}
 
-	decrypted, err := base64.StdEncoding.DecodeString(res.Decrypted)
-	if err != nil {
-		return "", err
+	// first 24 chars of data is a nonce
+	var nonce [24]byte
+	copy(nonce[:], encrypted[:24])
+
+	decrypted, ok := box.Open(nil, encrypted[24:], &nonce, hexTo32b(sender), hexTo32b(Keys.Secret))
+	if !ok {
+		return "", errors.New("decryption error")
 	}
 
 	return string(decrypted), nil
@@ -94,22 +89,23 @@ func load(path string) (k keys, err error) {
 	return
 }
 
-// generate everscale crypto keys
+// generate crypto keys for signing and nacl box encryption
 func generate() (k keys, err error) {
-	sign, err := everscale.Ever.Crypto.GenerateRandomSignKeys()
-	if err != nil {
-		return
-	}
-	nacl, err := everscale.Ever.Crypto.NaclBoxKeypairFromSecretKey(
-		&domain.ParamsOfNaclBoxKeyPairFromSecret{Secret: sign.Secret},
-	)
+	// generate key pair for signing
+	publicSign, private, err := ed25519.GenerateKey(rand.Reader)
 	if err != nil {
 		return
 	}
 
-	k.Secret = sign.Secret
-	k.PublicSign = sign.Public
-	k.PublicNacl = nacl.Public
+	// use private key to calculate public key for nacl box encryption
+	publicNacl := new([32]byte)
+	private32b := new([32]byte)
+	copy(private32b[:], private[:32])
+	curve25519.ScalarBaseMult(publicNacl, private32b)
+
+	k.Secret = hex.EncodeToString(private32b[:])
+	k.PublicSign = hex.EncodeToString(publicSign)
+	k.PublicNacl = hex.EncodeToString(publicNacl[:])
 
 	return
 }
@@ -121,4 +117,16 @@ func save(path string, key keys) error {
 		return err
 	}
 	return os.WriteFile(path, data, 0644)
+}
+
+// hexTo32b converts hex string to 32-byte array
+// string length must be 64 chars (32 hexadecimal pairs)
+func hexTo32b(h string) *[32]byte {
+	b, err := hex.DecodeString(h)
+	if err != nil {
+		return nil
+	}
+	var res [32]byte
+	copy(res[:], b)
+	return &res
 }

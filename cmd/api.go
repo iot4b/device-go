@@ -5,7 +5,6 @@ import (
 	"crypto/sha256"
 	"device-go/crypto"
 	"device-go/shared/config"
-	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"os/exec"
@@ -61,22 +60,23 @@ func (c CMD) Valid() bool {
 	return true
 }
 
-// GetHash calculates hash sum of all fields except Sign and Hash
-func (c CMD) GetHash() string {
+// getHash calculates hash sum of all fields except Sign and Hash
+func (c CMD) getHash() []byte {
 	log.Debug(c.UUID)
 	h := sha256.New()
 	bt := []byte(c.UUID + string(c.Ts) + c.Sender + c.SenderNacl + string(c.Receiver) + c.Body)
 	h.Write(bt)
-	return base64.StdEncoding.EncodeToString(h.Sum(nil))
+	return h.Sum(nil)
 }
 
-// check signature of command result of verification with public key of sender
-func (c CMD) Verify() (string, bool) {
+// VerifySignature of command result with public key of sender
+func (c CMD) VerifySignature() bool {
 	log.Debug(c.UUID)
-	if !config.IsProd() || c.Sign != "testing" { // for testing purposes only "testing" signature is allowed
-		return c.Sender, true
+	if !config.IsProd() {
+		// for testing purposes "testing" signature is allowed as well as valid signature
+		return c.Sign == "testing" || crypto.Keys.VerifySignature(c.Sender, c.getHash(), c.Sign)
 	}
-	return crypto.Keys.Verify(c.Sign)
+	return crypto.Keys.VerifySignature(c.Sender, c.getHash(), c.Sign)
 }
 
 // Execute executes command and returns result and error if any occurs

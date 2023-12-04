@@ -56,14 +56,12 @@ func ExecCmd(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 		return coalago.NewResponse(coalago.NewStringPayload("invalid sender"), coalago.CoapCodeUnauthorized)
 	}
 
-	// verify signature
-	// for production: only valid signature is allowed
-	// for other env: "testing" can be used as a signature
+	// validate command params
 	if !command.Valid() {
 		return coalago.NewResponse(coalago.NewStringPayload("invalid cmd params"), coalago.CoapCodeUnauthorized)
 	}
 	// verify signature
-	if _, result := command.Verify(); !result {
+	if !command.VerifySignature() {
 		return coalago.NewResponse(coalago.NewStringPayload("invalid signature"), coalago.CoapCodeUnauthorized)
 	}
 	// execute command
