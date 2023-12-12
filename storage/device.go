@@ -93,7 +93,7 @@ func deploy(public, secret string, data initialData) (out dsm.DeviceContract, er
 	}
 	log.Debug("validate initial data OK!")
 
-	abi, tvc, err := utils.ReadContract()
+	abi, tvc, err := everscale.ReadContract()
 	if err != nil {
 		return
 	}

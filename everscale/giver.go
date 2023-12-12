@@ -1,7 +1,5 @@
 package everscale
 
-import "device-go/utils"
-
 type Giver struct {
 	Address string
 	Public  string
@@ -20,7 +18,7 @@ type sendTransaction struct {
 func (g *Giver) SendTokens(address string, amount int) error {
 	signer := NewSigner(g.Public, g.Secret)
 
-	abi, err := utils.GetAbi("giver")
+	abi, err := getAbi("Giver")
 	if err != nil {
 		return err
 	}

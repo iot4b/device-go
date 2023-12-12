@@ -1,7 +1,6 @@
 package everscale
 
 import (
-	"device-go/utils"
 	"fmt"
 	"github.com/markgenuine/ever-client-go/domain"
 	"github.com/pkg/errors"
@@ -11,9 +10,9 @@ import (
 func Execute(name, address, method string, input interface{}, signer *domain.Signer) ([]byte, error) {
 	fmt.Println("executing", method, "on", name, "contract at address", address)
 
-	abi, err := utils.GetAbi("device")
+	abi, err := getAbi("Device")
 	if err != nil {
-		return nil, errors.Wrap(err, "utils.GetAbi")
+		return nil, errors.Wrap(err, "getAbi")
 	}
 
 	result, err := processMessage(abi, address, method, input, signer)
