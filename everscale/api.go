@@ -10,7 +10,7 @@ import (
 func Execute(name, address, method string, input interface{}, signer *domain.Signer) ([]byte, error) {
 	fmt.Println("executing", method, "on", name, "contract at address", address)
 
-	abi, err := getAbi("Device")
+	abi, err := getAbi(name)
 	if err != nil {
 		return nil, errors.Wrap(err, "getAbi")
 	}

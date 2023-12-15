@@ -6,7 +6,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-const scPath = "../smartcontracts/"
+const scPath = "../smartcontracts/build/"
 
 func ReadContract() (abi *domain.Abi, tvc []byte, err error) {
 	abi, err = getAbi("Device")
