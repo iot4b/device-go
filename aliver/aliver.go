@@ -39,5 +39,6 @@ func alive(server *coalago.Server, nodeHost string, address string) error {
 	aliveMessage := coalago.NewCoAPMessage(coalago.ACK, coalago.GET)
 	aliveMessage.SetURIPath("/l")
 	aliveMessage.SetURIQuery("a", address)
+	//todo  - переписать на нормальную отправку
 	return errors.Wrap(server.SendToSocket(aliveMessage, nodeHost), "sendToSocket")
 }
