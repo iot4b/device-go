@@ -14,6 +14,6 @@ type registerRequest struct {
 
 // getEndpoints возвращает список активных нод в таком формате
 type node struct {
-	IpPort  string `json:"ipPort"`  // ip:port ноды
+	IpPort  string `json:"ip_port"` // ip:port ноды
 	Account string `json:"account"` // адрес смарт-контракта
 }

@@ -23,7 +23,7 @@ masterNodes:
   - 192.81.216.57:5683
 
 everscale:
-  elector: "0:ad9b91295fd78479b4b20ae27a22d40ff5e58bed7a27ccb1110d0901b70b2dfe"
+  elector: "0:da995a0f7e2f75457031cbc016d7cba6fc65b617a94331eb54c349af15e95d1a"
   vendor:
     address: "0:cf59bb48dac2b1234bce4b5c8108f8c884852ca1333065caa16adf4a86051337"
     name: "apple"
