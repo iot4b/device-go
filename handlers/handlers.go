@@ -3,6 +3,7 @@ package handlers
 import (
 	"device-go/cmd"
 	"device-go/crypto"
+	"device-go/registration"
 	"device-go/shared/config"
 	"device-go/storage"
 	"encoding/json"
@@ -70,4 +71,14 @@ func ExecCmd(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 		return coalago.NewResponse(coalago.NewStringPayload(err.Error()), coalago.CoapCodeBadRequest)
 	}
 	return coalago.NewResponse(coalago.NewStringPayload(out), coalago.CoapCodeContent)
+}
+
+// Confirm registration on the node
+func Confirm(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
+	log.Debug(message.Payload.String())
+
+	// update registration data
+	registration.Register()
+
+	return coalago.NewResponse(coalago.NewStringPayload(""), coalago.CoapCodeContent)
 }

@@ -40,6 +40,8 @@ func main() {
 		config.Get("info.version"),
 		config.List("everscale.owners"))
 
+	everscale.Device.Address = storage.Get().Address
+
 	var nodeHost string // nodeHost нужен, чтобы передать его в alive
 	var registeredDevice *dsm.DeviceContract
 	var err error
@@ -47,17 +49,7 @@ func main() {
 	for {
 		// регистрируем устройство на ноде. в ответ приходит нода, к которой получилось подключиться
 		// если ошибка, то повторяем цикл регистрации
-		registeredDevice, nodeHost, err = registration.Register(
-			// получаем список нод по-умолчанию
-			config.List("masterNodes"),
-			storage.Get().Address,
-			storage.Get().Vendor,
-
-			crypto.Keys.PublicSign,
-			storage.Get().Version,
-			storage.Get().Type,
-			storage.Get().VendorData)
-
+		registeredDevice, nodeHost, err = registration.Register()
 		if err == nil {
 			break
 		}
@@ -75,6 +67,7 @@ func main() {
 	server := coalago.NewServer()
 	server.GET("/info", handlers.GetInfo)
 	server.POST("/cmd", handlers.ExecCmd)
+	server.GET("/confirm", handlers.Confirm)
 
 	// начинаем слать alive пакеты, чтобы сохранять соединение для udp punching
 	go aliver.Run(server, storage.Get().Address.String(), nodeHost, config.Time("timeout.alive"))

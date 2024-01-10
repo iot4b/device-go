@@ -4,6 +4,8 @@ import (
 	"device-go/crypto"
 	"device-go/dsm"
 	"device-go/everscale"
+	"device-go/shared/config"
+	"device-go/storage"
 	"encoding/json"
 	"github.com/coalalib/coalago"
 	"github.com/jinzhu/copier"
@@ -23,7 +25,16 @@ type registerDeviceResp struct {
 
 // Register - регистрируем устройство на ноде.
 // Возвращает ip:port ноды
-func Register(masterNodes []string, address, vendorAddress dsm.EverAddress, public, version, Type, vendorData string) (*dsm.DeviceContract, string, error) {
+func Register() (*dsm.DeviceContract, string, error) {
+	masterNodes := config.List("masterNodes")
+	address := storage.Get().Address
+	vendorAddress := storage.Get().Vendor
+
+	public := crypto.Keys.PublicSign
+	version := storage.Get().Version
+	Type := storage.Get().Type
+	vendorData := storage.Get().VendorData
+
 	// получаем список доступных нод с рандомной мастер ноды
 	masterNode, list, err := endpointList(masterNodes)
 	if err != nil {
@@ -94,16 +105,10 @@ func Register(masterNodes []string, address, vendorAddress dsm.EverAddress, publ
 	result := dsm.DeviceContract{}
 	copier.Copy(&result, registerResp)
 
-	// set node to blockchain
-	input := map[string]interface{}{}
-	input["value"] = fasterAddress
-	s := everscale.NewSigner(crypto.Keys.PublicSign, crypto.Keys.Secret)
-	r, err := everscale.Execute("Device", string(address), "setNode", input, s)
-	if err != nil {
-		log.Debug(err, "setNode: "+string(r), input)
-		return nil, "", errors.Wrap(err, "setNode")
-	}
 	result.Node = dsm.EverAddress(fasterAddress)
+
+	// update device node
+	everscale.Device.SetNode(result.Node)
 
 	log.Debugw("Register result", "RegisteredDevice", result, "fasterHost", fasterHost)
 
