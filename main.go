@@ -51,6 +51,7 @@ func main() {
 		// если ошибка, то повторяем цикл регистрации
 		registeredDevice, nodeHost, err = registration.Register()
 		if err == nil {
+			aliver.NodeHost = nodeHost
 			break
 		}
 		log.Error(err)
@@ -70,7 +71,7 @@ func main() {
 	server.GET("/confirm", handlers.Confirm)
 
 	// начинаем слать alive пакеты, чтобы сохранять соединение для udp punching
-	go aliver.Run(server, storage.Get().Address.String(), nodeHost, config.Time("timeout.alive"))
+	go aliver.Run(server, storage.Get().Address.String(), config.Time("timeout.alive"))
 
 	// стартуем сервер
 	port := config.Get("port.device")

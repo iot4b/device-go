@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"device-go/aliver"
 	"device-go/cmd"
 	"device-go/crypto"
 	"device-go/registration"
@@ -78,10 +79,11 @@ func Confirm(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 	log.Debug(message.Payload.String())
 
 	// update registration data
-	_, _, err := registration.Register()
+	_, nodeHost, err := registration.Register()
 	if err != nil {
 		return coalago.NewResponse(coalago.NewStringPayload(err.Error()), coalago.CoapCodeInternalServerError)
 	}
+	aliver.NodeHost = nodeHost
 
 	return coalago.NewResponse(coalago.NewStringPayload(""), coalago.CoapCodeContent)
 }

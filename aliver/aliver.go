@@ -19,13 +19,15 @@ import (
 
 */
 
-func Run(s *coalago.Server, address string, nodeHost string, aliveInterval time.Duration) {
+var NodeHost string
+
+func Run(s *coalago.Server, address string, aliveInterval time.Duration) {
 	log.Info("run aliver")
 	for {
 		// если ставим после alive, то соединение с нодой не успевает инициироваться
 		time.Sleep(aliveInterval)
 		//start := time.Now()
-		err := alive(s, nodeHost, address)
+		err := alive(s, address)
 		if err != nil {
 			log.Error(err)
 			//todo если не удалось отправить сообщение, то pзапускаем процесс переподключения, если накопилось 10 ошибок
@@ -35,10 +37,10 @@ func Run(s *coalago.Server, address string, nodeHost string, aliveInterval time.
 	}
 }
 
-func alive(server *coalago.Server, nodeHost string, address string) error {
+func alive(server *coalago.Server, address string) error {
 	aliveMessage := coalago.NewCoAPMessage(coalago.ACK, coalago.GET)
 	aliveMessage.SetURIPath("/l")
 	aliveMessage.SetURIQuery("a", address)
 	//todo  - переписать на нормальную отправку
-	return errors.Wrap(server.SendToSocket(aliveMessage, nodeHost), "sendToSocket")
+	return errors.Wrap(server.SendToSocket(aliveMessage, NodeHost), "sendToSocket")
 }

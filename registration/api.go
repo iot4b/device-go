@@ -108,11 +108,12 @@ func Register() (*dsm.DeviceContract, string, error) {
 	result.Node = dsm.EverAddress(fasterAddress)
 
 	// update device node
-	everscale.Device.SetNode(result.Node)
+	err = everscale.Device.SetNode(result.Node)
+	if err != nil {
+		log.Error("everscale.Device.SetNode:", err)
+	}
 
 	log.Debugw("Register result", "RegisteredDevice", result, "fasterHost", fasterHost)
-
-	log.Info("Register success!")
 
 	return &result, fasterHost, nil
 }
