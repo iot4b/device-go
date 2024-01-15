@@ -19,7 +19,7 @@ func (d device) SetNode(node dsm.EverAddress) error {
 	s := NewSigner(crypto.Keys.PublicSign, crypto.Keys.Secret)
 	r, err := execute("Device", d.Address, "setNode", input, s)
 	if err != nil {
-		log.Debug(err, "setNode: "+string(r), input)
+		log.Error(err, "setNode: "+string(r), input)
 		return errors.Wrap(err, "setNode")
 	}
 	return nil
