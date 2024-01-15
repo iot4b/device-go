@@ -112,5 +112,7 @@ func Register() (*dsm.DeviceContract, string, error) {
 
 	log.Debugw("Register result", "RegisteredDevice", result, "fasterHost", fasterHost)
 
+	log.Info("Register success!")
+
 	return &result, fasterHost, nil
 }

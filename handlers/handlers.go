@@ -78,7 +78,10 @@ func Confirm(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 	log.Debug(message.Payload.String())
 
 	// update registration data
-	registration.Register()
+	_, _, err := registration.Register()
+	if err != nil {
+		return coalago.NewResponse(coalago.NewStringPayload(err.Error()), coalago.CoapCodeInternalServerError)
+	}
 
 	return coalago.NewResponse(coalago.NewStringPayload(""), coalago.CoapCodeContent)
 }
