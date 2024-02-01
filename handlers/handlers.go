@@ -4,10 +4,12 @@ import (
 	"device-go/aliver"
 	"device-go/cmd"
 	"device-go/crypto"
+	"device-go/everscale"
 	"device-go/registration"
 	"device-go/shared/config"
 	"device-go/storage"
 	"encoding/json"
+	"time"
 
 	"github.com/coalalib/coalago"
 	log "github.com/ndmsystems/golog"
@@ -84,6 +86,47 @@ func Confirm(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 		return coalago.NewResponse(coalago.NewStringPayload(err.Error()), coalago.CoapCodeInternalServerError)
 	}
 	aliver.NodeHost = nodeHost
+
+	return coalago.NewResponse(coalago.NewStringPayload(""), coalago.CoapCodeContent)
+}
+
+// Update local device info with actual data from blockchain
+func Update(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
+	log.Debug(message.Payload.String())
+
+	var payload struct {
+		Sign   string `json:"sign"`
+		Pubkey string `json:"pubkey"`
+	}
+	err := json.Unmarshal(message.Payload.Bytes(), &payload)
+	if err != nil {
+		log.Error(err)
+		return coalago.NewResponse(coalago.NewStringPayload(err.Error()), coalago.CoapCodeBadRequest)
+	}
+
+	// verify signature
+	format := "2006-01-02 15:04"
+	now := time.Now()
+	cur := now.Format(format)
+	if !crypto.Keys.VerifySignature(payload.Pubkey, []byte(cur), payload.Sign) {
+		prev := now.Add(-time.Minute).Format(format)
+		if !crypto.Keys.VerifySignature(payload.Pubkey, []byte(prev), payload.Sign) {
+			return coalago.NewResponse(coalago.NewStringPayload("invalid signature"), coalago.CoapCodeBadRequest)
+		}
+	}
+
+	// get data from device contract
+	d, err := everscale.Device.Get()
+	if err != nil {
+		return coalago.NewResponse(coalago.NewStringPayload(err.Error()), coalago.CoapCodeInternalServerError)
+	}
+	// write to local file
+	err = storage.WriteToLocalStorage(config.Get("localFiles.contract"), d)
+	if err != nil {
+		return coalago.NewResponse(coalago.NewStringPayload(err.Error()), coalago.CoapCodeInternalServerError)
+	}
+	// set data to memory
+	storage.Set(d)
 
 	return coalago.NewResponse(coalago.NewStringPayload(""), coalago.CoapCodeContent)
 }

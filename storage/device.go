@@ -51,8 +51,6 @@ func Init(path, elector, vendor, vendorName, vendorData, Type, version string, o
 	if err != nil {
 		// если файла нет или ошибка формата данных, то деплоим контракт в блокчейн
 		if errors.Is(err, utils.ErrUnmarshal) || errors.Is(err, os.ErrNotExist) {
-			// todo заменить mock данные на реальные адреса в блокчейне
-			// локальный файл не найден, инициируем пустой mock
 			data := initialData{
 				Elector:    dsm.EverAddress(elector),
 				Vendor:     dsm.EverAddress(vendor),
@@ -69,7 +67,7 @@ func Init(path, elector, vendor, vendorName, vendorData, Type, version string, o
 				log.Fatal(err)
 			}
 			// сохраняем локально
-			err = writeToLocalStorage(localPath, device)
+			err = WriteToLocalStorage(localPath, device)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -165,15 +163,15 @@ func Update(d *dsm.DeviceContract) error {
 	log.Debugw("Local Storage Device update", "after", *currentDevice)
 
 	// сохраняем в файл
-	return writeToLocalStorage(localPath, *currentDevice)
+	return WriteToLocalStorage(localPath, *currentDevice)
 }
 
 func Get() *dsm.DeviceContract {
 	return currentDevice
 }
 
-// writeToLocalStorage - сохраняем ноду локально
-func writeToLocalStorage(path string, d dsm.DeviceContract) error {
+// WriteToLocalStorage - сохраняем ноду локально
+func WriteToLocalStorage(path string, d dsm.DeviceContract) error {
 	data, err := json.Marshal(d)
 	if err != nil {
 		return errors.Wrap(err, "json.Marshal(device)")

@@ -3,8 +3,7 @@ package everscale
 import (
 	"device-go/crypto"
 	"device-go/dsm"
-	log "github.com/ndmsystems/golog"
-	"github.com/pkg/errors"
+	"encoding/json"
 )
 
 var Device = device{}
@@ -16,11 +15,22 @@ type device struct {
 // SetNode to device smartcontract
 func (d device) SetNode(node dsm.EverAddress) error {
 	input := map[string]any{"value": node}
-	s := NewSigner(crypto.Keys.PublicSign, crypto.Keys.Secret)
-	r, err := execute("Device", d.Address, "setNode", input, s)
+	s := newSigner(crypto.Keys.PublicSign, crypto.Keys.Secret)
+	_, err := execute("Device", d.Address, "setNode", input, s)
+	return err
+}
+
+// Get actual device data from blockchain
+func (d device) Get() (device dsm.DeviceContract, err error) {
+	s := newSigner(crypto.Keys.PublicSign, crypto.Keys.Secret)
+	r, err := execute("Device", d.Address, "get", nil, s)
 	if err != nil {
-		log.Error(err, "setNode: "+string(r), input)
-		return errors.Wrap(err, "setNode")
+		return
 	}
-	return nil
+	err = json.Unmarshal(r, &device)
+	if err != nil {
+		return
+	}
+	device.Address = d.Address
+	return
 }

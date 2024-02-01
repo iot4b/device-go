@@ -69,6 +69,7 @@ func main() {
 	server.GET("/info", handlers.GetInfo)
 	server.POST("/cmd", handlers.ExecCmd)
 	server.GET("/confirm", handlers.Confirm)
+	server.POST("/update", handlers.Update)
 
 	// начинаем слать alive пакеты, чтобы сохранять соединение для udp punching
 	go aliver.Run(server, storage.Get().Address.String(), config.Time("timeout.alive"))

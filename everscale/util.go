@@ -5,6 +5,7 @@ import (
 	"device-go/utils"
 	"fmt"
 	"github.com/markgenuine/ever-client-go/domain"
+	log "github.com/ndmsystems/golog"
 	"github.com/pkg/errors"
 )
 
@@ -49,7 +50,7 @@ func processMessage(abi *domain.Abi, address, method string, input interface{}, 
 	}, nil)
 }
 
-func NewSigner(public, secret string) *domain.Signer {
+func newSigner(public, secret string) *domain.Signer {
 	return domain.NewSigner(domain.SignerKeys{Keys: &domain.KeyPair{
 		Public: public,
 		Secret: secret,
@@ -67,6 +68,7 @@ func execute(name string, address dsm.EverAddress, method string, input interfac
 
 	result, err := processMessage(abi, string(address), method, input, signer)
 	if err != nil {
+		log.Errorf("%s.%s: %v", name, method, err)
 		return nil, errors.Wrap(err, "processMessage")
 	}
 

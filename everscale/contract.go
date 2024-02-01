@@ -27,7 +27,7 @@ func (cd *ContractBuilder) InitDeployOptions() *ContractBuilder {
 			initialData = data
 		}
 	}
-	cd.signer = NewSigner(cd.Public, cd.Secret)
+	cd.signer = newSigner(cd.Public, cd.Secret)
 	cd.deployOptions = &domain.ParamsOfEncodeMessage{
 		Abi:    cd.Abi,
 		Signer: cd.signer,

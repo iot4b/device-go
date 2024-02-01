@@ -9,9 +9,13 @@ type DeviceContract struct {
 
 	Owners []string `json:"owners,omitempty"` // owners public keys list
 
+	Active     bool   `json:"active,omitempty"`     // if device is active
+	Lock       bool   `json:"lock,omitempty"`       // if device is locked
 	Stat       bool   `json:"stat,omitempty"`       // нужно ли девайсу слать статистику
 	Type       string `json:"dtype,omitempty"`      // модель/тип девайса
 	Version    string `json:"version,omitempty"`    // версия текущей прошивки на девайсе
 	VendorName string `json:"vendorName,omitempty"` // название производителя
 	VendorData string `json:"vendorData,omitempty"` // данные, которые идут от производителя девайса
+
+	LastRegisterTime string `json:"lastRegisterTime,omitempty"` // last registration timestamp
 }
