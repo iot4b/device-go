@@ -9,6 +9,7 @@ import (
 	"device-go/registration"
 	"device-go/shared/config"
 	"device-go/storage"
+	"flag"
 	"fmt"
 	"os"
 	"os/signal"
@@ -62,6 +63,19 @@ func main() {
 	err = storage.Update(registeredDevice)
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	// add owner if passed via -addOwner flag
+	var owner string
+	flag.StringVar(&owner, "addOwner", "", "add owner public key to device contract")
+	if len(owner) > 0 {
+		log.Info("addOwner:", owner)
+		if storage.IsOwner(owner) {
+			log.Warning("already an owner, skipping")
+		} else if err := everscale.Device.AddOwner(owner); err != nil {
+			log.Fatal(err)
+		}
+		log.Info("new owner added")
 	}
 
 	// сервер для запросов от клиентов и нод

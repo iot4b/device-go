@@ -34,3 +34,11 @@ func (d device) Get() (device dsm.DeviceContract, err error) {
 	device.Address = d.Address
 	return
 }
+
+// AddOwner adds owner public key to device contract
+func (d device) AddOwner(owner string) error {
+	input := map[string]string{"owner": owner}
+	s := newSigner(crypto.Keys.PublicSign, crypto.Keys.Secret)
+	_, err := execute("Device", d.Address, "addOwner", input, s)
+	return err
+}
