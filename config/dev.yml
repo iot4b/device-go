@@ -10,9 +10,6 @@ localFiles:
   keys: "device.keys.json"
   contract: "device.contract.json"
 
-port:
-  device: 5683
-
 timeout:
   registerRepeat: 3s
   alive: 10s

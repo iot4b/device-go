@@ -10,7 +10,6 @@ import (
 	"device-go/shared/config"
 	"device-go/storage"
 	"flag"
-	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -19,6 +18,8 @@ import (
 	"github.com/coalalib/coalago"
 	log "github.com/ndmsystems/golog"
 )
+
+var port, newOwner string
 
 //TODO  при старте девайса надо скачать смартконтракт девайса и сохранить локально.
 // В смарт контракте прописаны ключи которые имеют право присылать команды,  смарт вендора, из которого берем имя вендора для конфига
@@ -65,14 +66,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// add owner if passed via -addOwner flag
-	var owner string
-	flag.StringVar(&owner, "addOwner", "", "add owner public key to device contract")
-	if len(owner) > 0 {
-		log.Info("addOwner:", owner)
-		if storage.IsOwner(owner) {
+	// add new owner if passed via -addOwner flag
+	if len(newOwner) > 0 {
+		log.Info("add owner:", newOwner)
+		if storage.IsOwner(newOwner) {
 			log.Warning("already an owner, skipping")
-		} else if err := everscale.Device.AddOwner(owner); err != nil {
+		} else if err := everscale.Device.AddOwner(newOwner); err != nil {
 			log.Fatal(err)
 		}
 		log.Info("new owner added")
@@ -89,10 +88,6 @@ func main() {
 	go aliver.Run(server, storage.Get().Address.String(), config.Time("timeout.alive"))
 
 	// стартуем сервер
-	port := config.Get("port.device")
-	if len(os.Args) > 2 {
-		port = os.Args[2]
-	}
 	err = server.Listen(":" + port)
 	if err != nil {
 		log.Fatal(err)
@@ -105,11 +100,12 @@ func main() {
 
 // инитим конфиги и logger
 func init() {
-	if len(os.Args) < 2 {
-		fmt.Println(`Usage: server [env]`)
-		fmt.Println("Not enough arguments. Use defaults : dev")
-		os.Exit(0)
-	}
-	config.Init(os.Args[1])
+	var env string
+	flag.StringVar(&env, "env", "dev", "set environment")
+	flag.StringVar(&port, "port", "5683", "set coala port")
+	flag.StringVar(&newOwner, "addOwner", "", "add new owner public key to device contract")
+	flag.Parse()
+
+	config.Init(env)
 	log.Init(config.Bool("debug"))
 }
