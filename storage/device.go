@@ -111,7 +111,7 @@ func deploy(public, secret string, data initialData) (out dsm.DeviceContract, er
 		Public:  config.Get("everscale.giver.public"),
 		Secret:  config.Get("everscale.giver.secret"),
 	}
-	amount := 1_500_000_000
+	amount := 2_000_000_000
 	log.Debugf("Giver: %s", giver.Address)
 	log.Debug("Send Tokens from giver", "amount", amount, "from", giver.Address, "to", walletAddress, "amount", amount)
 	err = giver.SendTokens(walletAddress, amount)
