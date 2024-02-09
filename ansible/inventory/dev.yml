@@ -5,7 +5,10 @@ dev:
 
   ##################################################
   vars:
+    service: device
     config: dev
+    port_start: 5684
+    port_end: 5686
     PROJECTPATH: ../../
     DEPLOYROOT: /opt/everiot
     BuildBin: device_bin

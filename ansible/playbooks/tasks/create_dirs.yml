@@ -1,5 +1,7 @@
-- name: Creates deploy directory {{DEPLOYPATH}}
-  file: path={{DEPLOYPATH}} state=directory
+- name: Creates deploy directory {{DEPLOYPATH}}-{{item}}
+  file: path={{DEPLOYPATH}}-{{item}} state=directory
+  loop: "{{ range(port_start, port_end)|list }}"
 
-- name: Creates config directory {{DEPLOYPATH}}/config
-  file: path={{DEPLOYPATH}}/config state=directory
+- name: Creates config directory {{DEPLOYPATH}}-{{item}}/config
+  file: path={{DEPLOYPATH}}-{{item}}/config state=directory
+  loop: "{{ range(port_start, port_end)|list }}"
