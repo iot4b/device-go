@@ -18,6 +18,7 @@
     src={{PROJECTPATH}}/ansible/templates/monit_conf.j2
     dest=/etc/monit/conf.d/tc_{{SERVICEBIN}}-{{item}}
     mode=0644
+    delete=yes
   vars:
     port: "{{item}}"
   loop: "{{ range(port_start, port_end)|list }}"
