@@ -8,7 +8,7 @@ dev:
     service: device
     config: dev
     port_start: 5684
-    port_end: 5735 # excluded
+    port_end: 5785 # excluded
     PROJECTPATH: ../../
     DEPLOYROOT: /opt/everiot
     BuildBin: device_bin
