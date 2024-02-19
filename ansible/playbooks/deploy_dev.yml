@@ -9,8 +9,8 @@
     DEPLOYPATH: "{{DEPLOYROOT}}/{{service}}"
 
   tasks:
-#    - include_tasks: tasks/build_golang.yml
-#    - include_tasks: tasks/create_dirs.yml
-#    - include_tasks: tasks/upload_files.yml
+    - include_tasks: tasks/build_golang.yml
+    - include_tasks: tasks/create_dirs.yml
+    - include_tasks: tasks/upload_files.yml
     - include_tasks: tasks/restart_service.yml
 
