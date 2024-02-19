@@ -128,7 +128,7 @@ func deploy(public, secret string, data initialData) (out dsm.DeviceContract, er
 	log.Debug("Deploy ...")
 	err = device.Deploy(data)
 	if err != nil {
-		err = errors.Wrapf(err, "device.Deploy(data)")
+		err = errors.Wrapf(err, "device.Deploy(%v)", data)
 		return
 	}
 
