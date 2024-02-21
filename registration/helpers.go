@@ -1,6 +1,7 @@
 package registration
 
 import (
+	"device-go/shared/config"
 	"encoding/json"
 	"github.com/coalalib/coalago"
 	log "github.com/ndmsystems/golog"
@@ -65,6 +66,7 @@ func getEndpoints(node string) (list []node, err error) {
 
 	msg := coalago.NewCoAPMessage(coalago.CON, coalago.GET)
 	msg.SetURIPath("/endpoints")
+	msg.Timeout = config.Time("timeout.coala")
 
 	resp, err := client.Send(msg, node)
 	if err != nil {

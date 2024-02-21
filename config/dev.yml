@@ -11,8 +11,9 @@ localFiles:
   contract: "device.contract.json"
 
 timeout:
-  registerRepeat: 3s
   alive: 10s
+  coala: 10m
+  registerRepeat: 3s
 
 masterNodes:
   - 157.245.57.218:5683

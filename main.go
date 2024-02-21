@@ -44,6 +44,13 @@ func main() {
 
 	everscale.Device.Address = storage.Get().Address
 
+	// сервер для запросов от клиентов и нод
+	server := coalago.NewServer()
+	server.GET("/info", handlers.GetInfo)
+	server.POST("/cmd", handlers.ExecCmd)
+	server.GET("/confirm", handlers.Confirm)
+	server.POST("/update", handlers.Update)
+
 	var nodeHost string // nodeHost нужен, чтобы передать его в alive
 	var registeredDevice *dsm.DeviceContract
 	var err error
@@ -53,7 +60,9 @@ func main() {
 		// если ошибка, то повторяем цикл регистрации
 		registeredDevice, nodeHost, err = registration.Register()
 		if err == nil {
+			// начинаем слать alive пакеты, чтобы сохранять соединение для udp punching
 			aliver.NodeHost = nodeHost
+			go aliver.Run(server, storage.Get().Address.String(), config.Time("timeout.alive"))
 			break
 		}
 		log.Error(err)
@@ -76,16 +85,6 @@ func main() {
 		}
 		log.Info("new owner added")
 	}
-
-	// сервер для запросов от клиентов и нод
-	server := coalago.NewServer()
-	server.GET("/info", handlers.GetInfo)
-	server.POST("/cmd", handlers.ExecCmd)
-	server.GET("/confirm", handlers.Confirm)
-	server.POST("/update", handlers.Update)
-
-	// начинаем слать alive пакеты, чтобы сохранять соединение для udp punching
-	go aliver.Run(server, storage.Get().Address.String(), config.Time("timeout.alive"))
 
 	// стартуем сервер
 	err = server.Listen(":" + port)

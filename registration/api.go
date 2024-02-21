@@ -26,6 +26,8 @@ type registerDeviceResp struct {
 // Register - регистрируем устройство на ноде.
 // Возвращает ip:port ноды
 func Register() (*dsm.DeviceContract, string, error) {
+	log.Debug("Register")
+
 	masterNodes := config.List("masterNodes")
 	address := storage.Get().Address
 	vendorAddress := storage.Get().Vendor
@@ -80,6 +82,7 @@ func Register() (*dsm.DeviceContract, string, error) {
 	client := coalago.NewClient()
 	msg := coalago.NewCoAPMessage(coalago.CON, coalago.POST)
 	msg.SetURIPath("/register")
+	msg.Timeout = config.Time("timeout.coala")
 	// если девайс знает свой адрес контракта, то передаем ...?a= ...
 	if len(address) > 0 {
 		msg.SetURIQuery("a", string(address))

@@ -81,6 +81,7 @@ func Confirm(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 	log.Debug(message.Payload.String())
 
 	// update registration data
+	aliver.NodeHost = ""
 	_, nodeHost, err := registration.Register()
 	if err != nil {
 		return coalago.NewResponse(coalago.NewStringPayload(err.Error()), coalago.CoapCodeInternalServerError)
