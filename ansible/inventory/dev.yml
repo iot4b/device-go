@@ -1,14 +1,14 @@
 dev:
   hosts:
     device:
-      ansible_host: 144.126.201.225
+      ansible_host: 64.23.153.200
 
   ##################################################
   vars:
     service: device
     config: dev
     port_start: 5684
-    port_end: 5687 # excluded
+    port_end: 5884 # excluded
     PROJECTPATH: ../../
     DEPLOYROOT: /opt/everiot
     BuildBin: device_bin
