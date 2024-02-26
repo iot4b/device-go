@@ -44,6 +44,17 @@ func main() {
 
 	everscale.Device.Address = storage.Get().Address
 
+	// add new owner if passed via -addOwner flag
+	if len(newOwner) > 0 {
+		log.Info("add owner:", newOwner)
+		if storage.IsOwner(newOwner) {
+			log.Warning("already an owner, skipping")
+		} else if err := everscale.Device.AddOwner(newOwner); err != nil {
+			log.Fatal(err)
+		}
+		log.Info("new owner added")
+	}
+
 	// сервер для запросов от клиентов и нод
 	server := coalago.NewServer()
 	server.GET("/info", handlers.GetInfo)
@@ -60,36 +71,23 @@ func main() {
 		// если ошибка, то повторяем цикл регистрации
 		registeredDevice, nodeHost, err = registration.Register()
 		if err == nil {
+			// если регистрация прошла успешно, то нужно обновить данные о текущем девайсе в локальном хранилище
+			err = storage.Update(registeredDevice)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			// стартуем сервер
+			go listen(server)
+
 			// начинаем слать alive пакеты, чтобы сохранять соединение для udp punching
 			aliver.NodeHost = nodeHost
 			go aliver.Run(server, storage.Get().Address.String(), config.Time("timeout.alive"))
+
 			break
 		}
 		log.Error(err)
 		time.Sleep(config.Time("timeout.registerRepeat"))
-	}
-
-	// если регистрация прошла успешно, то нужно обновить данные о текущем девайсе в локальном хранилище
-	err = storage.Update(registeredDevice)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// add new owner if passed via -addOwner flag
-	if len(newOwner) > 0 {
-		log.Info("add owner:", newOwner)
-		if storage.IsOwner(newOwner) {
-			log.Warning("already an owner, skipping")
-		} else if err := everscale.Device.AddOwner(newOwner); err != nil {
-			log.Fatal(err)
-		}
-		log.Info("new owner added")
-	}
-
-	// стартуем сервер
-	err = server.Listen(":" + port)
-	if err != nil {
-		log.Fatal(err)
 	}
 
 	c := make(chan os.Signal, 1)
@@ -107,4 +105,10 @@ func init() {
 
 	config.Init(env)
 	log.Init(config.Bool("debug"))
+}
+
+func listen(server *coalago.Server) {
+	if err := server.Listen(":" + port); err != nil {
+		log.Fatal(err)
+	}
 }
