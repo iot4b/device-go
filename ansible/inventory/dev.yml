@@ -7,7 +7,7 @@ dev:
   vars:
     service: device
     config: dev
-    port_start: 5684
+    port_start: 5084
     port_end: 5884 # excluded
     PROJECTPATH: ../../
     DEPLOYROOT: /opt/everiot
