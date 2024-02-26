@@ -16,7 +16,7 @@ type sendTransaction struct {
 }
 
 func (g *Giver) SendTokens(address string, amount int) error {
-	signer := NewSigner(g.Public, g.Secret)
+	signer := newSigner(g.Public, g.Secret)
 
 	abi, err := getAbi("Giver")
 	if err != nil {

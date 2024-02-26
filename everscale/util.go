@@ -3,8 +3,8 @@ package everscale
 import (
 	"device-go/dsm"
 	"device-go/utils"
-	"fmt"
 	"github.com/markgenuine/ever-client-go/domain"
+	log "github.com/ndmsystems/golog"
 	"github.com/pkg/errors"
 )
 
@@ -49,7 +49,7 @@ func processMessage(abi *domain.Abi, address, method string, input interface{}, 
 	}, nil)
 }
 
-func NewSigner(public, secret string) *domain.Signer {
+func newSigner(public, secret string) *domain.Signer {
 	return domain.NewSigner(domain.SignerKeys{Keys: &domain.KeyPair{
 		Public: public,
 		Secret: secret,
@@ -58,7 +58,7 @@ func NewSigner(public, secret string) *domain.Signer {
 
 // execute a [method] on a contract [name] deployed to [address]
 func execute(name string, address dsm.EverAddress, method string, input interface{}, signer *domain.Signer) ([]byte, error) {
-	fmt.Println("executing", method, "on", name, "contract at address", address)
+	log.Debug("executing", method, "on", name, "contract at address", address)
 
 	abi, err := getAbi(name)
 	if err != nil {
@@ -67,9 +67,10 @@ func execute(name string, address dsm.EverAddress, method string, input interfac
 
 	result, err := processMessage(abi, string(address), method, input, signer)
 	if err != nil {
+		log.Errorf("%s.%s: %v", name, method, err)
 		return nil, errors.Wrap(err, "processMessage")
 	}
 
-	fmt.Println(string(result.Decoded.Output))
+	log.Debug(string(result.Decoded.Output))
 	return result.Decoded.Output, nil
 }

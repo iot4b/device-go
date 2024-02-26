@@ -51,8 +51,6 @@ func Init(path, elector, vendor, vendorName, vendorData, Type, version string, o
 	if err != nil {
 		// если файла нет или ошибка формата данных, то деплоим контракт в блокчейн
 		if errors.Is(err, utils.ErrUnmarshal) || errors.Is(err, os.ErrNotExist) {
-			// todo заменить mock данные на реальные адреса в блокчейне
-			// локальный файл не найден, инициируем пустой mock
 			data := initialData{
 				Elector:    dsm.EverAddress(elector),
 				Vendor:     dsm.EverAddress(vendor),
@@ -69,7 +67,7 @@ func Init(path, elector, vendor, vendorName, vendorData, Type, version string, o
 				log.Fatal(err)
 			}
 			// сохраняем локально
-			err = writeToLocalStorage(localPath, device)
+			err = WriteToLocalStorage(localPath, device)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -113,7 +111,7 @@ func deploy(public, secret string, data initialData) (out dsm.DeviceContract, er
 		Public:  config.Get("everscale.giver.public"),
 		Secret:  config.Get("everscale.giver.secret"),
 	}
-	amount := 1_500_000_000
+	amount := 2_000_000_000
 	log.Debugf("Giver: %s", giver.Address)
 	log.Debug("Send Tokens from giver", "amount", amount, "from", giver.Address, "to", walletAddress, "amount", amount)
 	err = giver.SendTokens(walletAddress, amount)
@@ -130,7 +128,7 @@ func deploy(public, secret string, data initialData) (out dsm.DeviceContract, er
 	log.Debug("Deploy ...")
 	err = device.Deploy(data)
 	if err != nil {
-		err = errors.Wrapf(err, "device.Deploy(data)")
+		err = errors.Wrapf(err, "device.Deploy(%v)", data)
 		return
 	}
 
@@ -165,15 +163,15 @@ func Update(d *dsm.DeviceContract) error {
 	log.Debugw("Local Storage Device update", "after", *currentDevice)
 
 	// сохраняем в файл
-	return writeToLocalStorage(localPath, *currentDevice)
+	return WriteToLocalStorage(localPath, *currentDevice)
 }
 
 func Get() *dsm.DeviceContract {
 	return currentDevice
 }
 
-// writeToLocalStorage - сохраняем ноду локально
-func writeToLocalStorage(path string, d dsm.DeviceContract) error {
+// WriteToLocalStorage - сохраняем ноду локально
+func WriteToLocalStorage(path string, d dsm.DeviceContract) error {
 	data, err := json.Marshal(d)
 	if err != nil {
 		return errors.Wrap(err, "json.Marshal(device)")

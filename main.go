@@ -9,7 +9,7 @@ import (
 	"device-go/registration"
 	"device-go/shared/config"
 	"device-go/storage"
-	"fmt"
+	"flag"
 	"os"
 	"os/signal"
 	"syscall"
@@ -18,6 +18,8 @@ import (
 	"github.com/coalalib/coalago"
 	log "github.com/ndmsystems/golog"
 )
+
+var port, newOwner string
 
 //TODO  при старте девайса надо скачать смартконтракт девайса и сохранить локально.
 // В смарт контракте прописаны ключи которые имеют право присылать команды,  смарт вендора, из которого берем имя вендора для конфига
@@ -42,6 +44,24 @@ func main() {
 
 	everscale.Device.Address = storage.Get().Address
 
+	// add new owner if passed via -addOwner flag
+	if len(newOwner) > 0 {
+		log.Info("add owner:", newOwner)
+		if storage.IsOwner(newOwner) {
+			log.Warning("already an owner, skipping")
+		} else if err := everscale.Device.AddOwner(newOwner); err != nil {
+			log.Fatal(err)
+		}
+		log.Info("new owner added")
+	}
+
+	// сервер для запросов от клиентов и нод
+	server := coalago.NewServer()
+	server.GET("/info", handlers.GetInfo)
+	server.POST("/cmd", handlers.ExecCmd)
+	server.GET("/confirm", handlers.Confirm)
+	server.POST("/update", handlers.Update)
+
 	var nodeHost string // nodeHost нужен, чтобы передать его в alive
 	var registeredDevice *dsm.DeviceContract
 	var err error
@@ -51,36 +71,23 @@ func main() {
 		// если ошибка, то повторяем цикл регистрации
 		registeredDevice, nodeHost, err = registration.Register()
 		if err == nil {
+			// если регистрация прошла успешно, то нужно обновить данные о текущем девайсе в локальном хранилище
+			err = storage.Update(registeredDevice)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			// стартуем сервер
+			go listen(server)
+
+			// начинаем слать alive пакеты, чтобы сохранять соединение для udp punching
 			aliver.NodeHost = nodeHost
+			go aliver.Run(server, storage.Get().Address.String(), config.Time("timeout.alive"))
+
 			break
 		}
 		log.Error(err)
 		time.Sleep(config.Time("timeout.registerRepeat"))
-	}
-
-	// если регистрация прошла успешно, то нужно обновить данные о текущем девайсе в локальном хранилище
-	err = storage.Update(registeredDevice)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// сервер для запросов от клиентов и нод
-	server := coalago.NewServer()
-	server.GET("/info", handlers.GetInfo)
-	server.POST("/cmd", handlers.ExecCmd)
-	server.GET("/confirm", handlers.Confirm)
-
-	// начинаем слать alive пакеты, чтобы сохранять соединение для udp punching
-	go aliver.Run(server, storage.Get().Address.String(), config.Time("timeout.alive"))
-
-	// стартуем сервер
-	port := config.Get("port.device")
-	if len(os.Args) > 2 {
-		port = os.Args[2]
-	}
-	err = server.Listen(":" + port)
-	if err != nil {
-		log.Fatal(err)
 	}
 
 	c := make(chan os.Signal, 1)
@@ -90,11 +97,18 @@ func main() {
 
 // инитим конфиги и logger
 func init() {
-	if len(os.Args) < 2 {
-		fmt.Println(`Usage: server [env]`)
-		fmt.Println("Not enough arguments. Use defaults : dev")
-		os.Exit(0)
-	}
-	config.Init(os.Args[1])
+	var env string
+	flag.StringVar(&env, "env", "dev", "set environment")
+	flag.StringVar(&port, "port", "5683", "set coala port")
+	flag.StringVar(&newOwner, "addOwner", "", "add new owner public key to device contract")
+	flag.Parse()
+
+	config.Init(env)
 	log.Init(config.Bool("debug"))
+}
+
+func listen(server *coalago.Server) {
+	if err := server.Listen(":" + port); err != nil {
+		log.Fatal(err)
+	}
 }
