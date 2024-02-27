@@ -11,7 +11,7 @@ on:
 
 jobs:
 
-  deploy:
+  deploy-dev:
     runs-on: self-hosted
     env:
       HOME: "/root"
@@ -30,3 +30,23 @@ jobs:
         directory: ./ansible/playbooks
         options: |
           -i ../inventory/dev.yml
+
+  deploy-test:
+    runs-on: self-hosted
+    env:
+      HOME: "/root"
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
+
+      - name: Run Ansible playbook at ./ansible/playbooks/deploy_test.yml
+        uses: dawidd6/action-ansible-playbook@v2
+        with:
+          playbook: deploy_test.yml
+          directory: ./ansible/playbooks
+          options: |
+            -i ../inventory/test.yml

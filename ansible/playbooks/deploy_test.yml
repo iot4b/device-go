@@ -1,6 +1,6 @@
 ---
 - name: "Distribute files and restart service"
-  hosts: dev
+  hosts: test
   serial: 10 # сколько серваков обновляем в потоке. 1 - это по одному, все таски по очереди.
   gather_facts: False
   vars: 
