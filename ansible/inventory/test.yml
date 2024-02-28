@@ -1,3 +1,12 @@
+monit:
+  hosts:
+    devices:
+      ansible_host: 64.23.153.200
+  vars:
+    service: device
+    config: dev
+    monit_alert: mobile@.com # адрес для монита
+    ansible_ssh_user: root
 test:
 #  hosts:
 #    devices:
