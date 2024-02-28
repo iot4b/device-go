@@ -1,8 +1,38 @@
 ---
-
 - 
-  name: "Distribute files"
-  hosts: all
+  name: "gen hosts"
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Add hosts dynamically
+      add_host:
+        name: "{{ 'device' ~ item }}"
+        ansible_host: 64.23.153.200
+        port: "{{ 6000 + start + item }}"
+        groups: "test"
+      loop: "{{ range(count)|list }}"
+      vars:
+        start: 1
+        count: 200 
+
+- name: "build"
+  hosts: localhost
+  serial: 1 # сколько серваков обновляем в потоке. 1 - это по одному, все таски по очереди.
+  gather_facts: False
+  vars: 
+    SERVICEBIN: "{{service}}-{{config}}"
+    PROJECTPATH: ../../
+    DEPLOYROOT: /opt/everiot
+    BuildBin: device_bin
+    ansible_ssh_user: root
+    GOOS: linux
+    GOARCH: amd64
+    CGO: 1
+  tasks:
+    - include_tasks: tasks/build_golang.yml
+
+- name: "Distribute files"
+  hosts: test
   serial: 20 # сколько серваков обновляем в потоке. 1 - это по одному, все таски по очереди.
   gather_facts: False
   vars: 
@@ -10,19 +40,7 @@
     CONFIG: "{{config}}"
     DEPLOYPATH: "{{DEPLOYROOT}}/{{service}}"
   tasks:
-    - name: Add hosts dynamically
-      add_host:
-        name: "{{ 'device' ~ item }}"
-        ansible_host: 64.23.153.200
-        port: "{{ 6000 + start + item }}"
-        groups: test
-      loop: "{{ range(count)|list }}"
-      vars:
-        start: 1
-        count: 200 
-    - include_tasks: tasks/build_golang.yml
     - include_tasks: tasks/sync_files.yml
-
 
 - name: "restart monit for all services"
   hosts: monit
