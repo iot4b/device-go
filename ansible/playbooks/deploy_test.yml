@@ -43,7 +43,7 @@
     - include_tasks: tasks/sync_files.yml
 
 - name: "restart monit for all services"
-  hosts: monit
+  hosts: test
   serial: 1 # сколько серваков обновляем в потоке. 1 - это по одному, все таски по очереди.
   gather_facts: False
   vars:
