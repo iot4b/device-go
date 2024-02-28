@@ -78,6 +78,13 @@ func Register() (*dsm.DeviceContract, string, error) {
 	}
 	log.Debug("registerRequest: " + string(payload) + " address: " + address.String())
 
+	// update device node
+	err = everscale.Device.SetNode(dsm.EverAddress(fasterAddress))
+	if err != nil {
+		log.Error("everscale.Device.SetNode:", err)
+		return nil, "", err
+	}
+
 	// формируем запрос на регистрацию
 	client := coalago.NewClient()
 	msg := coalago.NewCoAPMessage(coalago.CON, coalago.POST)
@@ -109,12 +116,6 @@ func Register() (*dsm.DeviceContract, string, error) {
 	copier.Copy(&result, registerResp)
 
 	result.Node = dsm.EverAddress(fasterAddress)
-
-	// update device node
-	err = everscale.Device.SetNode(result.Node)
-	if err != nil {
-		log.Error("everscale.Device.SetNode:", err)
-	}
 
 	log.Debugw("Register result", "RegisteredDevice", result, "fasterHost", fasterHost)
 

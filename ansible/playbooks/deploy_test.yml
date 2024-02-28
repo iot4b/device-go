@@ -1,6 +1,5 @@
 ---
-- 
-  name: "gen hosts"
+- name: "gen hosts"
   hosts: localhost
   gather_facts: false
   tasks:
