@@ -12,7 +12,7 @@
 - name: Deliver monit scripts
   template:
     src={{PROJECTPATH}}/ansible/templates/monit_conf.j2
-    dest=/etc/monit/conf.d/tc_{{SERVICEBIN}}-{{port}}
+    dest=/etc/monit/conf.d/tc_{{SERVICEBIN}}-{{hostvars[inventory_hostname].port}}
     mode=0644
   vars:
-    port: "{{port}}"
+    port: "{{hostvars[inventory_hostname].port}}"

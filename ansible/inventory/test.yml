@@ -1,7 +1,7 @@
 test:
-  hosts:
-    devices:
-      ansible_host: 64.23.153.200
+#  hosts:
+#    devices:
+#      ansible_host: 64.23.153.200
 
   ##################################################
   vars:
