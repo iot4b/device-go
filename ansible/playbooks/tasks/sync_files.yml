@@ -1,22 +1,18 @@
 - name: Copy config files
   copy:
     src: "{{PROJECTPATH}}config/{{config}}.yml"
-    dest: "{{DEPLOYPATH}}-{{item}}/config/"
-    mode: 0744
-  loop: "{{ range(port_start, port_end)|list }}"
+    dest: "{{DEPLOYPATH}}-{{port}}/config/"
 
 - name: Copy compiled binary
   copy:
     src={{PROJECTPATH}}{{BuildBin}}
-    dest={{DEPLOYPATH}}-{{item}}/{{SERVICEBIN}}-{{item}}
+    dest={{DEPLOYPATH}}-{{port}}/{{SERVICEBIN}}-{{port}}
     mode=0744
-  loop: "{{ range(port_start, port_end)|list }}"
 
 - name: Deliver monit scripts
   template:
     src={{PROJECTPATH}}/ansible/templates/monit_conf.j2
-    dest=/etc/monit/conf.d/tc_{{SERVICEBIN}}-{{item}}
+    dest=/etc/monit/conf.d/tc_{{SERVICEBIN}}-{{port}}
     mode=0644
   vars:
-    port: "{{item}}"
-  loop: "{{ range(port_start, port_end)|list }}"
+    port: "{{port}}"

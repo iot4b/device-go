@@ -18,7 +18,7 @@
   hosts: localhost
   serial: 1 # сколько серваков обновляем в потоке. 1 - это по одному, все таски по очереди.
   gather_facts: False
-  vars: 
+  vars:
     SERVICEBIN: "{{service}}-{{config}}"
     PROJECTPATH: ../../
     DEPLOYROOT: /opt/everiot
@@ -34,10 +34,11 @@
   hosts: test
   serial: 20 # сколько серваков обновляем в потоке. 1 - это по одному, все таски по очереди.
   gather_facts: False
-  vars: 
+  vars:
     SERVICEBIN: "{{service}}-{{config}}"
-    CONFIG: "{{config}}"
+    PROJECTPATH: ../../
     DEPLOYPATH: "{{DEPLOYROOT}}/{{service}}"
+    port: "{{ hostvars[inventory_hostname].port }}"
   tasks:
     - include_tasks: tasks/sync_files.yml
 
@@ -45,10 +46,9 @@
   hosts: monit
   serial: 1 # сколько серваков обновляем в потоке. 1 - это по одному, все таски по очереди.
   gather_facts: False
-  vars: 
+  vars:
     SERVICEBIN: "{{service}}-{{config}}"
     CONFIG: "{{config}}"
     DEPLOYPATH: "{{DEPLOYROOT}}/{{service}}"
-
   tasks:
     - include_tasks: tasks/restart_service.yml
