@@ -1,6 +1,7 @@
 package registration
 
 import (
+	"device-go/aliver"
 	"device-go/crypto"
 	"device-go/dsm"
 	"device-go/everscale"
@@ -120,4 +121,19 @@ func Register() (*dsm.DeviceContract, string, error) {
 	log.Debugw("Register result", "RegisteredDevice", result, "fasterHost", fasterHost)
 
 	return &result, fasterHost, nil
+}
+
+// Repeat registration every 15m
+func Repeat() {
+	log.Info("Repeat registration")
+	for {
+		_, nodeHost, err := Register()
+		if err != nil {
+			log.Error(err)
+			time.Sleep(3 * time.Second)
+			continue
+		}
+		aliver.NodeHost = nodeHost
+		time.Sleep(15 * time.Minute)
+	}
 }

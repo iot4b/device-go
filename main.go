@@ -84,6 +84,9 @@ func main() {
 			aliver.NodeHost = nodeHost
 			go aliver.Run(server, storage.Get().Address.String(), config.Time("timeout.alive"))
 
+			time.Sleep(15 * time.Minute)
+			go registration.Repeat()
+
 			break
 		}
 		log.Error(err)
