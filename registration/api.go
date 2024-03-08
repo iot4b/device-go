@@ -79,11 +79,13 @@ func Register() (*dsm.DeviceContract, string, error) {
 	}
 	log.Debug("registerRequest: " + string(payload) + " address: " + address.String())
 
-	// update device node
-	err = everscale.Device.SetNode(dsm.EverAddress(fasterAddress))
-	if err != nil {
-		log.Error("everscale.Device.SetNode:", err)
-		return nil, "", err
+	// update device node if differs
+	if storage.Get().Node != dsm.EverAddress(fasterAddress) {
+		err = everscale.Device.SetNode(dsm.EverAddress(fasterAddress))
+		if err != nil {
+			log.Error("everscale.Device.SetNode:", err)
+			return nil, "", err
+		}
 	}
 
 	// формируем запрос на регистрацию
@@ -127,6 +129,16 @@ func Register() (*dsm.DeviceContract, string, error) {
 func Repeat() {
 	log.Info("Repeat registration")
 	for {
+		// update device data from smartcontract
+		device, err := everscale.Device.Get()
+		if err != nil {
+			log.Error("everscale.Device.Get:", err)
+			time.Sleep(3 * time.Second)
+			continue
+		}
+		storage.Set(device)
+		storage.WriteToLocalStorage(config.Get("localFiles.contract"), device)
+
 		_, nodeHost, err := Register()
 		if err != nil {
 			log.Error(err)

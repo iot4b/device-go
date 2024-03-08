@@ -71,11 +71,24 @@ func Init(path, elector, vendor, vendorName, vendorData, Type, version string, o
 			if err != nil {
 				log.Fatal(err)
 			}
+			everscale.Device.Address = device.Address
 			Set(device)
 			log.Debug("load device contract data from empty obj")
 			return
 		}
 		log.Fatal(err)
+	}
+	// if data file is present then update it from smartcontract
+	log.Debug("Sync with smartcontract...")
+	everscale.Device.Address = localData.Address
+	localData, err = everscale.Device.Get()
+	if err != nil {
+		log.Error("everscale.Device.Get:", err)
+		return
+	}
+	if err = WriteToLocalStorage(localPath, localData); err != nil {
+		log.Error("WriteToLocalStorage:", err)
+		return
 	}
 	// если все ок прочиталось из файла, то уст. данные из дампа
 	Set(localData)

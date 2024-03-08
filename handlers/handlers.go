@@ -47,6 +47,9 @@ func GetInfo(_ *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 
 func ExecCmd(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 	log.Debug(message.Payload.String())
+	if storage.Get().Lock {
+		return coalago.NewResponse(coalago.NewStringPayload("device is locked"), coalago.CoapCodeForbidden)
+	}
 	// parsing message from node
 	command, err := cmd.Build(message.Payload.Bytes())
 	if err != nil {

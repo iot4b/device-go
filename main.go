@@ -42,8 +42,6 @@ func main() {
 		config.Get("info.version"),
 		config.List("everscale.owners"))
 
-	everscale.Device.Address = storage.Get().Address
-
 	// add new owner if passed via -addOwner flag
 	if len(newOwner) > 0 {
 		log.Info("add owner:", newOwner)
