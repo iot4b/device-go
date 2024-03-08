@@ -12,7 +12,7 @@
       loop: "{{ range(count)|list }}"
       vars:
         start: 1
-        count: 200 
+        count: 500 
 
 - name: "build"
   hosts: localhost
