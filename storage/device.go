@@ -1,17 +1,12 @@
 package storage
 
 import (
-	"device-go/crypto"
 	"device-go/dsm"
-	"device-go/everscale"
-	"device-go/shared/config"
 	"device-go/utils"
 	"encoding/json"
 	"github.com/jinzhu/copier"
 	log "github.com/ndmsystems/golog"
 	"github.com/pkg/errors"
-	"os"
-	"time"
 )
 
 var (
@@ -49,134 +44,16 @@ func Init(path, elector, vendor, vendorName, vendorData, Type, version string, o
 	// чекаем локально наличие файла
 	localData, err := readFromLocalStorage(localPath)
 	if err != nil {
-		// если файла нет или ошибка формата данных, то деплоим контракт в блокчейн
-		if errors.Is(err, utils.ErrUnmarshal) || errors.Is(err, os.ErrNotExist) {
-			data := initialData{
-				Elector:    dsm.EverAddress(elector),
-				Vendor:     dsm.EverAddress(vendor),
-				Owners:     owners,
-				Type:       Type,
-				Version:    version,
-				VendorName: vendorName,
-				VendorData: vendorData,
-			}
-			log.Debug("initial contract data", data)
-
-			device, err := deploy(crypto.Keys.PublicSign, crypto.Keys.Secret, data)
-			if err != nil {
-				log.Fatal(err)
-			}
-			// сохраняем локально
-			err = WriteToLocalStorage(localPath, device)
-			if err != nil {
-				log.Fatal(err)
-			}
-			everscale.Device.Address = device.Address
-			Set(device)
-			log.Debug("load device contract data from empty obj")
-			return
-		}
 		log.Fatal(err)
-	}
-	// if data file is present then update it from smartcontract
-	log.Debug("Sync with smartcontract...")
-	everscale.Device.Address = localData.Address
-	localData, err = everscale.Device.Get()
-	if err != nil {
-		log.Error("everscale.Device.Get:", err)
-		return
-	}
-	if err = WriteToLocalStorage(localPath, localData); err != nil {
-		log.Error("WriteToLocalStorage:", err)
-		return
 	}
 	// если все ок прочиталось из файла, то уст. данные из дампа
 	Set(localData)
 	log.Debug("load device contract data from local dump file")
 }
 
-func deploy(public, secret string, data initialData) (out dsm.DeviceContract, err error) {
-	log.Debug("Deploy device contract")
-	// валидируем
-	err = data.validate()
-	if err != nil {
-		return
-	}
-	log.Debug("validate initial data OK!")
-
-	abi, tvc, err := everscale.ReadContract()
-	if err != nil {
-		return
-	}
-
-	// init ContractBuilder
-	device := &everscale.ContractBuilder{Public: public, Secret: secret, Abi: abi, Tvc: tvc}
-	device.InitDeployOptions()
-
-	// вычислив адрес, нужно на него завести средства, чтобы вы
-	walletAddress := device.CalcWalletAddress()
-
-	log.Info("Deploying device contract at address:", walletAddress)
-
-	// пополняем баланс wallet'a нового девайса
-	giver := &everscale.Giver{
-		Address: config.Get("everscale.giver.address"),
-		Public:  config.Get("everscale.giver.public"),
-		Secret:  config.Get("everscale.giver.secret"),
-	}
-	amount := 50_000_000_000
-	log.Debugf("Giver: %s", giver.Address)
-	log.Debug("Send Tokens from giver", "amount", amount, "from", giver.Address, "to", walletAddress, "amount", amount)
-	err = giver.SendTokens(walletAddress, amount)
-	if err != nil {
-		err = errors.Wrapf(err, "giver.SendTokens()")
-		return
-	}
-
-	wait := 15 * time.Second
-	log.Debugf("Wait %v seconds ...", wait.Seconds())
-	time.Sleep(wait)
-
-	// после всех сборок деплоим контракт
-	log.Debug("Deploy ...")
-	err = device.Deploy(data)
-	if err != nil {
-		err = errors.Wrapf(err, "device.Deploy(%v)", data)
-		return
-	}
-
-	// формируем ответ в формате json
-	err = utils.JsonMapToStruct(data, &out)
-	out.Address = dsm.EverAddress(walletAddress)
-
-	log.Debug("device", out)
-	return
-}
-
 func Set(d dsm.DeviceContract) {
 	copier.Copy(currentDevice, d)
 	log.Debugw("local storage device set", "value", *currentDevice)
-}
-
-func Update(d *dsm.DeviceContract) error {
-	log.Debugw("local storage device update", "before", *currentDevice)
-
-	// не был задан адрес, значит новый девайс
-	if len(currentDevice.Address) == 0 && len(d.Address) > 0 {
-		currentDevice.Address = d.Address
-	}
-	// электор задается один раз при старте и в дальнейшем, только vendor может изменить
-	if len(currentDevice.Elector) == 0 && len(d.Elector) > 0 {
-		currentDevice.Elector = d.Elector
-	}
-	// Node всегда перезаписывается
-	currentDevice.Node = d.Node
-	currentDevice.Stat = d.Stat
-
-	log.Debugw("Local Storage Device update", "after", *currentDevice)
-
-	// сохраняем в файл
-	return WriteToLocalStorage(localPath, *currentDevice)
 }
 
 func Get() *dsm.DeviceContract {

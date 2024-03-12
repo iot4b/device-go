@@ -13,7 +13,7 @@ localFiles:
 timeout:
   alive: 10s
   coala: 10m
-  registerRepeat: 3s
+  registerRepeat: 20m
 
 masterNodes:
   - 157.245.57.218:5683

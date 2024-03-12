@@ -4,7 +4,6 @@ import (
 	"device-go/aliver"
 	"device-go/crypto"
 	"device-go/dsm"
-	"device-go/everscale"
 	"device-go/shared/config"
 	"device-go/storage"
 	"encoding/json"
@@ -26,7 +25,7 @@ type registerDeviceResp struct {
 
 // Register - регистрируем устройство на ноде.
 // Возвращает ip:port ноды
-func Register() (*dsm.DeviceContract, string, error) {
+func Register() error {
 	log.Debug("Register")
 
 	masterNodes := config.List("masterNodes")
@@ -41,7 +40,7 @@ func Register() (*dsm.DeviceContract, string, error) {
 	// получаем список доступных нод с рандомной мастер ноды
 	masterNode, list, err := endpointList(masterNodes)
 	if err != nil {
-		return nil, "", errors.Wrap(err, "getEndpoints")
+		return errors.Wrap(err, "getEndpoints")
 	}
 	log.Debug("endpoints: %+v", list)
 
@@ -53,9 +52,9 @@ func Register() (*dsm.DeviceContract, string, error) {
 	for _, host := range list {
 		t, err := ping(host.IpPort)
 		if err != nil {
-			if host.IpPort != "240.0.0.0:65535" { // non-existent node
-				log.Error(err)
-			}
+			//if host.IpPort != "240.0.0.0:65535" { // non-existent node
+			//	log.Error(err)
+			//}
 			continue
 		}
 		if lastTime > t || lastTime == 0 {
@@ -75,18 +74,9 @@ func Register() (*dsm.DeviceContract, string, error) {
 		VendorData: vendorData,
 	})
 	if err != nil {
-		return nil, "", errors.Wrap(err, "json.Marshal(payload)")
+		return errors.Wrap(err, "json.Marshal(payload)")
 	}
 	log.Debug("registerRequest: " + string(payload) + " address: " + address.String())
-
-	// update device node if differs
-	if storage.Get().Node != dsm.EverAddress(fasterAddress) {
-		err = everscale.Device.SetNode(dsm.EverAddress(fasterAddress))
-		if err != nil {
-			log.Error("everscale.Device.SetNode:", err)
-			return nil, "", err
-		}
-	}
 
 	// формируем запрос на регистрацию
 	client := coalago.NewClient()
@@ -102,7 +92,7 @@ func Register() (*dsm.DeviceContract, string, error) {
 	// отправляем запрос на регистрацию
 	resp, err := client.Send(msg, fasterHost)
 	if err != nil {
-		return nil, "", errors.Wrap(err, "client.Send")
+		return errors.Wrap(err, "client.Send")
 	}
 
 	// парсим ответ и обновляем локальный дамп контракта
@@ -110,42 +100,36 @@ func Register() (*dsm.DeviceContract, string, error) {
 	err = json.Unmarshal(resp.Body, &registerResp)
 	if err != nil {
 		log.Debug("registerResponse: "+string(resp.Body), "code: "+string(resp.Code))
-		return nil, "", errors.Wrap(err, "json.Unmarshal(resp.Body, &registerResp)")
+		return errors.Wrap(err, "json.Unmarshal(resp.Body, &registerResp)")
 	}
 	log.Debug("registerResponse: " + string(resp.Body))
 
 	// копируем актуальные поля
-	result := dsm.DeviceContract{}
-	copier.Copy(&result, registerResp)
+	result := storage.Get()
+	copier.Copy(result, registerResp)
 
 	result.Node = dsm.EverAddress(fasterAddress)
 
+	// update local data
+	storage.Set(*result)
+	storage.WriteToLocalStorage(config.Get("localFiles.contract"), *result)
+	aliver.NodeHost = fasterHost
+
 	log.Debugw("Register result", "RegisteredDevice", result, "fasterHost", fasterHost)
 
-	return &result, fasterHost, nil
+	return nil
 }
 
-// Repeat registration every 15m
+// Repeat registration in a period
 func Repeat() {
 	log.Info("Repeat registration")
 	for {
-		// update device data from smartcontract
-		device, err := everscale.Device.Get()
-		if err != nil {
-			log.Error("everscale.Device.Get:", err)
-			time.Sleep(3 * time.Second)
-			continue
-		}
-		storage.Set(device)
-		storage.WriteToLocalStorage(config.Get("localFiles.contract"), device)
-
-		_, nodeHost, err := Register()
+		err := Register()
 		if err != nil {
 			log.Error(err)
 			time.Sleep(3 * time.Second)
 			continue
 		}
-		aliver.NodeHost = nodeHost
-		time.Sleep(15 * time.Minute)
+		time.Sleep(config.Time("timeout.registerRepeat"))
 	}
 }

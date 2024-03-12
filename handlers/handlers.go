@@ -1,14 +1,13 @@
 package handlers
 
 import (
-	"device-go/aliver"
 	"device-go/cmd"
 	"device-go/crypto"
-	"device-go/everscale"
-	"device-go/registration"
+	"device-go/dsm"
 	"device-go/shared/config"
 	"device-go/storage"
 	"encoding/json"
+	"github.com/jinzhu/copier"
 	"time"
 
 	"github.com/coalalib/coalago"
@@ -79,27 +78,20 @@ func ExecCmd(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 	return coalago.NewResponse(coalago.NewStringPayload(out), coalago.CoapCodeContent)
 }
 
-// Confirm registration on the node
-func Confirm(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
-	log.Debug(message.Payload.String())
-
-	// update registration data
-	_, nodeHost, err := registration.Register()
-	if err != nil {
-		return coalago.NewResponse(coalago.NewStringPayload(err.Error()), coalago.CoapCodeInternalServerError)
-	}
-	aliver.NodeHost = nodeHost
-
-	return coalago.NewResponse(coalago.NewStringPayload(""), coalago.CoapCodeContent)
-}
-
 // Update local device info with actual data from blockchain
 func Update(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 	log.Debug(message.Payload.String())
 
 	var payload struct {
-		Sign   string `json:"sign"`
-		Pubkey string `json:"pubkey"`
+		Address          dsm.EverAddress `json:"address"`
+		Node             dsm.EverAddress `json:"node"`
+		Active           bool            `json:"active,omitempty"`
+		Lock             bool            `json:"lock,omitempty"`
+		Stat             bool            `json:"stat,omitempty"`
+		Version          string          `json:"version,omitempty"`
+		LastRegisterTime string          `json:"lastRegisterTime,omitempty"`
+		NodePubKey       string          `json:"nodePubKey"`
+		Sign             string          `json:"sign"`
 	}
 	err := json.Unmarshal(message.Payload.Bytes(), &payload)
 	if err != nil {
@@ -107,29 +99,32 @@ func Update(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 		return coalago.NewResponse(coalago.NewStringPayload(err.Error()), coalago.CoapCodeBadRequest)
 	}
 
+	device := storage.Get()
+	if payload.Address != device.Address {
+		return coalago.NewResponse(coalago.NewStringPayload("wrong device address"), coalago.CoapCodeBadRequest)
+	}
+
 	// verify signature
 	format := "2006-01-02 15:04"
 	now := time.Now()
 	cur := now.Format(format)
-	if !crypto.Keys.VerifySignature(payload.Pubkey, []byte(cur), payload.Sign) {
+	if !crypto.Keys.VerifySignature(payload.NodePubKey, []byte(cur), payload.Sign) {
 		prev := now.Add(-time.Minute).Format(format)
-		if !crypto.Keys.VerifySignature(payload.Pubkey, []byte(prev), payload.Sign) {
+		if !crypto.Keys.VerifySignature(payload.NodePubKey, []byte(prev), payload.Sign) {
 			return coalago.NewResponse(coalago.NewStringPayload("invalid signature"), coalago.CoapCodeBadRequest)
 		}
 	}
 
-	// get data from device contract
-	d, err := everscale.Device.Get()
-	if err != nil {
-		return coalago.NewResponse(coalago.NewStringPayload(err.Error()), coalago.CoapCodeInternalServerError)
-	}
+	// update local data from payload
+	copier.Copy(device, payload)
+
 	// write to local file
-	err = storage.WriteToLocalStorage(config.Get("localFiles.contract"), d)
+	err = storage.WriteToLocalStorage(config.Get("localFiles.contract"), *device)
 	if err != nil {
 		return coalago.NewResponse(coalago.NewStringPayload(err.Error()), coalago.CoapCodeInternalServerError)
 	}
 	// set data to memory
-	storage.Set(d)
+	storage.Set(*device)
 
 	return coalago.NewResponse(coalago.NewStringPayload(""), coalago.CoapCodeContent)
 }

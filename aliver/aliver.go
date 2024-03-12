@@ -28,6 +28,7 @@ func Run(s *coalago.Server, address string, aliveInterval time.Duration) {
 		time.Sleep(aliveInterval)
 
 		if NodeHost == "" {
+			time.Sleep(time.Second)
 			continue
 		}
 		//start := time.Now()
