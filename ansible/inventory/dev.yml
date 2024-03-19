@@ -21,4 +21,4 @@ dev:
     ansible_ssh_user: root
     GOOS: linux
     GOARCH: amd64
-    CGO: 1
+    CGO: 0
