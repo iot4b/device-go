@@ -9,6 +9,7 @@ import (
 	"errors"
 	"golang.org/x/crypto/curve25519"
 	"golang.org/x/crypto/nacl/box"
+	"golang.org/x/crypto/nacl/sign"
 	"io"
 	"os"
 
@@ -21,6 +22,21 @@ type keys struct {
 	PublicSign string `json:"public_sign"` // public key for signing
 	PublicNacl string `json:"public_nacl"` // public key for nacl box encryption
 	Secret     string `json:"secret"`      // shared secret key for both public keys
+}
+
+// Sign unsigned message using sign key pair, returns signature
+func (k *keys) Sign(unsigned []byte) string {
+	private, err := hex.DecodeString(k.Secret)
+	if err != nil {
+		return ""
+	}
+	public, err := hex.DecodeString(k.PublicSign)
+	if err != nil {
+		return ""
+	}
+	signature := sign.Sign(nil, unsigned, (*[64]byte)(append(private, public...)))
+
+	return hex.EncodeToString(signature[:64])
 }
 
 // VerifySignature reports whether sig is a valid signature of message by public key

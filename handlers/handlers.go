@@ -6,6 +6,7 @@ import (
 	"device-go/dsm"
 	"device-go/shared/config"
 	"device-go/storage"
+	"encoding/base64"
 	"encoding/json"
 	"github.com/jinzhu/copier"
 	"time"
@@ -91,7 +92,7 @@ func Update(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 		Version          string          `json:"version,omitempty"`
 		LastRegisterTime string          `json:"lastRegisterTime,omitempty"`
 		NodePubKey       string          `json:"nodePubKey"`
-		Sign             string          `json:"sign"`
+		Signature        string          `json:"signature"`
 	}
 	err := json.Unmarshal(message.Payload.Bytes(), &payload)
 	if err != nil {
@@ -108,9 +109,9 @@ func Update(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 	format := "2006-01-02 15:04"
 	now := time.Now()
 	cur := now.Format(format)
-	if !crypto.Keys.VerifySignature(payload.NodePubKey, []byte(cur), payload.Sign) {
+	if !crypto.Keys.VerifySignature(payload.NodePubKey, []byte(cur), payload.Signature) {
 		prev := now.Add(-time.Minute).Format(format)
-		if !crypto.Keys.VerifySignature(payload.NodePubKey, []byte(prev), payload.Sign) {
+		if !crypto.Keys.VerifySignature(payload.NodePubKey, []byte(prev), payload.Signature) {
 			return coalago.NewResponse(coalago.NewStringPayload("invalid signature"), coalago.CoapCodeBadRequest)
 		}
 	}
@@ -127,4 +128,28 @@ func Update(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 	storage.Set(*device)
 
 	return coalago.NewResponse(coalago.NewStringPayload(""), coalago.CoapCodeContent)
+}
+
+// Sign data with key pair and return signature
+func Sign(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
+	log.Debug(message.Payload.String())
+
+	var payload struct {
+		Unsigned string `json:"u"`
+	}
+	err := json.Unmarshal(message.Payload.Bytes(), &payload)
+	if err != nil {
+		log.Error(err)
+		return coalago.NewResponse(coalago.NewStringPayload(err.Error()), coalago.CoapCodeBadRequest)
+	}
+
+	unsigned, err := base64.StdEncoding.DecodeString(payload.Unsigned)
+	if err != nil {
+		log.Error(err)
+		return coalago.NewResponse(coalago.NewStringPayload(err.Error()), coalago.CoapCodeBadRequest)
+	}
+
+	signature := crypto.Keys.Sign(unsigned)
+
+	return coalago.NewResponse(coalago.NewStringPayload(signature), coalago.CoapCodeContent)
 }

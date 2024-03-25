@@ -42,6 +42,7 @@ func main() {
 	server.GET("/info", handlers.GetInfo)
 	server.POST("/cmd", handlers.ExecCmd)
 	server.POST("/update", handlers.Update)
+	server.POST("/sign", handlers.Sign)
 
 	for {
 		// регистрируем устройство на ноде
