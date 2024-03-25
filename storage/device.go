@@ -41,14 +41,28 @@ func Init(path, elector, vendor, vendorName, vendorData, Type, version string, o
 	log.Info("Init Local Storage")
 	log.Debug(path, elector, vendor, vendorName, vendorData, Type, version, owners)
 
+	var localData dsm.DeviceContract
+	var err error
+
 	// чекаем локально наличие файла
-	localData, err := readFromLocalStorage(localPath)
-	if err != nil {
-		log.Fatal(err)
+	if utils.FileExists(localPath) {
+		localData, err = readFromLocalStorage(localPath)
+		if err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		localData = dsm.DeviceContract{
+			Elector:    dsm.EverAddress(elector),
+			Vendor:     dsm.EverAddress(vendor),
+			Owners:     owners,
+			Type:       Type,
+			Version:    version,
+			VendorName: vendorName,
+			VendorData: vendorData,
+		}
 	}
-	// если все ок прочиталось из файла, то уст. данные из дампа
+
 	Set(localData)
-	log.Debug("load device contract data from local dump file")
 }
 
 func Set(d dsm.DeviceContract) {

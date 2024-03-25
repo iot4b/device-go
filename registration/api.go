@@ -31,10 +31,13 @@ func Register() error {
 	masterNodes := config.List("masterNodes")
 	address := storage.Get().Address
 	vendorAddress := storage.Get().Vendor
+	electorAddress := storage.Get().Elector
+	owners := storage.Get().Owners
 
 	public := crypto.Keys.PublicSign
 	version := storage.Get().Version
 	Type := storage.Get().Type
+	vendorName := storage.Get().VendorName
 	vendorData := storage.Get().VendorData
 
 	// получаем список доступных нод с рандомной мастер ноды
@@ -67,10 +70,13 @@ func Register() error {
 
 	payload, err := json.Marshal(registerRequest{
 		Address:    address,
+		Elector:    electorAddress,
 		Vendor:     vendorAddress,
-		Key:        public,
+		Owners:     owners,
+		PublicKey:  public,
 		Version:    version,
 		Type:       Type,
+		VendorName: vendorName,
 		VendorData: vendorData,
 	})
 	if err != nil {
