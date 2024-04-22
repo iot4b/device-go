@@ -109,11 +109,11 @@ func (c CMD) Execute() (string, error) {
 
 	if len(res.Stderr) > 0 {
 		log.Error(body, res.Stderr)
-		return "", errors.New(res.Stderr)
+		return res.Stdout, errors.New(res.Stderr)
 	}
 	if res.ExitCode != 0 {
 		log.Error(body, "Non-zero exit code: "+res.Stderr)
-		return "", errors.New("Non-zero exit code: " + res.Stderr)
+		return res.Stdout, errors.New("Non-zero exit code: " + res.Stderr)
 	}
 
 	log.Debug(body, res.Stdout)
