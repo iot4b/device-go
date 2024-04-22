@@ -96,7 +96,7 @@ func (c CMD) Execute() (string, error) {
 	return string(outRes), errors.New(err.Error() + string(outErr))
 }
 
-func (c CMD) Execute2() (string, error) {
+func (c CMD) Execute1() (string, error) {
 
 	log.Debug(c.Readable())
 
@@ -138,7 +138,7 @@ func (c CMD) Execute2() (string, error) {
 	return res.Stdout, nil
 }
 
-func (c CMD) Execute1() (string, error) {
+func (c CMD) Execute2() (string, error) {
 
 	log.Debug(c.Readable())
 
