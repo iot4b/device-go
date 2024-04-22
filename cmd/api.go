@@ -98,12 +98,12 @@ func (c CMD) Execute() (string, error) {
 	log.Debug(cmdArr[0], args)
 
 	ls := execute.ExecTask{
-		Command: cmdArr[0],
-		Args:    args,
-		Shell:   true,
-		Env:     []string{"TERM=xterm"},
+		Command:     cmdArr[0],
+		Args:        args,
+		Shell:       true,
+		StreamStdio: true,
+		Env:         []string{"TERM=xterm"},
 		//Env:     []string{"TERM=linux"},
-
 	}
 	res, err := ls.Execute(context.Background())
 	if err != nil {
