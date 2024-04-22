@@ -12,6 +12,7 @@ require (
 )
 
 require (
+	github.com/alexellis/go-execute/v2 v2.2.1
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/lucas-clemente/aes12 v0.0.0-20171027163421-cd47fb39b79f // indirect

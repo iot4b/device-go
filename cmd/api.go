@@ -1,15 +1,15 @@
 package cmd
 
 import (
-	"bufio"
+	"context"
 	"crypto/sha256"
 	"device-go/crypto"
 	"device-go/shared/config"
 	"encoding/json"
 	"errors"
-	"os/exec"
 	"strings"
 
+	execute "github.com/alexellis/go-execute/v2"
 	log "github.com/ndmsystems/golog"
 )
 
@@ -89,6 +89,37 @@ func (c CMD) Execute() (string, error) {
 		return "", err
 	}
 
+	// rum cmd and catch the output
+	cmdArr := strings.Split(body, " ")
+	var args []string
+	if len(cmdArr) > 1 {
+		args = cmdArr[1:]
+	}
+	log.Debug(cmdArr[0], args)
+
+	ls := execute.ExecTask{
+		Command: cmdArr[0],
+		Args:    args,
+		Shell:   true,
+	}
+	res, err := ls.Execute(context.Background())
+	if err != nil {
+		log.Error(body, err.Error())
+	}
+
+	if len(res.Stderr) > 0 {
+		log.Error(body, res.Stderr)
+		return "", errors.New(res.Stderr)
+	}
+	if res.ExitCode != 0 {
+		log.Error(body, "Non-zero exit code: "+res.Stderr)
+		return "", errors.New("Non-zero exit code: " + res.Stderr)
+	}
+
+	log.Debug(body, res.Stdout)
+	return res.Stdout, nil
+
+	/* старый код
 	cmdArr := strings.Split(body, " ")
 	var args []string
 	if len(cmdArr) > 1 {
@@ -123,6 +154,8 @@ func (c CMD) Execute() (string, error) {
 	for scanner.Scan() {
 		out += scanner.Text() + "\n"
 	}
+
 	log.Debug(out)
 	return out, nil
+	*/
 }
