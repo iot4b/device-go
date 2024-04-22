@@ -8,8 +8,9 @@ import (
 	"device-go/storage"
 	"encoding/base64"
 	"encoding/json"
-	"github.com/jinzhu/copier"
 	"time"
+
+	"github.com/jinzhu/copier"
 
 	"github.com/coalalib/coalago"
 	log "github.com/ndmsystems/golog"
@@ -74,7 +75,7 @@ func ExecCmd(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 	// execute command
 	out, err := command.Execute()
 	if err != nil {
-		return coalago.NewResponse(coalago.NewStringPayload(err.Error()), coalago.CoapCodeBadRequest)
+		return coalago.NewResponse(coalago.NewStringPayload(out+" err:"+err.Error()), coalago.CoapCodeBadRequest)
 	}
 	return coalago.NewResponse(coalago.NewStringPayload(out), coalago.CoapCodeContent)
 }
