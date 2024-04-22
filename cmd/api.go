@@ -101,6 +101,7 @@ func (c CMD) Execute() (string, error) {
 		Command: cmdArr[0],
 		Args:    args,
 		Shell:   true,
+		Env:     []string{"TERM=linux"},
 	}
 	res, err := ls.Execute(context.Background())
 	if err != nil {
