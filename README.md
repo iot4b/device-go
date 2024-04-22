@@ -1,8 +1,5 @@
 ## EVER-IOT DEVICE CLIENT APP
 
-### Related dependencies
-This repo requires to install and setup -lton_client: [guide](https://github.com/markgenuine/ever-client-go) in related lib
-
 ### Install
 
 ```shell
@@ -14,10 +11,10 @@ go mod tidy
 ### Run
 
 ```shell
-go run main.go <config-name>
+go run main.go -env <config-name> -port <port-number>
 ```
 example
 ```shell
-go run main.go dev
+go run main.go -env dev -port 5684
 ```
 will be used ./config/dev.yml

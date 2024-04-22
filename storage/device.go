@@ -60,6 +60,9 @@ func Init(path, elector, vendor, vendorName, vendorData, Type, version string, o
 			VendorName: vendorName,
 			VendorData: vendorData,
 		}
+		if err = WriteToLocalStorage(localPath, localData); err != nil {
+			log.Errorf("WriteToLocalStorage: %v", err)
+		}
 	}
 
 	Set(localData)

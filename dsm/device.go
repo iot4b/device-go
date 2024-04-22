@@ -4,14 +4,14 @@ package dsm
 type DeviceContract struct {
 	Address EverAddress `json:"address,omitempty"` //ever SC address текущего Device
 	Node    EverAddress `json:"node,omitempty"`    //ever SC address Node, с которой девайс создал последнее соединение
-	Elector EverAddress `json:"elector,omitempty"` //ever SC адрес Elector'a, который обслуживает сеть нод для текущего девайса
-	Vendor  EverAddress `json:"vendor,omitempty"`  //ever SC address производителя текущего девайса. по-умолчанию из конфигов берем
+	Elector EverAddress `json:"elector"`           //ever SC адрес Elector'a, который обслуживает сеть нод для текущего девайса
+	Vendor  EverAddress `json:"vendor"`            //ever SC address производителя текущего девайса. по-умолчанию из конфигов берем
 
-	Owners []string `json:"owners,omitempty"` // owners public keys list
+	Owners []string `json:"owners"` // owners public keys list
 
-	Active     bool   `json:"active,omitempty"`     // if device is active
-	Lock       bool   `json:"lock,omitempty"`       // if device is locked
-	Stat       bool   `json:"stat,omitempty"`       // нужно ли девайсу слать статистику
+	Active     bool   `json:"active"`               // if device is active
+	Lock       bool   `json:"lock"`                 // if device is locked
+	Stat       bool   `json:"stat"`                 // нужно ли девайсу слать статистику
 	Type       string `json:"dtype,omitempty"`      // модель/тип девайса
 	Version    string `json:"version,omitempty"`    // версия текущей прошивки на девайсе
 	VendorName string `json:"vendorName,omitempty"` // название производителя
