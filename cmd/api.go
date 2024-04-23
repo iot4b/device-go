@@ -82,7 +82,7 @@ func (c CMD) VerifySignature() bool {
 }
 
 // Execute executes command and returns result and error if any occurs
-func (c CMD) Execute() (string, error) {
+func (c CMD) Execute1() (string, error) {
 
 	log.Debug(c.Readable())
 
@@ -96,7 +96,7 @@ func (c CMD) Execute() (string, error) {
 	return string(outRes), errors.New(err.Error() + string(outErr))
 }
 
-func (c CMD) Execute1() (string, error) {
+func (c CMD) Execute() (string, error) {
 
 	log.Debug(c.Readable())
 
@@ -116,7 +116,7 @@ func (c CMD) Execute1() (string, error) {
 		Command:     cmdArr[0],
 		Args:        args,
 		Shell:       true,
-		StreamStdio: true,
+		StreamStdio: false,
 		Env:         []string{"TERM=xterm"},
 		//Env:     []string{"TERM=linux"},
 	}
