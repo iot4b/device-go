@@ -2,12 +2,14 @@ package cmd
 
 import (
 	"bufio"
+	"bytes"
 	"context"
 	"crypto/sha256"
 	"device-go/crypto"
 	"device-go/shared/config"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os/exec"
 	"strings"
 
@@ -97,6 +99,26 @@ func (c CMD) Execute1() (string, error) {
 }
 
 func (c CMD) Execute() (string, error) {
+	log.Debug(c.Readable())
+
+	body, err := crypto.Keys.Decrypt(c.Body, c.SenderNacl)
+	if err != nil {
+		return "", err
+	}
+	// Осуществляет выполнение команды с сохранением форматирования вывода
+	command := exec.Command("bash", "-c", body)
+	var out bytes.Buffer
+	var stderr bytes.Buffer
+	command.Stdout = &out
+	command.Stderr = &stderr
+	err = command.Run()
+	if err != nil {
+		return fmt.Sprintf("%s\n%s", out.String(), stderr.String()), err
+	}
+	return out.String(), nil
+}
+
+func (c CMD) Execute3() (string, error) {
 
 	log.Debug(c.Readable())
 
