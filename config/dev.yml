@@ -12,7 +12,7 @@ localFiles:
 
 timeout:
   alive: 10s
-  coala: 10m
+  coala: 3m
   registerRepeat: 20m
 
 masterNodes:

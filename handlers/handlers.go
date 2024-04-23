@@ -82,7 +82,7 @@ func ExecCmd(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 
 // Update local device info with actual data from blockchain
 func Update(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
-	log.Debug(message.Payload.String())
+	log.Debug("Update:", message.Payload.String())
 
 	var payload struct {
 		Address          dsm.EverAddress `json:"address"`
@@ -108,7 +108,7 @@ func Update(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 
 	// verify signature
 	format := "2006-01-02 15:04"
-	now := time.Now()
+	now := time.Now().UTC()
 	cur := now.Format(format)
 	if !crypto.Keys.VerifySignature(payload.NodePubKey, []byte(cur), payload.Signature) {
 		prev := now.Add(-time.Minute).Format(format)
@@ -133,7 +133,7 @@ func Update(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 
 // Sign data with key pair and return signature
 func Sign(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
-	log.Debug(message.Payload.String())
+	log.Debug("Sign:", message.Payload.String())
 
 	var payload struct {
 		Unsigned string `json:"u"`
