@@ -26,14 +26,14 @@
     ansible_ssh_user: root
     GOOS: linux
     GOARCH: amd64
-    CGO: 1
+    CGO: 0
   tasks:
     - include_tasks: tasks/build_golang.yml
 
 - name: "Distribute files"
   hosts: test
-  strategy: free
-  #serial: 200 # сколько серваков обновляем в потоке. 1 - это по одному, все таски по очереди.
+  #strategy: free
+  serial: 200 # сколько серваков обновляем в потоке. 1 - это по одному, все таски по очереди.
   gather_facts: False
   vars:
     SERVICEBIN: "{{service}}-{{config}}"
