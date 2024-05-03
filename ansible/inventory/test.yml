@@ -1,6 +1,6 @@
 monit:
   hosts:
-    devices1:
+    devices:
       #ansible_host: 64.23.153.200
       ansible_host: 165.232.136.77
   vars:
