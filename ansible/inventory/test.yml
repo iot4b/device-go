@@ -16,7 +16,7 @@ test:
   ##################################################
   vars:
     service: device
-    config: dev
+    config: test
     PROJECTPATH: ../../
     DEPLOYROOT: /Users/alexey/Documents/everiot/devices
     BuildBin: device_bin

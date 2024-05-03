@@ -30,3 +30,12 @@ jobs:
         directory: ./ansible/playbooks
         options: |
           -i ../inventory/dev.yml
+
+
+    - name: Run Ansible playbook at ./ansible/playbooks/deploy_test.yml
+      uses: dawidd6/action-ansible-playbook@v2
+      with:
+        playbook: deploy_test.yml
+        directory: ./ansible/playbooks
+        options: |
+          -i ../inventory/test.yml
