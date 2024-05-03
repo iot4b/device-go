@@ -2,3 +2,4 @@
 config/local.yml
 device.contract.json
 device.keys.json
+device_bin
