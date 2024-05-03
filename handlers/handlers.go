@@ -17,13 +17,19 @@ import (
 )
 
 type info struct {
-	Address    string `json:"address"`
-	Version    string `json:"version"`
-	Elector    string `json:"elector"`
-	Node       string `json:"node"`
-	Type       string `json:"type"`
-	PublicSign string `json:"public_sign"`
-	PublicNacl string `json:"public_nacl"`
+	Address    string   `json:"address"`
+	Version    string   `json:"version"`
+	Elector    string   `json:"elector"`
+	Node       string   `json:"node"`
+	Type       string   `json:"type"`
+	PublicSign string   `json:"public_sign"`
+	PublicNacl string   `json:"public_nacl"`
+	Vendor     string   `json:"vendor"`
+	VendorName string   `json:"vendorName"`
+	Owners     []string `json:"owners"`
+	Active     bool     `json:"active"`
+	Lock       bool     `json:"lock"`
+	Stat       bool     `json:"stat"`
 }
 
 // info для коалы
@@ -36,6 +42,12 @@ func GetInfo(_ *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 		Node:       string(storage.Get().Node),
 		PublicSign: crypto.Keys.PublicSign,
 		PublicNacl: crypto.Keys.PublicNacl,
+		Vendor:     string(storage.Get().Vendor),
+		VendorName: storage.Get().VendorName,
+		Owners:     storage.Get().Owners,
+		Active:     storage.Get().Active,
+		Lock:       storage.Get().Lock,
+		Stat:       storage.Get().Stat,
 	}
 	info, err := json.Marshal(i)
 	if err != nil {
