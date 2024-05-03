@@ -1,13 +1,13 @@
-- name: Copy config files
-  copy:
-    src: "{{PROJECTPATH}}config/{{config}}.yml"
-    dest: "{{DEPLOYPATH}}-{{port}}/config/"
+#- name: Copy config files
+#  copy:
+#    src: "{{PROJECTPATH}}config/{{config}}.yml"
+#    dest: "{{DEPLOYPATH}}-{{port}}/config/"
 
-- name: Copy compiled binary
-  copy:
-    src={{PROJECTPATH}}{{BuildBin}}
-    dest={{DEPLOYPATH}}-{{port}}/{{SERVICEBIN}}-{{port}}
-    mode=0744
+#- name: Copy compiled binary
+#  copy:
+#    src={{PROJECTPATH}}{{BuildBin}}
+#    dest={{DEPLOYPATH}}-{{port}}/{{SERVICEBIN}}-{{port}}
+#    mode=0744
 
 - name: Deliver monit scripts
   template:
