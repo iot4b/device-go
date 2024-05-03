@@ -1,10 +1,11 @@
 monit:
   hosts:
-    devices:
-      ansible_host: 64.23.153.200
+    devices1:
+      #ansible_host: 64.23.153.200
+      ansible_host: 165.232.136.77
   vars:
     service: device
-    config: dev
+    config: test
     monit_alert: mobile@.com # адрес для монита
     ansible_ssh_user: root
 test:
@@ -17,7 +18,7 @@ test:
     service: device
     config: dev
     PROJECTPATH: ../../
-    DEPLOYROOT: /opt/everiot
+    DEPLOYROOT: /Users/alexey/Documents/everiot/devices
     BuildBin: device_bin
     monit_alert: mobile@.com # адрес для монита
     ansible_ssh_user: root
