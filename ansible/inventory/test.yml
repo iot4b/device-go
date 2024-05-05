@@ -5,8 +5,8 @@ monit:
       ansible_host: 165.232.136.77
   vars:
     service: device
-    config: test
-    monit_alert: mobile@.com # адрес для монита
+    config: prod
+    monit_alert: sp@golbex.com # адрес для монита
     ansible_ssh_user: root
 test:
 #  hosts:
@@ -16,11 +16,11 @@ test:
   ##################################################
   vars:
     service: device
-    config: test
+    config: prod
     PROJECTPATH: ../../
     DEPLOYROOT: /opt/everiot
     BuildBin: device_bin
-    monit_alert: mobile@.com # адрес для монита
+    monit_alert: sp@golbex.com # адрес для монита
     ansible_ssh_user: root
     GOOS: linux
     GOARCH: amd64
