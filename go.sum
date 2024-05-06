@@ -52,6 +52,8 @@ github.com/cncf/udpa/go v0.0.0-20200629203442-efcf912fb354/go.mod h1:WmhPx2Nbnht
 github.com/cncf/udpa/go v0.0.0-20201120205902-5459f2c99403/go.mod h1:WmhPx2Nbnhtbo57+VJT5O0JRkEi1Wbu0z5j0R8u5Hbk=
 github.com/coalalib/coalago v1.0.5 h1:cNrZTxZE+/LLqocO9ZAN0CpoFwKpSkCZbyBLKV1Xi6A=
 github.com/coalalib/coalago v1.0.5/go.mod h1:1DzcA5Rzsvw+QSL0S9DWgcAuLleW4w+F0AQ5pYRSqsE=
+github.com/coalalib/coalago v1.0.6 h1:HiLltWjk6m2ViOrR1qLcSM0uHtIdKrw004GHkqy5GmY=
+github.com/coalalib/coalago v1.0.6/go.mod h1:1DzcA5Rzsvw+QSL0S9DWgcAuLleW4w+F0AQ5pYRSqsE=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=

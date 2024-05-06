@@ -3,7 +3,7 @@ module device-go
 go 1.20
 
 require (
-	github.com/coalalib/coalago v1.0.5
+	github.com/coalalib/coalago v1.0.6
 	github.com/jinzhu/copier v0.4.0
 	github.com/markgenuine/ever-client-go v1.44.1
 	github.com/ndmsystems/golog v0.0.3

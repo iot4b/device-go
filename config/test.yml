@@ -11,9 +11,9 @@ localFiles:
   contract: "device.contract.json"
 
 timeout:
-  alive: 2s
-  coala: 3m
-  registerRepeat: 1m
+  alive: 10s #alive interval
+  coala: 3m  # timeout for coala reguests
+  registerRepeat: 5m #period for registration repeat
 
 masterNodes:
   - 157.245.57.218:5683
