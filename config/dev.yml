@@ -7,13 +7,13 @@ info:
   type: "golang device emulator"
 
 localFiles:
-  keys: "device.keys.json"
+  keys: "device.keys.dev.json"
   contract: "device.contract.dev.json"
 
 timeout:
-  alive: 10s
-  coala: 3m
-  registerRepeat: 20m
+  alive: 10s #alive interval
+  coala: 3m  # timeout for coala reguests
+  registerRepeat: 5m #period for registration repeat
 
 masterNodes:
   - 157.245.57.218:5683
