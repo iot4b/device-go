@@ -18,4 +18,6 @@ type DeviceContract struct {
 	VendorData string `json:"vendorData,omitempty"` // данные, которые идут от производителя девайса
 
 	LastRegisterTime string `json:"lastRegisterTime,omitempty"` // last registration timestamp
+
+	Hash string `json:"hash"` // hash of current contract code (contract version identifier)
 }

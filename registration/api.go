@@ -21,6 +21,8 @@ type registerDeviceResp struct {
 	Vendor  dsm.EverAddress `json:"v,omitempty"` //ever SC address производителя текущего девайса
 
 	Stat bool `json:"s,omitempty"` // нужно ли девайсу слать статистику
+
+	Hash string `json:"h,omitempty"` // actual contract hash
 }
 
 // Register - регистрируем устройство на ноде.
@@ -30,15 +32,6 @@ func Register() error {
 
 	masterNodes := config.List("masterNodes")
 	address := storage.Get().Address
-	vendorAddress := storage.Get().Vendor
-	electorAddress := storage.Get().Elector
-	owners := storage.Get().Owners
-
-	public := crypto.Keys.PublicSign
-	version := storage.Get().Version
-	Type := storage.Get().Type
-	vendorName := storage.Get().VendorName
-	vendorData := storage.Get().VendorData
 
 	// получаем список доступных нод с рандомной мастер ноды
 	masterNode, list, err := endpointList(masterNodes)
@@ -70,14 +63,15 @@ func Register() error {
 
 	payload, err := json.Marshal(registerRequest{
 		Address:    address,
-		Elector:    electorAddress,
-		Vendor:     vendorAddress,
-		Owners:     owners,
-		PublicKey:  public,
-		Version:    version,
-		Type:       Type,
-		VendorName: vendorName,
-		VendorData: vendorData,
+		Elector:    storage.Get().Elector,
+		Vendor:     storage.Get().Vendor,
+		Owners:     storage.Get().Owners,
+		PublicKey:  crypto.Keys.PublicSign,
+		Version:    storage.Get().Version,
+		Type:       storage.Get().Type,
+		VendorName: storage.Get().VendorName,
+		VendorData: storage.Get().VendorData,
+		Hash:       storage.Get().Hash,
 	})
 	if err != nil {
 		return errors.Wrap(err, "json.Marshal(payload)")

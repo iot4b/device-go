@@ -11,8 +11,9 @@ type registerRequest struct {
 	PublicKey  string          `json:"k"`            // уникальный public key, который передаем для создания контракта
 	Version    string          `json:"ver"`          // версия прошивки
 	Type       string          `json:"t,omitempty"`  // название модели устройства
-	VendorName string          `json:"vn,omitempty"` //происзолный блок данных в любом формате
-	VendorData string          `json:"vd,omitempty"` //происзолный блок данных в любом формате
+	VendorName string          `json:"vn,omitempty"` // vendor name
+	VendorData string          `json:"vd,omitempty"` // произволный блок данных в любом формате
+	Hash       string          `json:"h"`            // hash of current contract code (contract version identifier)
 }
 
 // getEndpoints возвращает список активных нод в таком формате
