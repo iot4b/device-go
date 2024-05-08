@@ -7,7 +7,7 @@ info:
   type: "golang device emulator"
 
 localFiles:
-  keys: "device.keys.dev.json"
+  keys: "device.keys.json"
   contract: "device.contract.dev.json"
 
 timeout:
