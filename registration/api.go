@@ -4,6 +4,7 @@ import (
 	"device-go/aliver"
 	"device-go/crypto"
 	"device-go/dsm"
+	"device-go/events"
 	"device-go/shared/config"
 	"device-go/storage"
 	"encoding/json"
@@ -116,6 +117,11 @@ func Register() error {
 	aliver.NodeHost = fasterHost
 
 	log.Debugw("Register result", "RegisteredDevice", result, "fasterHost", fasterHost)
+
+	// send event
+	if storage.Get().Events {
+		events.Send(new(events.Register))
+	}
 
 	return nil
 }
