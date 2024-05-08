@@ -12,6 +12,7 @@ type DeviceContract struct {
 	Active     bool   `json:"active"`               // if device is active
 	Lock       bool   `json:"lock"`                 // if device is locked
 	Stat       bool   `json:"stat"`                 // нужно ли девайсу слать статистику
+	Events     bool   `json:"events"`               // sending events
 	Type       string `json:"dtype,omitempty"`      // модель/тип девайса
 	Version    string `json:"version,omitempty"`    // версия текущей прошивки на девайсе
 	VendorName string `json:"vendorName,omitempty"` // название производителя

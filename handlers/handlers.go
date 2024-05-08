@@ -30,6 +30,7 @@ type info struct {
 	Active     bool     `json:"active"`
 	Lock       bool     `json:"lock"`
 	Stat       bool     `json:"stat"`
+	Events     bool     `json:"events"`
 }
 
 // info для коалы
@@ -48,6 +49,7 @@ func GetInfo(_ *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 		Active:     storage.Get().Active,
 		Lock:       storage.Get().Lock,
 		Stat:       storage.Get().Stat,
+		Events:     storage.Get().Events,
 	}
 	info, err := json.Marshal(i)
 	if err != nil {
@@ -102,6 +104,7 @@ func Update(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 		Active           bool            `json:"active,omitempty"`
 		Lock             bool            `json:"lock,omitempty"`
 		Stat             bool            `json:"stat,omitempty"`
+		Events           bool            `json:"events,omitempty"`
 		Version          string          `json:"version,omitempty"`
 		LastRegisterTime string          `json:"lastRegisterTime,omitempty"`
 		NodePubKey       string          `json:"nodePubKey"`
