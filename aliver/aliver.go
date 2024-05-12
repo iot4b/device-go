@@ -24,9 +24,6 @@ var NodeHost string
 func Run(s *coalago.Server, address string, aliveInterval time.Duration) {
 	log.Info("run aliver")
 	for {
-		// если ставим после alive, то соединение с нодой не успевает инициироваться
-		time.Sleep(aliveInterval)
-
 		if NodeHost == "" {
 			time.Sleep(time.Second)
 			continue
@@ -39,6 +36,8 @@ func Run(s *coalago.Server, address string, aliveInterval time.Duration) {
 
 		}
 		//log.Infof("time: %dµs node: %s address: %s", time.Since(start).Nanoseconds(), nodeHost, address)
+
+		time.Sleep(aliveInterval)
 	}
 }
 

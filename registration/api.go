@@ -118,11 +118,6 @@ func Register() error {
 
 	log.Debugw("Register result", "RegisteredDevice", result, "fasterHost", fasterHost)
 
-	// send event
-	if storage.Get().Events {
-		events.Send(new(events.Register))
-	}
-
 	return nil
 }
 
@@ -136,6 +131,11 @@ func Repeat() {
 			time.Sleep(3 * time.Second)
 			continue
 		}
+		// send event
+		if storage.Get().Events {
+			events.Send(new(events.Register))
+		}
+
 		time.Sleep(config.Time("timeout.registerRepeat"))
 	}
 }

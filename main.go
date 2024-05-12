@@ -3,6 +3,7 @@ package main
 import (
 	"device-go/aliver"
 	"device-go/crypto"
+	"device-go/events"
 	"device-go/handlers"
 	"device-go/registration"
 	"device-go/shared/config"
@@ -52,8 +53,17 @@ func main() {
 			// стартуем сервер
 			go listen(server)
 
+			// delay for alive correct work
+			time.Sleep(time.Second)
+
 			// начинаем слать alive пакеты, чтобы сохранять соединение для udp punching
 			go aliver.Run(server, storage.Get().Address.String(), config.Time("timeout.alive"))
+
+			if storage.Get().Events {
+				// delay after first alive to store ip:port and send event
+				time.Sleep(time.Second)
+				events.Send(new(events.Register))
+			}
 
 			time.Sleep(config.Time("timeout.registerRepeat"))
 			go registration.Repeat()
