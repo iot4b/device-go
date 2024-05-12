@@ -131,8 +131,9 @@ func Repeat() {
 			time.Sleep(3 * time.Second)
 			continue
 		}
-		// send event
 		if storage.Get().Events {
+			// send event after alive
+			time.Sleep(config.Time("timeout.alive"))
 			events.Send(new(events.Register))
 		}
 
