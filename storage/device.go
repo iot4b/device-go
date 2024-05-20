@@ -135,8 +135,8 @@ func (d initialData) toMap() (result map[string]interface{}) {
 
 // IsOwner checks if key is one of the owners from device contract
 func IsOwner(key string) bool {
-	for _, owner := range Get().Owners {
-		if key == owner {
+	for owner := range Get().Owners {
+		if "0x"+key == owner {
 			return true
 		}
 	}
