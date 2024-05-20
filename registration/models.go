@@ -7,7 +7,7 @@ type registerRequest struct {
 	Address    dsm.EverAddress `json:"a,omitempty"`  // device contract address if deployed
 	Elector    dsm.EverAddress `json:"e"`            // elector address
 	Vendor     dsm.EverAddress `json:"v"`            // адрес вендора
-	Owners     []string        `json:"o"`            // owners public keys list
+	Owners     map[string]any  `json:"o"`            // owners data: public_key => contract_address
 	PublicKey  string          `json:"k"`            // уникальный public key, который передаем для создания контракта
 	Version    string          `json:"ver"`          // версия прошивки
 	Type       string          `json:"t,omitempty"`  // название модели устройства

@@ -36,7 +36,7 @@ func main() {
 		config.Get("everscale.vendor.data"),
 		config.Get("info.type"),
 		config.Get("info.version"),
-		config.List("everscale.owners"))
+		config.Map("everscale.owners"))
 
 	// сервер для запросов от клиентов и нод
 	server := coalago.NewServer()

@@ -34,7 +34,7 @@ var (
 
 // todo взаимодействие с Elector'ом
 
-func Init(path, elector, vendor, vendorName, vendorData, Type, version string, owners []string) {
+func Init(path, elector, vendor, vendorName, vendorData, Type, version string, owners map[string]any) {
 	currentDevice = new(dsm.DeviceContract)
 	localPath = path
 

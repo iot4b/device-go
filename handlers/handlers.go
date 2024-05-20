@@ -17,20 +17,20 @@ import (
 )
 
 type info struct {
-	Address    string   `json:"address"`
-	Version    string   `json:"version"`
-	Elector    string   `json:"elector"`
-	Node       string   `json:"node"`
-	Type       string   `json:"type"`
-	PublicSign string   `json:"public_sign"`
-	PublicNacl string   `json:"public_nacl"`
-	Vendor     string   `json:"vendor"`
-	VendorName string   `json:"vendorName"`
-	Owners     []string `json:"owners"`
-	Active     bool     `json:"active"`
-	Lock       bool     `json:"lock"`
-	Stat       bool     `json:"stat"`
-	Events     bool     `json:"events"`
+	Address    string         `json:"address"`
+	Version    string         `json:"version"`
+	Elector    string         `json:"elector"`
+	Node       string         `json:"node"`
+	Type       string         `json:"type"`
+	PublicSign string         `json:"public_sign"`
+	PublicNacl string         `json:"public_nacl"`
+	Vendor     string         `json:"vendor"`
+	VendorName string         `json:"vendorName"`
+	Owners     map[string]any `json:"owners"`
+	Active     bool           `json:"active"`
+	Lock       bool           `json:"lock"`
+	Stat       bool           `json:"stat"`
+	Events     bool           `json:"events"`
 }
 
 // info для коалы

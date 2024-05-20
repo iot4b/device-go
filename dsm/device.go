@@ -7,7 +7,7 @@ type DeviceContract struct {
 	Elector EverAddress `json:"elector"`           //ever SC адрес Elector'a, который обслуживает сеть нод для текущего девайса
 	Vendor  EverAddress `json:"vendor"`            //ever SC address производителя текущего девайса. по-умолчанию из конфигов берем
 
-	Owners []string `json:"owners"` // owners public keys list
+	Owners map[string]any `json:"owners"` // owners data: public_key => contract_address
 
 	Active     bool   `json:"active"`               // if device is active
 	Lock       bool   `json:"lock"`                 // if device is locked
