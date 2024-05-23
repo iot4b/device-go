@@ -8,7 +8,8 @@ type registerRequest struct {
 	Elector    dsm.EverAddress `json:"e"`            // elector address
 	Vendor     dsm.EverAddress `json:"v"`            // адрес вендора
 	Owners     map[string]any  `json:"o"`            // owners data: public_key => contract_address
-	PublicKey  string          `json:"k"`            // уникальный public key, который передаем для создания контракта
+	PublicSign string          `json:"k"`            // уникальный public key, который передаем для создания контракта
+	PublicNacl string          `json:"n"`            // device public key for nacl box encryption
 	Version    string          `json:"ver"`          // версия прошивки
 	Type       string          `json:"t,omitempty"`  // название модели устройства
 	VendorName string          `json:"vn,omitempty"` // vendor name

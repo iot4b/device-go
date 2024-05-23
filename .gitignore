@@ -1,5 +1,4 @@
 .idea
 config/local.yml
-device.contract.json
-device.keys.json
+device.*.json
 device_bin

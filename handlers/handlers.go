@@ -146,12 +146,13 @@ func Update(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 	return coalago.NewResponse(coalago.NewStringPayload(""), coalago.CoapCodeContent)
 }
 
-// Sign data with key pair and return signature
+// Sign : decrypt nacl box, sign data with sign key pair and return signature
 func Sign(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 	log.Debug("Sign:", message.Payload.String())
 
 	var payload struct {
-		Unsigned string `json:"u"`
+		NaclBox   string `json:"b"` // encrypted data, base64
+		PublicKey string `json:"k"` // node public key for nacl box
 	}
 	err := json.Unmarshal(message.Payload.Bytes(), &payload)
 	if err != nil {
@@ -159,13 +160,18 @@ func Sign(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 		return coalago.NewResponse(coalago.NewStringPayload(err.Error()), coalago.CoapCodeBadRequest)
 	}
 
-	unsigned, err := base64.StdEncoding.DecodeString(payload.Unsigned)
+	unsigned, err := crypto.Keys.Decrypt(payload.NaclBox, payload.PublicKey)
 	if err != nil {
 		log.Error(err)
 		return coalago.NewResponse(coalago.NewStringPayload(err.Error()), coalago.CoapCodeBadRequest)
 	}
 
-	signature := crypto.Keys.Sign(unsigned)
+	data, err := base64.StdEncoding.DecodeString(unsigned)
+	if err != nil {
+		log.Error(err)
+		return coalago.NewResponse(coalago.NewStringPayload(err.Error()), coalago.CoapCodeBadRequest)
+	}
+	signature := crypto.Keys.Sign(data)
 
 	return coalago.NewResponse(coalago.NewStringPayload(signature), coalago.CoapCodeContent)
 }
