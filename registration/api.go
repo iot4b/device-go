@@ -23,7 +23,7 @@ type registerDeviceResp struct {
 
 	Stat bool `json:"s,omitempty"` // нужно ли девайсу слать статистику
 
-	Hash string `json:"h,omitempty"` // actual contract hash
+	Hash string `json:"h,omitempty"` // actual contract code hash
 }
 
 // Register - регистрируем устройство на ноде.
@@ -31,11 +31,8 @@ type registerDeviceResp struct {
 func Register() error {
 	log.Debug("Register")
 
-	masterNodes := config.List("masterNodes")
-	address := storage.Get().Address
-
 	// получаем список доступных нод с рандомной мастер ноды
-	masterNode, list, err := endpointList(masterNodes)
+	masterNode, list, err := endpointList(config.List("masterNodes"))
 	if err != nil {
 		return errors.Wrap(err, "getEndpoints")
 	}
@@ -62,23 +59,16 @@ func Register() error {
 	}
 	log.Info("Registering device on node:", fasterHost)
 
-	payload, err := json.Marshal(registerRequest{
-		Address:    address,
-		Elector:    storage.Get().Elector,
-		Vendor:     storage.Get().Vendor,
-		Owners:     storage.Get().Owners,
-		PublicSign: crypto.Keys.PublicSign,
-		PublicNacl: crypto.Keys.PublicNacl,
-		Version:    storage.Get().Version,
-		Type:       storage.Get().Type,
-		VendorName: storage.Get().VendorName,
-		VendorData: storage.Get().VendorData,
-		Hash:       storage.Get().Hash,
-	})
+	var req registerRequest
+	copier.Copy(&req, storage.Device)
+	req.PublicSign = crypto.Keys.PublicSign
+	req.PublicNacl = crypto.Keys.PublicNacl
+
+	payload, err := json.Marshal(req)
 	if err != nil {
 		return errors.Wrap(err, "json.Marshal(payload)")
 	}
-	log.Debug("registerRequest: " + string(payload) + " address: " + address.String())
+	log.Debugf("registerRequest: %s address: %s", payload, storage.Device.Address)
 
 	// формируем запрос на регистрацию
 	client := coalago.NewClient()
@@ -86,8 +76,8 @@ func Register() error {
 	msg.SetURIPath("/register")
 	msg.Timeout = config.Time("timeout.coala")
 	// если девайс знает свой адрес контракта, то передаем ...?a= ...
-	if len(address) > 0 {
-		msg.SetURIQuery("a", string(address))
+	if len(storage.Device.Address) > 0 {
+		msg.SetURIQuery("a", string(storage.Device.Address))
 	}
 	msg.SetStringPayload(string(payload))
 
@@ -107,17 +97,15 @@ func Register() error {
 	log.Debug("registerResponse: " + string(resp.Body))
 
 	// копируем актуальные поля
-	result := storage.Get()
-	copier.Copy(result, registerResp)
-
-	result.Node = dsm.EverAddress(fasterAddress)
+	copier.Copy(&storage.Device, registerResp)
+	storage.Device.Node = dsm.EverAddress(fasterAddress)
 
 	// update local data
-	storage.Set(*result)
-	storage.WriteToLocalStorage(config.Get("localFiles.contract"), *result)
+	storage.Save()
+
 	aliver.NodeHost = fasterHost
 
-	log.Debugw("Register result", "RegisteredDevice", result, "fasterHost", fasterHost)
+	log.Debugw("Register result", "RegisteredDevice", storage.Device, "fasterHost", fasterHost)
 
 	return nil
 }
@@ -132,7 +120,7 @@ func Repeat() {
 			time.Sleep(3 * time.Second)
 			continue
 		}
-		if storage.Get().Events {
+		if storage.Device.Events {
 			// send event after alive
 			time.Sleep(config.Time("timeout.alive"))
 			events.Send(new(events.Register))

@@ -7,7 +7,7 @@ import (
 )
 
 func GetBalance() float64 {
-	input := map[string]string{"address": string(storage.Get().Address)}
+	input := map[string]string{"address": string(storage.Device.Address)}
 	res, err := GET("balance", input)
 	if err != nil {
 		log.Error("GET(balance):", err)

@@ -4,7 +4,6 @@ import (
 	"device-go/cmd"
 	"device-go/crypto"
 	"device-go/dsm"
-	"device-go/shared/config"
 	"device-go/storage"
 	"encoding/base64"
 	"encoding/json"
@@ -17,40 +16,30 @@ import (
 )
 
 type info struct {
-	Address    string         `json:"address"`
-	Version    string         `json:"version"`
-	Elector    string         `json:"elector"`
-	Node       string         `json:"node"`
-	Type       string         `json:"type"`
-	PublicSign string         `json:"public_sign"`
-	PublicNacl string         `json:"public_nacl"`
-	Vendor     string         `json:"vendor"`
-	VendorName string         `json:"vendorName"`
-	Owners     map[string]any `json:"owners"`
-	Active     bool           `json:"active"`
-	Lock       bool           `json:"lock"`
-	Stat       bool           `json:"stat"`
-	Events     bool           `json:"events"`
+	Address    dsm.EverAddress `json:"address"`
+	Group      dsm.EverAddress `json:"group"`
+	Node       dsm.EverAddress `json:"node"`
+	Elector    dsm.EverAddress `json:"elector"`
+	Vendor     dsm.EverAddress `json:"vendor"`
+	Owners     map[string]any  `json:"owners"`
+	Active     bool            `json:"active"`
+	Lock       bool            `json:"lock"`
+	Stat       bool            `json:"stat"`
+	Events     bool            `json:"events"`
+	Type       string          `json:"type"`
+	Version    string          `json:"version"`
+	VendorName string          `json:"vendorName"`
+	PublicSign string          `json:"public_sign"`
+	PublicNacl string          `json:"public_nacl"`
 }
 
 // info для коалы
 func GetInfo(_ *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
-	i := info{
-		Address:    string(storage.Get().Address),
-		Version:    config.Get("info.version"),
-		Type:       config.Get("info.type"),
-		Elector:    config.Get("everscale.elector"),
-		Node:       string(storage.Get().Node),
-		PublicSign: crypto.Keys.PublicSign,
-		PublicNacl: crypto.Keys.PublicNacl,
-		Vendor:     string(storage.Get().Vendor),
-		VendorName: storage.Get().VendorName,
-		Owners:     storage.Get().Owners,
-		Active:     storage.Get().Active,
-		Lock:       storage.Get().Lock,
-		Stat:       storage.Get().Stat,
-		Events:     storage.Get().Events,
-	}
+	i := info{}
+	copier.Copy(&i, storage.Device)
+	i.PublicSign = crypto.Keys.PublicSign
+	i.PublicNacl = crypto.Keys.PublicNacl
+
 	info, err := json.Marshal(i)
 	if err != nil {
 		log.Errorw(err.Error(), "info", i)
@@ -62,7 +51,7 @@ func GetInfo(_ *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 
 func ExecCmd(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 	log.Debug(message.Payload.String())
-	if storage.Get().Lock {
+	if storage.Device.Lock {
 		return coalago.NewResponse(coalago.NewStringPayload("device is locked"), coalago.CoapCodeForbidden)
 	}
 	// parsing message from node
@@ -100,6 +89,7 @@ func Update(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 
 	var payload struct {
 		Address          dsm.EverAddress `json:"address"`
+		Group            dsm.EverAddress `json:"group"`
 		Node             dsm.EverAddress `json:"node"`
 		Active           bool            `json:"active,omitempty"`
 		Lock             bool            `json:"lock,omitempty"`
@@ -116,8 +106,7 @@ func Update(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 		return coalago.NewResponse(coalago.NewStringPayload(err.Error()), coalago.CoapCodeBadRequest)
 	}
 
-	device := storage.Get()
-	if payload.Address != device.Address {
+	if payload.Address != storage.Device.Address {
 		return coalago.NewResponse(coalago.NewStringPayload("wrong device address"), coalago.CoapCodeBadRequest)
 	}
 
@@ -133,15 +122,13 @@ func Update(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 	}
 
 	// update local data from payload
-	copier.Copy(device, payload)
+	copier.Copy(&storage.Device, payload)
 
 	// write to local file
-	err = storage.WriteToLocalStorage(config.Get("localFiles.contract"), *device)
+	err = storage.Save()
 	if err != nil {
 		return coalago.NewResponse(coalago.NewStringPayload(err.Error()), coalago.CoapCodeInternalServerError)
 	}
-	// set data to memory
-	storage.Set(*device)
 
 	return coalago.NewResponse(coalago.NewStringPayload(""), coalago.CoapCodeContent)
 }

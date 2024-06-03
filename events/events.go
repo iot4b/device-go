@@ -22,7 +22,7 @@ func Send(e event) {
 	e.process()
 
 	_, err := api.POST("device/event", payload{
-		Address: storage.Get().Address,
+		Address: storage.Device.Address,
 		Name:    reflect.TypeOf(e).Elem().Name(),
 		Data:    e,
 	})

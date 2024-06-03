@@ -36,7 +36,8 @@ func main() {
 		config.Get("everscale.vendor.data"),
 		config.Get("info.type"),
 		config.Get("info.version"),
-		config.Map("everscale.owners"))
+		config.Map("everscale.owners"),
+		config.Get("everscale.group"))
 
 	// сервер для запросов от клиентов и нод
 	server := coalago.NewServer()
@@ -57,9 +58,9 @@ func main() {
 			time.Sleep(time.Second)
 
 			// начинаем слать alive пакеты, чтобы сохранять соединение для udp punching
-			go aliver.Run(server, storage.Get().Address.String(), config.Time("timeout.alive"))
+			go aliver.Run(server, storage.Device.Address.String(), config.Time("timeout.alive"))
 
-			if storage.Get().Events {
+			if storage.Device.Events {
 				// delay after first alive to store ip:port and send event
 				time.Sleep(time.Second)
 				events.Send(new(events.Register))

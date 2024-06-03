@@ -4,54 +4,55 @@ import (
 	"device-go/dsm"
 	"device-go/utils"
 	"encoding/json"
-	"github.com/jinzhu/copier"
 	log "github.com/ndmsystems/golog"
 	"github.com/pkg/errors"
 )
 
-var (
-	currentDevice *dsm.DeviceContract
-	localPath     string
-)
+type device struct {
+	Address dsm.EverAddress `json:"address,omitempty"` //ever SC address текущего Device
+	Group   dsm.EverAddress `json:"group,omitempty"`   //ever SC address of DeviceGroup
+	Node    dsm.EverAddress `json:"node,omitempty"`    //ever SC address Node, с которой девайс создал последнее соединение
+	Elector dsm.EverAddress `json:"elector"`           //ever SC адрес Elector'a, который обслуживает сеть нод для текущего девайса
+	Vendor  dsm.EverAddress `json:"vendor"`            //ever SC address производителя текущего девайса. по-умолчанию из конфигов берем
 
-type initialData struct {
-	Elector dsm.EverAddress `json:"elector"`
-	Vendor  dsm.EverAddress `json:"vendor"`
-	Owners  []string        `json:"owners"`
+	Owners map[string]any `json:"owners"` // owners data: public_key => contract_address
 
-	Type       string `json:"dtype"`
-	Version    string `json:"version"`
-	VendorName string `json:"vendorName"`
-	VendorData string `json:"vendorData"`
+	Active     bool   `json:"active"`               // if device is active
+	Lock       bool   `json:"lock"`                 // if device is locked
+	Stat       bool   `json:"stat"`                 // нужно ли девайсу слать статистику
+	Events     bool   `json:"events"`               // sending events
+	Type       string `json:"dtype,omitempty"`      // модель/тип девайса
+	Version    string `json:"version,omitempty"`    // версия текущей прошивки на девайсе
+	VendorName string `json:"vendorName,omitempty"` // название производителя
+	VendorData string `json:"vendorData,omitempty"` // данные, которые идут от производителя девайса
+
+	LastRegisterTime string `json:"lastRegisterTime,omitempty"` // last registration timestamp
+
+	Hash string `json:"hash"` // hash of current contract code (contract version identifier)
 }
 
 var (
-	ErrInvalidValue = errors.New("invalid value")
-	ErrIsRequired   = errors.New("field is required")
-	ErrIsEmpty      = errors.New("value is empty")
-	ErrNotSpecified = errors.New("value not specified")
+	Device    device
+	localPath string
 )
 
-// todo взаимодействие с Elector'ом
-
-func Init(path, elector, vendor, vendorName, vendorData, Type, version string, owners map[string]any) {
-	currentDevice = new(dsm.DeviceContract)
+func Init(path, elector, vendor, vendorName, vendorData, Type, version string, owners map[string]any, group string) {
 	localPath = path
 
 	log.Info("Init Local Storage")
-	log.Debug(path, elector, vendor, vendorName, vendorData, Type, version, owners)
+	log.Debug(path, elector, vendor, vendorName, vendorData, Type, version, owners, group)
 
-	var localData dsm.DeviceContract
 	var err error
 
 	// чекаем локально наличие файла
 	if utils.FileExists(localPath) {
-		localData, err = readFromLocalStorage(localPath)
+		Device, err = read(localPath)
 		if err != nil {
 			log.Fatal(err)
 		}
 	} else {
-		localData = dsm.DeviceContract{
+		Device = device{
+			Group:      dsm.EverAddress(group),
 			Elector:    dsm.EverAddress(elector),
 			Vendor:     dsm.EverAddress(vendor),
 			Owners:     owners,
@@ -60,82 +61,38 @@ func Init(path, elector, vendor, vendorName, vendorData, Type, version string, o
 			VendorName: vendorName,
 			VendorData: vendorData,
 		}
-		if err = WriteToLocalStorage(localPath, localData); err != nil {
+		if err = Save(); err != nil {
 			log.Errorf("WriteToLocalStorage: %v", err)
 		}
 	}
-
-	Set(localData)
 }
 
-func Set(d dsm.DeviceContract) {
-	copier.Copy(currentDevice, d)
-	log.Debugw("local storage device set", "value", *currentDevice)
-}
-
-func Get() *dsm.DeviceContract {
-	return currentDevice
-}
-
-// WriteToLocalStorage - сохраняем ноду локально
-func WriteToLocalStorage(path string, d dsm.DeviceContract) error {
-	data, err := json.Marshal(d)
+// Save local data to file
+func Save() error {
+	data, err := json.Marshal(Device)
 	if err != nil {
 		return errors.Wrap(err, "json.Marshal(device)")
 	}
-	err = utils.SaveFile(path, data)
+	err = utils.SaveFile(localPath, data)
 	if err != nil {
-		return errors.Wrapf(err, "utils.SaveFile(%s, data)", path)
+		return errors.Wrapf(err, "utils.SaveFile(%s, data)", localPath)
 	}
 	return nil
 }
 
-// readFromLocalStorage - читаем ноду из локального дампа контракта
-func readFromLocalStorage(path string) (d dsm.DeviceContract, err error) {
+// read local data from file
+func read(path string) (d device, err error) {
 	err = utils.ReadJSONFile(path, &d)
 	if err != nil {
-		return dsm.DeviceContract{}, err
+		return device{}, err
 	}
 	log.Debugf("%+v", d)
 	return d, err
 }
 
-func (d initialData) validate() error {
-	if len(d.Vendor) == 0 {
-		return errors.Wrap(ErrIsRequired, "vendor")
-	}
-	if len(d.Owners) == 0 {
-		return errors.Wrap(ErrIsEmpty, "owners")
-	}
-	if len(d.Owners) > 0 {
-		// todo сделать валидатор ever адресов
-		for i, owner := range d.Owners {
-			if len(owner) == 0 {
-				return errors.Wrapf(ErrInvalidValue, "owners[%d]", i)
-			}
-		}
-	}
-	if len(d.VendorName) == 0 {
-		return errors.Wrap(ErrNotSpecified, "vendorName")
-	}
-	if len(d.Type) == 0 {
-		return errors.Wrap(ErrNotSpecified, "type")
-	}
-	if len(d.Version) == 0 {
-		return errors.Wrap(ErrNotSpecified, "version")
-	}
-	return nil
-}
-
-func (d initialData) toMap() (result map[string]interface{}) {
-	data, _ := json.Marshal(d)
-	json.Unmarshal(data, &result)
-	return
-}
-
 // IsOwner checks if key is one of the owners from device contract
 func IsOwner(key string) bool {
-	for owner := range Get().Owners {
+	for owner := range Device.Owners {
 		if "0x"+key == owner {
 			return true
 		}
