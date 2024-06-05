@@ -21,7 +21,7 @@ masterNodes:
   - 192.81.216.57:5683
 
 everscale:
-  elector: "0:da995a0f7e2f75457031cbc016d7cba6fc65b617a94331eb54c349af15e95d1a"
+  elector: "0:20a9657c902ad65dd6eb08b4eb7ec4d3f45bebda5d763bbd7b0b3826824a216a"
   vendor:
     address: "0:389e290e6f83d7837f317792c42c370c025c58d34f7e9bdd2c076950acc9c4c9"
     name: "vendor"
