@@ -11,6 +11,7 @@ import (
 	"errors"
 	"fmt"
 	"os/exec"
+	"strconv"
 	"strings"
 
 	"github.com/alexellis/go-execute/v2"
@@ -68,7 +69,7 @@ func (c CMD) Valid() bool {
 func (c CMD) getHash() []byte {
 	log.Debug(c.UUID)
 	h := sha256.New()
-	bt := []byte(c.UUID + string(c.Ts) + c.Sender + c.SenderNacl + string(c.Receiver) + c.Body)
+	bt := []byte(c.UUID + strconv.FormatInt(c.Ts, 10) + c.Sender + c.SenderNacl + string(c.Receiver) + c.Body)
 	h.Write(bt)
 	return h.Sum(nil)
 }
