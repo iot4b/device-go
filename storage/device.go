@@ -9,6 +9,7 @@ import (
 )
 
 type device struct {
+	Name    string          `json:"name,omitempty"`    //Device name
 	Address dsm.EverAddress `json:"address,omitempty"` //ever SC address текущего Device
 	Group   dsm.EverAddress `json:"group,omitempty"`   //ever SC address of DeviceGroup
 	Node    dsm.EverAddress `json:"node,omitempty"`    //ever SC address Node, с которой девайс создал последнее соединение
