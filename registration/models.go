@@ -4,6 +4,7 @@ import "device-go/dsm"
 
 // метод /register принимает на вход info текущего устройства для регистрации в блокчейне
 type registerRequest struct {
+	Name       string          `json:"nm,omitempty"` // device name
 	Address    dsm.EverAddress `json:"a,omitempty"`  // device contract address if deployed
 	Group      dsm.EverAddress `json:"g,omitempty"`  // device group contract address if any
 	Elector    dsm.EverAddress `json:"e"`            // elector address
