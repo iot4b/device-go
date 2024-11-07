@@ -63,7 +63,7 @@ func main() {
 			if storage.Device.Events {
 				// delay after first alive to store ip:port and send event
 				time.Sleep(time.Second)
-				events.Send(new(events.Register))
+				events.Send(new(events.Start))
 			}
 
 			time.Sleep(config.Time("timeout.registerRepeat"))

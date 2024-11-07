@@ -31,6 +31,18 @@ func Send(e event) {
 	}
 }
 
+type Start struct {
+	Name    string  `json:"name"`
+	Msg     string  `json:"msg"`
+	Balance float64 `json:"balance"`
+}
+
+func (event *Start) process() {
+	event.Name = "start"
+	event.Msg = string("Device started: " + storage.Device.Address)
+	event.Balance = api.GetBalance()
+}
+
 type Register struct {
 	Name    string  `json:"name"`
 	Msg     string  `json:"msg"`
@@ -39,6 +51,6 @@ type Register struct {
 
 func (event *Register) process() {
 	event.Name = "registration"
-	event.Msg = "Successful"
+	event.Msg = string("Successful registration: " + storage.Device.Address)
 	event.Balance = api.GetBalance()
 }
