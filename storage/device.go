@@ -18,7 +18,6 @@ type device struct {
 
 	Owners map[string]any `json:"owners"` // owners data: public_key => contract_address
 
-	Active     bool   `json:"active"`               // if device is active
 	Lock       bool   `json:"lock"`                 // if device is locked
 	Stat       bool   `json:"stat"`                 // нужно ли девайсу слать статистику
 	Events     bool   `json:"events"`               // sending events

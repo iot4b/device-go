@@ -22,7 +22,6 @@ type info struct {
 	Elector    dsm.EverAddress `json:"elector"`
 	Vendor     dsm.EverAddress `json:"vendor"`
 	Owners     map[string]any  `json:"owners"`
-	Active     bool            `json:"active"`
 	Lock       bool            `json:"lock"`
 	Stat       bool            `json:"stat"`
 	Events     bool            `json:"events"`
@@ -91,7 +90,6 @@ func Update(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 		Address          dsm.EverAddress `json:"address"`
 		Group            dsm.EverAddress `json:"group"`
 		Node             dsm.EverAddress `json:"node"`
-		Active           bool            `json:"active,omitempty"`
 		Lock             bool            `json:"lock,omitempty"`
 		Stat             bool            `json:"stat,omitempty"`
 		Events           bool            `json:"events,omitempty"`
