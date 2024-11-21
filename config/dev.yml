@@ -9,6 +9,7 @@ info:
 localFiles:
   keys: "device.keys.json"
   contract: "device.contract.dev.json"
+  groupAddr: "group.address.txt"
 
 timeout:
   alive: 10s #alive interval
@@ -28,4 +29,3 @@ everscale:
     data: "{\"serialNumber\":\"DSF34-G4FG34GF\"}"
   owners:
     0x6bbadda1506aeb790dcc8a03aa94c1b25f81edf20892c24cc81a062e788bfa7b: "0:0000000000000000000000000000000000000000000000000000000000000000"
-  group: "0:0000000000000000000000000000000000000000000000000000000000000000"

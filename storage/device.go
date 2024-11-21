@@ -2,6 +2,7 @@ package storage
 
 import (
 	"device-go/dsm"
+	"device-go/shared/config"
 	"device-go/utils"
 	"encoding/json"
 	log "github.com/ndmsystems/golog"
@@ -36,11 +37,11 @@ var (
 	localPath string
 )
 
-func Init(path, elector, vendor, vendorName, vendorData, Type, version string, owners map[string]any, group string) {
+func Init(path, elector, vendor, vendorName, vendorData, Type, version string, owners map[string]any) {
 	localPath = path
 
 	log.Info("Init Local Storage")
-	log.Debug(path, elector, vendor, vendorName, vendorData, Type, version, owners, group)
+	log.Debug(path, elector, vendor, vendorName, vendorData, Type, version, owners)
 
 	var err error
 
@@ -51,6 +52,12 @@ func Init(path, elector, vendor, vendorName, vendorData, Type, version string, o
 			log.Fatal(err)
 		}
 	} else {
+		group, err := getGroupAddress()
+		if err != nil {
+			log.Fatal("failed to read device group address file")
+		}
+		log.Debug("Group Address:", group)
+
 		Device = device{
 			Group:      dsm.EverAddress(group),
 			Elector:    dsm.EverAddress(elector),
@@ -62,7 +69,7 @@ func Init(path, elector, vendor, vendorName, vendorData, Type, version string, o
 			VendorData: vendorData,
 		}
 		if err = Save(); err != nil {
-			log.Errorf("WriteToLocalStorage: %v", err)
+			log.Errorf("storage.Save: %v", err)
 		}
 	}
 }
@@ -80,6 +87,16 @@ func Save() error {
 	return nil
 }
 
+// IsOwner checks if key is one of the owners from device contract
+func IsOwner(key string) bool {
+	for owner := range Device.Owners {
+		if "0x"+key == owner {
+			return true
+		}
+	}
+	return false
+}
+
 // read local data from file
 func read(path string) (d device, err error) {
 	err = utils.ReadJSONFile(path, &d)
@@ -90,12 +107,11 @@ func read(path string) (d device, err error) {
 	return d, err
 }
 
-// IsOwner checks if key is one of the owners from device contract
-func IsOwner(key string) bool {
-	for owner := range Device.Owners {
-		if "0x"+key == owner {
-			return true
-		}
+// getGroupAddress get actual device group address from file in config.localFiles.groupAddr
+func getGroupAddress() (string, error) {
+	addr, err := utils.ReadFile(config.Get("localFiles.groupAddr"))
+	if err != nil {
+		return "", err
 	}
-	return false
+	return string(addr), err
 }
