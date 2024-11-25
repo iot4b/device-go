@@ -2,6 +2,11 @@
 debug: true
 env: dev
 
+executor: "/bin/bash" #path to executor file for CMD
+
+ports:
+  coala: 5683
+
 info:
   version: "0.0.1"
   type: "golang device emulator"
@@ -25,7 +30,7 @@ everscale:
   elector: "0:20a9657c902ad65dd6eb08b4eb7ec4d3f45bebda5d763bbd7b0b3826824a216a"
   vendor:
     address: "0:389e290e6f83d7837f317792c42c370c025c58d34f7e9bdd2c076950acc9c4c9"
-    name: "vendor"
+    name: "IOT4B dev device"
     data: "{\"serialNumber\":\"DSF34-G4FG34GF\"}"
   owners:
     0x6bbadda1506aeb790dcc8a03aa94c1b25f81edf20892c24cc81a062e788bfa7b: "0:0000000000000000000000000000000000000000000000000000000000000000"

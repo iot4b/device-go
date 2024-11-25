@@ -18,8 +18,6 @@ import (
 	log "github.com/ndmsystems/golog"
 )
 
-var port, newOwner string
-
 //TODO  при старте девайса надо скачать смартконтракт девайса и сохранить локально.
 // В смарт контракте прописаны ключи которые имеют право присылать команды,  смарт вендора, из которого берем имя вендора для конфига
 // по клюбчам проверяем что команда подписана тем ключем, который стоит в разрешенных, и тогда выполняем ее.
@@ -32,7 +30,7 @@ func main() {
 		config.Get("localFiles.contract"),
 		config.Get("everscale.elector"),
 		config.Get("everscale.vendor.address"),
-		config.Get("everscale.vendor.name"),
+		config.Get("everscale.vendor.name"),  //TODO убрать, т.к. имя вендора берется из смартконтракта
 		config.Get("everscale.vendor.data"),
 		config.Get("info.type"),
 		config.Get("info.version"),
@@ -69,9 +67,10 @@ func main() {
 			go registration.Repeat()
 
 			break
+		} else {
+			log.Error(err)
+			time.Sleep(3 * time.Second)
 		}
-		log.Error(err)
-		time.Sleep(3 * time.Second)
 	}
 
 	c := make(chan os.Signal, 1)
@@ -83,8 +82,6 @@ func main() {
 func init() {
 	var env string
 	flag.StringVar(&env, "env", "dev", "set environment")
-	flag.StringVar(&port, "port", "5683", "set coala port")
-	flag.StringVar(&newOwner, "addOwner", "", "add new owner public key to device contract")
 	flag.Parse()
 
 	config.Init(env)
@@ -92,7 +89,7 @@ func init() {
 }
 
 func listen(server *coalago.Server) {
-	if err := server.Listen(":" + port); err != nil {
+	if err := server.Listen(":" + config.Get("ports.coala")); err != nil {
 		log.Fatal(err)
 	}
 }

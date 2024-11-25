@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"device-go/shared/config"
 	"errors"
 	"fmt"
 	"os/exec"
@@ -16,13 +17,11 @@ type CmdExecutionResult struct {
 	Stderr []byte
 }
 
-var executor = "/bin/bash"
-
 func (c *CommandOutputWriter) ExecFullOutput(command string) (outOk []byte, outErr []byte, err error) {
 
 	chResponse := make(chan CmdExecutionResult)
 
-	cmd := exec.Command(executor, "-c", command)
+	cmd := exec.Command(config.Get("executor"), "-c", command)
 
 	go func(cnl chan CmdExecutionResult, cmd *exec.Cmd) {
 

@@ -13,8 +13,14 @@ go mod tidy
 ```shell
 go run main.go -env <config-name> -port <port-number>
 ```
-example
-```shell
-go run main.go -env dev -port 5684
+example for testing on linux device in dev mode will be used ./config/dev.yml
 ```
-will be used ./config/dev.yml
+```shell
+go run main.go -env dev
+```
+
+example for testing on Keenetic device in prod mode
+```
+```shell
+go run main.go -env keenetic 
+```

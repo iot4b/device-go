@@ -2,9 +2,14 @@
 debug: false
 env: prod
 
+executor: "" #path to executor file for CMD
+
+ports:
+  coala: 5683
+  
 info:
-  version: "0.0.2"
-  type: "iot4b device"
+  version: "0.0.3"
+  type: "Keenetic device"
 
 localFiles:
   keys: "device.keys.json"
@@ -25,7 +30,7 @@ everscale:
   elector: "0:f7bfc5e008070526c0083a24b11a7e22de2450e3be918ba322561cc71cdcb71a"
   vendor:
     address: "0:9da539518766ebbb30541d460d15c1036c004053b9d4cb9b3b24ce6b058dad12"
-    name: "vendor"
+    name: "Keenetic"
     data: ""
   owners:
     0x6bbadda1506aeb790dcc8a03aa94c1b25f81edf20892c24cc81a062e788bfa7b: "0:0000000000000000000000000000000000000000000000000000000000000000"
