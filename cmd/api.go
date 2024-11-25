@@ -1,20 +1,15 @@
 package cmd
 
 import (
-	"bufio"
 	"bytes"
-	"context"
 	"crypto/sha256"
 	"device-go/crypto"
 	"device-go/shared/config"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"os/exec"
 	"strconv"
-	"strings"
 
-	"github.com/alexellis/go-execute/v2"
 	log "github.com/ndmsystems/golog"
 )
 
@@ -84,21 +79,6 @@ func (c CMD) VerifySignature() bool {
 	return crypto.Keys.VerifySignature(c.Sender, c.getHash(), c.Sign)
 }
 
-// Execute executes command and returns result and error if any occurs
-func (c CMD) Execute1() (string, error) {
-
-	log.Debug(c.Readable())
-
-	body, err := crypto.Keys.Decrypt(c.Body, c.SenderNacl)
-	if err != nil {
-		return "", err
-	}
-
-	execCmd := new(CommandOutputWriter)
-	outRes, outErr, err := execCmd.ExecFullOutput(body)
-	return string(outRes), errors.New(err.Error() + string(outErr))
-}
-
 func (c CMD) Execute() (string, error) {
 	log.Debug(c.Readable())
 
@@ -107,7 +87,7 @@ func (c CMD) Execute() (string, error) {
 		return "", err
 	}
 	// Осуществляет выполнение команды с сохранением форматирования вывода
-	command := exec.Command("bash", "-c", body)
+	command := exec.Command(config.Get("executor"), body)
 	var out bytes.Buffer
 	var stderr bytes.Buffer
 	command.Stdout = &out
@@ -117,94 +97,4 @@ func (c CMD) Execute() (string, error) {
 		return fmt.Sprintf("%s\n%s", out.String(), stderr.String()), err
 	}
 	return out.String(), nil
-}
-
-func (c CMD) Execute3() (string, error) {
-
-	log.Debug(c.Readable())
-
-	body, err := crypto.Keys.Decrypt(c.Body, c.SenderNacl)
-	if err != nil {
-		return "", err
-	}
-
-	// rum cmd and catch the output
-	cmdArr := strings.Split(body, " ")
-	var args []string
-	if len(cmdArr) > 1 {
-		args = cmdArr[1:]
-	}
-	log.Debug(cmdArr[0], args)
-	ls := execute.ExecTask{
-		Command:     cmdArr[0],
-		Args:        args,
-		Shell:       true,
-		StreamStdio: false,
-		Env:         []string{"TERM=xterm"},
-		//Env:     []string{"TERM=linux"},
-	}
-	res, err := ls.Execute(context.Background())
-	if err != nil {
-		log.Error(body, err.Error())
-	}
-
-	if len(res.Stderr) > 0 {
-		log.Error(body, res.Stderr)
-		return res.Stdout, errors.New(res.Stderr)
-	}
-	if res.ExitCode != 0 {
-		log.Error(body, "Non-zero exit code: "+res.Stderr)
-		return res.Stdout, errors.New("Non-zero exit code: " + res.Stderr)
-	}
-
-	log.Debug(body, res.Stdout)
-	return res.Stdout, nil
-}
-
-func (c CMD) Execute2() (string, error) {
-
-	log.Debug(c.Readable())
-
-	body, err := crypto.Keys.Decrypt(c.Body, c.SenderNacl)
-	if err != nil {
-		return "", err
-	}
-
-	cmdArr := strings.Split(body, " ")
-	var args []string
-	if len(cmdArr) > 1 {
-		args = cmdArr[1:]
-	}
-	log.Debug(cmdArr[0], args)
-	cmd := exec.Command(cmdArr[0], args...)
-	if errors.Is(cmd.Err, exec.ErrDot) {
-		cmd.Err = nil
-	}
-	log.Debug(cmd.String(), args)
-
-	stderr, _ := cmd.StderrPipe()
-	stdout, _ := cmd.StdoutPipe()
-	if err := cmd.Start(); err != nil {
-		log.Error(err)
-		return "", err
-	}
-
-	var errOut string
-	scanner := bufio.NewScanner(stderr)
-	for scanner.Scan() {
-		errOut += scanner.Text() + "\n"
-	}
-	if len(errOut) > 0 {
-		log.Error(errOut)
-		return "", errors.New(errOut)
-	}
-
-	var out string
-	scanner = bufio.NewScanner(stdout)
-	for scanner.Scan() {
-		out += scanner.Text() + "\n"
-	}
-
-	log.Debug(out)
-	return out, nil
 }

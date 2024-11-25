@@ -21,7 +21,7 @@ func (c *CommandOutputWriter) ExecFullOutput(command string) (outOk []byte, outE
 
 	chResponse := make(chan CmdExecutionResult)
 
-	cmd := exec.Command(config.Get("executor"), "-c", command)
+	cmd := exec.Command(config.Get("executor"), command)
 
 	go func(cnl chan CmdExecutionResult, cmd *exec.Cmd) {
 

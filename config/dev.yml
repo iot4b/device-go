@@ -2,7 +2,7 @@
 debug: true
 env: dev
 
-executor: "/bin/bash" #path to executor file for CMD
+executor: "/bin/bash -c" #path to executor file for CMD
 
 ports:
   coala: 5683

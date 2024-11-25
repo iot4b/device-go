@@ -51,6 +51,7 @@ func GetInfo(_ *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 func ExecCmd(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 	log.Debug(message.Payload.String())
 	if storage.Device.Lock {
+		log.Debug("device locked")
 		return coalago.NewResponse(coalago.NewStringPayload("device is locked"), coalago.CoapCodeForbidden)
 	}
 	// parsing message from node
@@ -60,12 +61,6 @@ func ExecCmd(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 		return coalago.NewResponse(coalago.NewStringPayload(err.Error()), coalago.CoapCodeBadRequest)
 	}
 	log.Debug(command.Readable())
-
-	// check if the command is sent by one of the device owners
-	if !storage.IsOwner(command.Sender) {
-		return coalago.NewResponse(coalago.NewStringPayload("invalid sender"), coalago.CoapCodeUnauthorized)
-	}
-
 	// validate command params
 	if !command.Valid() {
 		return coalago.NewResponse(coalago.NewStringPayload("invalid cmd params"), coalago.CoapCodeUnauthorized)
@@ -73,6 +68,11 @@ func ExecCmd(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 	// verify signature
 	if !command.VerifySignature() {
 		return coalago.NewResponse(coalago.NewStringPayload("invalid signature"), coalago.CoapCodeUnauthorized)
+	}
+	// check if the command is sent by one of the device owners
+	if !storage.IsOwner(command.Sender) {
+		log.Debug("invalid sender")
+		return coalago.NewResponse(coalago.NewStringPayload("invalid sender"), coalago.CoapCodeUnauthorized)
 	}
 	// execute command
 	out, err := command.Execute()
