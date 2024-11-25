@@ -18,6 +18,8 @@ import (
 	log "github.com/ndmsystems/golog"
 )
 
+var port, newOwner string
+
 //TODO  при старте девайса надо скачать смартконтракт девайса и сохранить локально.
 // В смарт контракте прописаны ключи которые имеют право присылать команды,  смарт вендора, из которого берем имя вендора для конфига
 // по клюбчам проверяем что команда подписана тем ключем, который стоит в разрешенных, и тогда выполняем ее.
@@ -30,7 +32,7 @@ func main() {
 		config.Get("localFiles.contract"),
 		config.Get("everscale.elector"),
 		config.Get("everscale.vendor.address"),
-		config.Get("everscale.vendor.name"),  //TODO убрать, т.к. имя вендора берется из смартконтракта
+		config.Get("everscale.vendor.name"), //TODO убрать, это надо из смарта брать вендора в приложении
 		config.Get("everscale.vendor.data"),
 		config.Get("info.type"),
 		config.Get("info.version"),
@@ -89,7 +91,7 @@ func init() {
 }
 
 func listen(server *coalago.Server) {
-	if err := server.Listen(":" + config.Get("ports.coala")); err != nil {
+	if err := server.Listen(":" + port); err != nil {
 		log.Fatal(err)
 	}
 }
