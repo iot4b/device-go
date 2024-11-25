@@ -8,11 +8,12 @@ import (
 	"device-go/shared/config"
 	"device-go/storage"
 	"encoding/json"
+	"time"
+
 	"github.com/coalalib/coalago"
 	"github.com/jinzhu/copier"
 	log "github.com/ndmsystems/golog"
 	"github.com/pkg/errors"
-	"time"
 )
 
 type registerDeviceResp struct {
@@ -103,7 +104,7 @@ func Register() error {
 	// update local data
 	storage.Save()
 
-	aliver.NodeHost = fasterHost
+	aliver.NodeHost = fasterHost //TODO надо перезапускать и al;iver и вообще весь сервер коалы
 
 	log.Debugw("Register result", "RegisteredDevice", storage.Device, "fasterHost", fasterHost)
 
@@ -111,6 +112,7 @@ func Register() error {
 }
 
 // Repeat registration in a period
+// TODO delete this function
 func Repeat() {
 	log.Info("Repeat registration")
 	for {
