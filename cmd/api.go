@@ -1,12 +1,10 @@
 package cmd
 
 import (
-	"bytes"
 	"crypto/sha256"
 	"device-go/crypto"
 	"device-go/shared/config"
 	"encoding/json"
-	"fmt"
 	"github.com/pkg/errors"
 	"os/exec"
 	"strconv"
@@ -94,14 +92,6 @@ func (c CMD) Execute() (string, error) {
 	}
 
 	// Осуществляет выполнение команды с сохранением форматирования вывода
-	command := exec.Command(parts[0], parts[1:]...)
-	var out bytes.Buffer
-	var stderr bytes.Buffer
-	command.Stdout = &out
-	command.Stderr = &stderr
-	err = command.Run()
-	if err != nil {
-		return fmt.Sprintf("%s\n%s", out.String(), stderr.String()), err
-	}
-	return out.String(), nil
+	out, err := exec.Command(parts[0], parts[1:]...).CombinedOutput()
+	return string(out), err
 }
