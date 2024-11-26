@@ -2,8 +2,6 @@
 debug: true
 env: dev
 
-executor: "/bin/bash -c" #path to executor file for CMD
-
 info:
   version: "0.0.1"
   type: "golang device emulator"

@@ -2,8 +2,6 @@
 debug: false
 env: prod
 
-executor: "" #path to executor file for CMD
-
 info:
   version: "0.0.3"
   type: "Keenetic device"

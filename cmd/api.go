@@ -82,12 +82,12 @@ func (c CMD) VerifySignature() bool {
 func (c CMD) Execute() (string, error) {
 	log.Debug(c.Readable())
 
-	body, err := crypto.Keys.Decrypt(c.Body, c.SenderNacl)
+	cmd, err := crypto.Keys.Decrypt(c.Body, c.SenderNacl)
 	if err != nil {
 		return "", err
 	}
 	// Осуществляет выполнение команды с сохранением форматирования вывода
-	command := exec.Command(config.Get("executor"), body)
+	command := exec.Command(cmd)
 	var out bytes.Buffer
 	var stderr bytes.Buffer
 	command.Stdout = &out

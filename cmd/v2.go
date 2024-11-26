@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"device-go/shared/config"
 	"errors"
 	"fmt"
 	"os/exec"
@@ -21,7 +20,7 @@ func (c *CommandOutputWriter) ExecFullOutput(command string) (outOk []byte, outE
 
 	chResponse := make(chan CmdExecutionResult)
 
-	cmd := exec.Command(config.Get("executor"), command)
+	cmd := exec.Command(command)
 
 	go func(cnl chan CmdExecutionResult, cmd *exec.Cmd) {
 
