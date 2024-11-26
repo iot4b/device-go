@@ -18,7 +18,7 @@ import (
 	log "github.com/ndmsystems/golog"
 )
 
-var port, newOwner string
+var port = "5683"
 
 //TODO  при старте девайса надо скачать смартконтракт девайса и сохранить локально.
 // В смарт контракте прописаны ключи которые имеют право присылать команды,  смарт вендора, из которого берем имя вендора для конфига
@@ -84,6 +84,7 @@ func main() {
 func init() {
 	var env string
 	flag.StringVar(&env, "env", "dev", "set environment")
+	flag.StringVar(&port, "port", port, "override default coala port")
 	flag.Parse()
 
 	config.Init(env)

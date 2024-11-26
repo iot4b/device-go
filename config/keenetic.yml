@@ -4,9 +4,6 @@ env: prod
 
 executor: "" #path to executor file for CMD
 
-ports:
-  coala: 5683
-  
 info:
   version: "0.0.3"
   type: "Keenetic device"
