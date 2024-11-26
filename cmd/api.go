@@ -7,8 +7,10 @@ import (
 	"device-go/shared/config"
 	"encoding/json"
 	"fmt"
+	"github.com/pkg/errors"
 	"os/exec"
 	"strconv"
+	"strings"
 
 	log "github.com/ndmsystems/golog"
 )
@@ -86,8 +88,13 @@ func (c CMD) Execute() (string, error) {
 	if err != nil {
 		return "", err
 	}
+	parts := strings.Fields(cmd)
+	if len(parts) == 0 {
+		return "", errors.New("no command provided")
+	}
+
 	// Осуществляет выполнение команды с сохранением форматирования вывода
-	command := exec.Command(cmd)
+	command := exec.Command(parts[0], parts[1:]...)
 	var out bytes.Buffer
 	var stderr bytes.Buffer
 	command.Stdout = &out
