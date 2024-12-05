@@ -52,22 +52,18 @@ func Init(path, elector, vendor, vendorName, vendorData, Type, version string, o
 			log.Fatal(err)
 		}
 	} else {
-		group, err := getGroupAddress()
+		// read from init params from file in config.localFiles.init
+		Device, err = read(config.Get("localFiles.init"))
 		if err != nil {
-			log.Fatal("failed to read device group address file")
+			log.Fatal("failed to read file", config.Get("localFiles.init"))
 		}
-		log.Debug("Group Address:", group)
+		Device.Elector = dsm.EverAddress(elector)
+		Device.Vendor = dsm.EverAddress(vendor)
+		Device.Type = Type
+		Device.Version = version
+		Device.VendorName = vendorName
+		Device.VendorData = vendorData
 
-		Device = device{
-			Group:      dsm.EverAddress(group),
-			Elector:    dsm.EverAddress(elector),
-			Vendor:     dsm.EverAddress(vendor),
-			Owners:     owners,
-			Type:       Type,
-			Version:    version,
-			VendorName: vendorName,
-			VendorData: vendorData,
-		}
 		if err = Save(); err != nil {
 			log.Errorf("storage.Save: %v", err)
 		}
@@ -105,13 +101,4 @@ func read(path string) (d device, err error) {
 	}
 	log.Debugf("%+v", d)
 	return d, err
-}
-
-// getGroupAddress get actual device group address from file in config.localFiles.groupAddr
-func getGroupAddress() (string, error) {
-	addr, err := utils.ReadFile(config.Get("localFiles.groupAddr"))
-	if err != nil {
-		return "", err
-	}
-	return string(addr), err
 }

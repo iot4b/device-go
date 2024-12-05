@@ -9,7 +9,7 @@ info:
 localFiles:
   keys: "device.keys.json"
   contract: "device.contract.prod.json"
-  groupAddr: "group.address.txt"
+  init: "device.init.json"
 
 timeout:
   alive: 10s #alive interval
