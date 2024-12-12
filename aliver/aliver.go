@@ -5,7 +5,6 @@ import (
 
 	"github.com/coalalib/coalago"
 	log "github.com/ndmsystems/golog"
-	"github.com/pkg/errors"
 )
 
 /*
@@ -23,28 +22,26 @@ var NodeHost string
 
 func Run(s *coalago.Server, address string, aliveInterval time.Duration) {
 	log.Info("run aliver")
+	var retryErr int = 0
 	for {
 		if NodeHost == "" {
 			time.Sleep(time.Second)
 			continue
 		}
-		//start := time.Now()
-		err := alive(s, address)
+		aliveMessage := coalago.NewCoAPMessage(coalago.ACK, coalago.GET)
+		aliveMessage.SetURIPath("/l")
+		aliveMessage.SetURIQuery("a", address)
+		_, err := s.Send(aliveMessage, NodeHost)
 		if err != nil {
-			log.Error(err)
-			//todo если не удалось отправить сообщение, то pзапускаем процесс переподключения, если накопилось 10 ошибок
-
+			log.Error(err, retryErr)
+			retryErr++
+			if retryErr > 10 {
+				log.Error("retryErr > 10 - start registration")
+				//todo запуск процесса регистрации
+				retryErr = 0
+				panic("reboot device") //переделать на нормальный рестарт сервиса
+			}
 		}
-		//log.Infof("time: %dµs node: %s address: %s", time.Since(start).Nanoseconds(), nodeHost, address)
-
 		time.Sleep(aliveInterval)
 	}
-}
-
-func alive(server *coalago.Server, address string) error {
-	aliveMessage := coalago.NewCoAPMessage(coalago.ACK, coalago.GET)
-	aliveMessage.SetURIPath("/l")
-	aliveMessage.SetURIQuery("a", address)
-	//todo  - переписать на нормальную отправку
-	return errors.Wrap(server.SendToSocket(aliveMessage, NodeHost), "sendToSocket")
 }
