@@ -1,6 +1,7 @@
 package aliver
 
 import (
+	"flag"
 	"time"
 
 	"github.com/coalalib/coalago"
@@ -19,6 +20,7 @@ import (
 */
 
 var NodeHost string
+var port = "5683"
 
 func Run(s *coalago.Server, address string, aliveInterval time.Duration) {
 	log.Info("run aliver")
@@ -39,7 +41,12 @@ func Run(s *coalago.Server, address string, aliveInterval time.Duration) {
 				log.Error("retryErr > 10 - start registration")
 				//todo запуск процесса регистрации
 				retryErr = 0
-				panic("reboot device") //переделать на нормальный рестарт сервиса
+
+				//restart service
+				//TODO это костыль надо чтобы коала помнила адрес и перезапусклась на нем после рестарта
+				flag.StringVar(&port, "port", port, "override default coala port")
+				flag.Parse()
+				s.Listen(":" + port)
 			}
 		}
 		time.Sleep(aliveInterval)
