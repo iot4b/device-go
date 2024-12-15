@@ -4,3 +4,4 @@ device.*.json
 device_bin
 .DS_Store
 .vscode/settings.json
+device.bin
