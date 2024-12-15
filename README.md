@@ -24,3 +24,9 @@ example for testing on Keenetic device in prod mode
 ```shell
 go run main.go -env keenetic 
 ```
+
+example for testing on Openwrt device in prod mode
+```
+```shell
+go run main.go -env openwrt 
+```
