@@ -1,6 +1,6 @@
 
 debug: false
-env: prod
+env: dev
 
 info:
   version: "0.0.3"
@@ -8,7 +8,7 @@ info:
 
 localFiles:
   keys: "device.keys.json"
-  contract: "device.contract.prod.json"
+  contract: "device.contract.dev.json"
   init: "device.init.json"
 
 timeout:
@@ -22,7 +22,7 @@ masterNodes:
   - 192.81.216.57:5683
 
 everscale:
-  elector: "0:f7bfc5e008070526c0083a24b11a7e22de2450e3be918ba322561cc71cdcb71a"
+  elector: "0:20a9657c902ad65dd6eb08b4eb7ec4d3f45bebda5d763bbd7b0b3826824a216a"
   vendor:
     address: "0:9da539518766ebbb30541d460d15c1036c004053b9d4cb9b3b24ce6b058dad12"
     name: "Keenetic"
