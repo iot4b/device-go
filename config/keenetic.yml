@@ -1,5 +1,5 @@
 
-debug: false
+debug: true
 env: dev
 
 info:
@@ -13,7 +13,7 @@ localFiles:
 
 timeout:
   alive: 10s #alive interval
-  coala: 4s  # timeout for coala reguests
+  coala: 3m  # timeout for coala reguests
   registerRepeat: 1h #period for registration repeat
 
 masterNodes:
