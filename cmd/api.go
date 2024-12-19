@@ -11,6 +11,7 @@ import (
 	"github.com/pkg/errors"
 	"os/exec"
 	"strconv"
+	"strings"
 )
 
 // CMD is a command to execute
@@ -87,6 +88,11 @@ func (c CMD) Execute() (string, error) {
 	if err != nil {
 		return "", err
 	}
+
+	return run(cmd)
+}
+
+func run(cmd string) (string, error) {
 	log.Debug("CMD:", cmd)
 
 	parts, err := shlex.Split(cmd)
@@ -95,6 +101,13 @@ func (c CMD) Execute() (string, error) {
 	}
 	if len(parts) == 0 {
 		return "", errors.New("no command provided")
+	}
+
+	if parts[0] == "ndms" && config.IsKeenetic() {
+		// run keenetic command
+		kcmd := fmt.Sprintf("ndmq -p \"%s\" -x", strings.Join(parts[1:], " "))
+		log.Debug("Run Keenetic CMD:", kcmd)
+		return run(kcmd)
 	}
 
 	// Осуществляет выполнение команды с сохранением форматирования вывода
