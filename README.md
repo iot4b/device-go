@@ -19,13 +19,13 @@ example for testing on linux device in dev mode will be used ./config/dev.yml
 go run main.go -env dev
 ```
 
-example for testing on Keenetic device in prod mode
+example for testing on Keenetic device in dev mode
 ```
 ```shell
 go run main.go -env keenetic 
 ```
 
-example for testing on Openwrt device in prod mode
+example for testing on Openwrt device in dev mode
 ```
 ```shell
 go run main.go -env openwrt 

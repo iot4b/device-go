@@ -6,6 +6,7 @@ toolchain go1.23.4
 
 require (
 	github.com/coalalib/coalago v1.0.7-0.20241125160958-c3cfd2fd872d
+	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510
 	github.com/jinzhu/copier v0.4.0
 	github.com/ndmsystems/golog v0.0.3
 	github.com/pkg/errors v0.9.1
@@ -29,10 +30,8 @@ require (
 	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
 	github.com/spf13/afero v1.11.0 // indirect
 	github.com/spf13/cast v1.7.0 // indirect
-	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
-	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
 	golang.org/x/crypto v0.31.0

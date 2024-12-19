@@ -5,12 +5,12 @@ import (
 	"device-go/crypto"
 	"device-go/shared/config"
 	"encoding/json"
+	"fmt"
+	"github.com/google/shlex"
+	log "github.com/ndmsystems/golog"
 	"github.com/pkg/errors"
 	"os/exec"
 	"strconv"
-	"strings"
-
-	log "github.com/ndmsystems/golog"
 )
 
 // CMD is a command to execute
@@ -26,7 +26,8 @@ func (c CMD) Readable() string {
 	if len(body) > 50 {
 		body = body[:50]
 	}
-	return "uuid: " + c.UUID + " ts: " + string(c.Ts) + " sender: " + c.Sender + " sender_nacl: " + c.SenderNacl + " receiver: " + string(c.Receiver) + " hash: " + c.Hash + " sign: " + c.Sign + " body: " + body
+	return fmt.Sprintf("uuid: %s ts: %v sender: %s sender_nacl: %s receiver: %s hash: %s sign: %s body: %s",
+		c.UUID, c.Ts, c.Sender, c.SenderNacl, c.Receiver, c.Hash, c.Sign, body)
 }
 
 // Valid checks if all fields are filled
@@ -86,7 +87,12 @@ func (c CMD) Execute() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	parts := strings.Fields(cmd)
+	log.Debug("CMD:", cmd)
+
+	parts, err := shlex.Split(cmd)
+	if err != nil {
+		return "", fmt.Errorf("error parsing command: %v", err)
+	}
 	if len(parts) == 0 {
 		return "", errors.New("no command provided")
 	}
