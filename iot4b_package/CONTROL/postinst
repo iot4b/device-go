@@ -35,4 +35,12 @@ sed -i "s|__GROUP__|$group_address|g" $config_file
 sed -i "s|__OWNER__|$owner_key|g" $config_file
 sed -i "s|__DEVICENAME__|$device_name|g" $config_file
 
-echo "Well done!"
+
+# Запуск сервиса
+if [ -x /etc/init.d/iot4b ]; then
+    /etc/init.d/iot4b enable   # Включить автозапуск
+    /etc/init.d/iot4b start    # Запустить сервис
+    echo "Service iot4b started and enabled on boot."
+else
+    echo "Service script /etc/init.d/iot4b not found or not executable."
+fi
