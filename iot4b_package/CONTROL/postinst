@@ -5,9 +5,9 @@ device_name="IOT4B device"
 if [ -f /etc/openwrt_release ]; then
     echo "Detected OpenWRT."
     device_name=$(uname -n)
-elif grep -qi "Keenetic" /proc/version; then
+elif grep -qi "NDMS" /proc/version; then
     echo "Detected Keenetic. Installing dependencies..."
-    opkg install libndm ndmq
+    ##opkg install libndm ndmq
     device_name=$(uname -n)
 fi
 
