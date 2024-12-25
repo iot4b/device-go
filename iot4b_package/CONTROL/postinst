@@ -1,5 +1,16 @@
 #!/bin/sh
 
+device_name="IOT4B device"
+
+if [ -f /etc/openwrt_release ]; then
+    echo "Detected OpenWRT."
+    device_name=$(uname -n)
+elif grep -qi "Keenetic" /proc/version; then
+    echo "Detected Keenetic. Installing dependencies..."
+    opkg install libndm ndmq
+    device_name=$(uname -n)
+fi
+
 # Функция для ввода значения с проверкой на пустоту
 get_input() {
     local prompt="$1"
