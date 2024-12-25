@@ -1,0 +1,38 @@
+#!/bin/sh
+
+# Функция для ввода значения с проверкой на пустоту
+get_input() {
+    local prompt="$1"
+    local value=""
+    while [ -z "$value" ]; do
+        echo "$prompt"
+        read value
+        if [ -z "$value" ]; then
+            echo "Empty value is not allowed. Try again."
+        fi
+    done
+    echo "$value"
+}
+
+# Запрос адреса группы
+group_address=$(get_input "Enter the blockchain address of Device Group:")
+group_name=${group_address}
+
+# Запрос публичного ключа владельца
+owner_key=$(get_input "Enter the owner's public key:")
+owner_key=${owner_key}
+
+# Получение имени устройства (модели)
+if [ -f cat /proc/device-tree/model ]; then
+    device_name=$(cat cat /proc/device-tree/model)
+else
+    device_name="IOT4B device"
+fi
+
+# Замена макросов в конфигурационном файле
+config_file="/etc/iot4b/init.json"
+sed -i "s|__GROUP__|$group_address|g" $config_file
+sed -i "s|__OWNER__|$owner_key|g" $config_file
+sed -i "s|__DEVICENAME__|$device_name|g" $config_file
+
+echo "Well done!"

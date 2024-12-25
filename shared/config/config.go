@@ -10,7 +10,6 @@ import (
 
 var (
 	Debug bool   // режим отладки
-	Ip    string // Ip текущей ноды
 	env   string // текущее окружение
 )
 
