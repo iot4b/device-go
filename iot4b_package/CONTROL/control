@@ -1,7 +1,7 @@
 Package: iot4b
 Version: 1.0
-Depends: libndm, ndmq
+Depends:
 Section: utils
 Architecture: mipsle
 Maintainer: IOT4B <sp@golbex.com>
-Description: iot4b application package
+Description: IOT4B device client
