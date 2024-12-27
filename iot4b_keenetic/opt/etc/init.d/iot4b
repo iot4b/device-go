@@ -1,9 +1,9 @@
-#!/bin/sh /etc/rc.common
+#!/bin/sh
 START=50
 STOP=50
 
 start() {
-    /opt/iot4b/iot4b -env=iot4b &
+    cd /opt/iot4b && ./iot4b -env=iot4b &
 }
 
 stop() {
