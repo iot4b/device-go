@@ -34,7 +34,7 @@ echo "Enter the blockchain address of Device Group:"
 group_address=$(get_input)
 
 # Запрос публичного ключа владельца
-echo "Enter the owner's public key:"
+echo "Enter the owner's public key (starting with 0x):"
 owner_key=$(get_input)
 
 # Замена макросов в конфигурационном файле
