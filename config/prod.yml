@@ -1,6 +1,6 @@
 
-debug: true
-env: dev
+debug: false
+env: prod
 
 info:
   version: "0.0.1"
@@ -8,8 +8,8 @@ info:
 
 localFiles:
   keys: "device.keys.json"
-  contract: "device.contract.dev.json"
-  init: "device.init.dev.json"
+  contract: "device.contract.prod.json"
+  init: "device.init.prod.json"
 
 timeout:
   alive: 10s #alive interval
@@ -22,7 +22,7 @@ masterNodes:
   - 192.81.216.57:5683
 
 everscale:
-  elector: "0:20a9657c902ad65dd6eb08b4eb7ec4d3f45bebda5d763bbd7b0b3826824a216a"
+  elector: "0:09ff18e1396c3844c04cde933b1044e47b3b1e62c11a79572c4fd380d279084d"
   vendor:
     address: "0:389e290e6f83d7837f317792c42c370c025c58d34f7e9bdd2c076950acc9c4c9"
     name: "IOT4B dev device"
