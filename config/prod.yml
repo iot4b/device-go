@@ -14,7 +14,7 @@ localFiles:
 timeout:
   alive: 10s #alive interval
   coala: 3m  # timeout for coala reguests
-  registerRepeat: 1h #period for registration repeat
+  registerRepeat: 24h #period for registration repeat
 
 masterNodes:
   - 157.245.57.218:5683
