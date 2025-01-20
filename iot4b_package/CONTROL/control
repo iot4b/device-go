@@ -1,7 +1,0 @@
-Package: iot4b
-Version: 1.0
-Depends:
-Section: utils
-Architecture: mipsle
-Maintainer: IOT4B <sp@golbex.com>
-Description: IOT4B device client

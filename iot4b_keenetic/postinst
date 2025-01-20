@@ -7,7 +7,8 @@ if [ -f /etc/openwrt_release ]; then
     device_name=$(uname -n)
 elif grep -qi "NDMS" /proc/version; then
     echo "Detected Keenetic. Installing dependencies..."
-    ##opkg install libndm ndmq
+    opkg install /tmp/libndm_1.8.0-1_mipsel-3.4_kn.ipk
+    opkg install /tmp/ndmq_1.0.2-7_mipsel-3.4_kn.ipk
     device_name=$(uname -n)
 fi
 
@@ -44,7 +45,7 @@ sed -i "s|__OWNER__|$owner_key|g" $config_file
 sed -i "s|__DEVICENAME__|$device_name|g" $config_file
 
 # Запуск сервиса
-service_file="/opt/etc/init.d/S50iot4b"
+service_file="/etc/init.d/iot4b"
 if [ -x $service_file ]; then
     $service_file start    # Запустить сервис
 else
