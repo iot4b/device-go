@@ -9,7 +9,7 @@ info:
 localFiles:
   keys: "device.keys.json"
   contract: "device.contract.dev.json"
-  init: "device.init.json"
+  init: "device.init.dev.json"
 
 timeout:
   alive: 10s #alive interval

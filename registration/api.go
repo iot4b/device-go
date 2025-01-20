@@ -8,12 +8,12 @@ import (
 	"device-go/shared/config"
 	"device-go/storage"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/coalalib/coalago"
 	"github.com/jinzhu/copier"
 	log "github.com/ndmsystems/golog"
-	"github.com/pkg/errors"
 )
 
 type registerDeviceResp struct {
@@ -35,7 +35,7 @@ func Register() error {
 	// получаем список доступных нод с рандомной мастер ноды
 	masterNode, list, err := endpointList(config.List("masterNodes"))
 	if err != nil {
-		return errors.Wrap(err, "getEndpoints")
+		return fmt.Errorf("getEndpoints: %w", err)
 	}
 	log.Debug("endpoints: %+v", list)
 
@@ -67,7 +67,7 @@ func Register() error {
 
 	payload, err := json.Marshal(req)
 	if err != nil {
-		return errors.Wrap(err, "json.Marshal(payload)")
+		return fmt.Errorf("json.Marshal: %w", err)
 	}
 	log.Debugf("registerRequest: %s address: %s", payload, storage.Device.Address)
 
@@ -85,15 +85,17 @@ func Register() error {
 	// отправляем запрос на регистрацию
 	resp, err := client.Send(msg, fasterHost)
 	if err != nil {
-		return errors.Wrap(err, "client.Send")
+		return fmt.Errorf("client.Send: %w", err)
+	}
+	if resp.Code.IsCommonError() || resp.Code.IsInternalError() {
+		return fmt.Errorf("client.Send: %s (%v)", resp.Body, resp.Code)
 	}
 
 	// парсим ответ и обновляем локальный дамп контракта
 	registerResp := registerDeviceResp{}
 	err = json.Unmarshal(resp.Body, &registerResp)
 	if err != nil {
-		log.Debug("registerResponse: "+string(resp.Body), "code: "+string(resp.Code))
-		return errors.Wrap(err, "json.Unmarshal(resp.Body, &registerResp)")
+		return fmt.Errorf("json.Unmarshal(%s): %v", resp.Body, err)
 	}
 	log.Debug("registerResponse: " + string(resp.Body))
 

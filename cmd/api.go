@@ -103,7 +103,7 @@ func run(cmd string) (string, error) {
 		return "", errors.New("no command provided")
 	}
 
-	if parts[0] == "ndms" && config.IsKeenetic() {
+	if parts[0] == "ndms" {
 		// run keenetic command
 		kcmd := fmt.Sprintf("ndmq -p \"%s\" -x", strings.Join(parts[1:], " "))
 		log.Debug("Run Keenetic CMD:", kcmd)

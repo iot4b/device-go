@@ -1,0 +1,31 @@
+
+debug: false
+env: prod
+
+info:
+  version: "0.0.1"
+  type: "golang device emulator"
+
+localFiles:
+  keys: "device.keys.json"
+  contract: "device.contract.prod.json"
+  init: "device.init.prod.json"
+
+timeout:
+  alive: 10s #alive interval
+  coala: 3m  # timeout for coala reguests
+  registerRepeat: 24h #period for registration repeat
+
+masterNodes:
+  - 157.245.57.218:5683
+  - 188.166.71.64:5683
+  - 192.81.216.57:5683
+
+everscale:
+  elector: "0:09ff18e1396c3844c04cde933b1044e47b3b1e62c11a79572c4fd380d279084d"
+  vendor:
+    address: "0:389e290e6f83d7837f317792c42c370c025c58d34f7e9bdd2c076950acc9c4c9"
+    name: "IOT4B dev device"
+    data: "{\"serialNumber\":\"DSF34-G4FG34GF\"}"
+  owners:
+    0x6bbadda1506aeb790dcc8a03aa94c1b25f81edf20892c24cc81a062e788bfa7b: "0:0000000000000000000000000000000000000000000000000000000000000000"
