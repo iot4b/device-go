@@ -1,11 +1,12 @@
 package events
 
 import (
-	"device-go/api"
-	"device-go/dsm"
-	"device-go/storage"
-	log "github.com/ndmsystems/golog"
+	"device-go/packages/api"
+	"device-go/packages/dsm"
+	"device-go/packages/storage"
 	"reflect"
+
+	log "github.com/ndmsystems/golog"
 )
 
 type event interface {

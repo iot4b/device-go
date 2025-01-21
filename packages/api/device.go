@@ -1,9 +1,10 @@
 package api
 
 import (
-	"device-go/storage"
-	log "github.com/ndmsystems/golog"
+	"device-go/packages/storage"
 	"strconv"
+
+	log "github.com/ndmsystems/golog"
 )
 
 func GetBalance() float64 {

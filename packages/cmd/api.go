@@ -2,16 +2,17 @@ package cmd
 
 import (
 	"crypto/sha256"
-	"device-go/crypto"
-	"device-go/shared/config"
+	"device-go/packages/config"
+	"device-go/packages/crypto"
 	"encoding/json"
 	"fmt"
-	"github.com/google/shlex"
-	log "github.com/ndmsystems/golog"
-	"github.com/pkg/errors"
 	"os/exec"
 	"strconv"
 	"strings"
+
+	"github.com/google/shlex"
+	log "github.com/ndmsystems/golog"
+	"github.com/pkg/errors"
 )
 
 // CMD is a command to execute

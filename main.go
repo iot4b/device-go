@@ -1,13 +1,13 @@
 package main
 
 import (
-	"device-go/aliver"
-	"device-go/crypto"
-	"device-go/events"
-	"device-go/handlers"
-	"device-go/registration"
-	"device-go/shared/config"
-	"device-go/storage"
+	"device-go/packages/aliver"
+	"device-go/packages/config"
+	"device-go/packages/crypto"
+	"device-go/packages/events"
+	"device-go/packages/handlers"
+	"device-go/packages/registration"
+	"device-go/packages/storage"
 	"flag"
 	"os"
 	"os/signal"

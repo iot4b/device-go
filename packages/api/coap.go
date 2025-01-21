@@ -1,9 +1,10 @@
 package api
 
 import (
-	"device-go/aliver"
-	"device-go/shared/config"
+	"device-go/packages/aliver"
+	"device-go/packages/config"
 	"encoding/json"
+
 	"github.com/coalalib/coalago"
 	log "github.com/ndmsystems/golog"
 	"github.com/pkg/errors"

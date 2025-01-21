@@ -1,6 +1,6 @@
 package cmd
 
-import "device-go/dsm"
+import "device-go/packages/dsm"
 
 type CMD struct {
 	UUID       string          `json:"uuid"`        // unique id

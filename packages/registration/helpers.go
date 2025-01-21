@@ -1,12 +1,13 @@
 package registration
 
 import (
-	"device-go/shared/config"
+	"device-go/packages/config"
 	"encoding/json"
-	"github.com/coalalib/coalago"
-	log "github.com/ndmsystems/golog"
 	"math/rand"
 	"time"
+
+	"github.com/coalalib/coalago"
+	log "github.com/ndmsystems/golog"
 )
 
 // endpointList - получаем список доступных нод для подключения

@@ -1,12 +1,12 @@
 package registration
 
 import (
-	"device-go/aliver"
-	"device-go/crypto"
-	"device-go/dsm"
-	"device-go/events"
-	"device-go/shared/config"
-	"device-go/storage"
+	"device-go/packages/aliver"
+	"device-go/packages/config"
+	"device-go/packages/crypto"
+	"device-go/packages/dsm"
+	"device-go/packages/events"
+	"device-go/packages/storage"
 	"encoding/json"
 	"fmt"
 	"time"

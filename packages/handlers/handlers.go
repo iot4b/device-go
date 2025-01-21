@@ -1,10 +1,10 @@
 package handlers
 
 import (
-	"device-go/cmd"
-	"device-go/crypto"
-	"device-go/dsm"
-	"device-go/storage"
+	"device-go/packages/cmd"
+	"device-go/packages/crypto"
+	"device-go/packages/dsm"
+	"device-go/packages/storage"
 	"encoding/base64"
 	"encoding/json"
 	"time"

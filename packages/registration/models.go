@@ -1,6 +1,6 @@
 package registration
 
-import "device-go/dsm"
+import "device-go/packages/dsm"
 
 // метод /register принимает на вход info текущего устройства для регистрации в блокчейне
 type registerRequest struct {

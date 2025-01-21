@@ -1,10 +1,11 @@
 package storage
 
 import (
-	"device-go/dsm"
-	"device-go/shared/config"
-	"device-go/utils"
+	"device-go/packages/config"
+	"device-go/packages/dsm"
+	"device-go/packages/utils"
 	"encoding/json"
+
 	log "github.com/ndmsystems/golog"
 	"github.com/pkg/errors"
 )
