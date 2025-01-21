@@ -1,6 +1,6 @@
 #!/bin/sh
 
-GOOS=linux GOARCH=mipsle go build -ldflags="-s -w" -o iot4b_keenetic/opt/iot4b/iot4b main.go
+GOOS=linux GOARCH=mipsle go build -ldflags="-s -w" -o ./builds/iot4b_keenetic/opt/iot4b/iot4b main.go
 
 cd builds/iot4b_keenetic
 rm -f ../iot4b_keenetic.ipk
