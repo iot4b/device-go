@@ -2,6 +2,6 @@ Package: iot4b
 Version: 1.0
 Depends:
 Section: utils
-Architecture: mipsel
+Architecture: mips_siflower
 Maintainer: IOT4B <sp@golbex.com>
 Description: IOT4B device client
