@@ -1,0 +1,45 @@
+#!/bin/sh
+
+opkg install /tmp/libndm_1.8.0-1_mipsel-3.4_kn.ipk
+opkg install /tmp/ndmq_1.0.2-7_mipsel-3.4_kn.ipk
+
+device_name=$(uname -n)
+echo "Device name: $device_name"
+
+# Функция для ввода значения с проверкой на пустоту
+get_input() {
+    local value=""
+    while true; do
+        read value
+        if [ -z "$value" ]; then
+            echo "Empty value is not allowed. Try again."
+        elif [[ "$value" == "q" || "$value" == "exit" ]]; then
+            echo "Exiting input."
+            exit 1
+        else
+            echo "$value"
+            return
+        fi
+    done
+}
+# Запрос адреса группы
+echo "Enter the blockchain address of Device Group:"
+group_address=$(get_input)
+
+# Запрос публичного ключа владельца
+echo "Enter the owner's public key (starting with 0x):"
+owner_key=$(get_input)
+
+# Замена макросов в конфигурационном файле
+config_file="/opt/iot4b/init.json"
+sed -i "s|__GROUP__|$group_address|g" $config_file
+sed -i "s|__OWNER__|$owner_key|g" $config_file
+sed -i "s|__DEVICENAME__|$device_name|g" $config_file
+
+# Запуск сервиса
+service_file="/opt/etc/init.d/S50iot4b"
+if [ -x $service_file ]; then
+    $service_file start    # Запустить сервис
+else
+    echo "Service script $service_file not found or not executable."
+fi
