@@ -2,6 +2,7 @@ Package: iot4b
 Version: 1.0
 Depends:
 Section: utils
-Architecture: mips_siflower
+Architecture: mipsel_24kc
+Installed-Size: 8400000
 Maintainer: IOT4B <sp@golbex.com>
 Description: IOT4B device client
