@@ -3,7 +3,7 @@ Version: 1.0
 Depends:
 Section: utils
 License: GPL-2.0+
-Architecture: mipsel_24kc
+Architecture: mips_siflower
 Installed-Size: 8400000
 Maintainer: IOT4B <sp@golbex.com>
 Description: IOT4B device client

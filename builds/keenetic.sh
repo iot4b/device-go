@@ -11,7 +11,6 @@ echo 2.0 > debian-binary
 tar -czvf ../iot4b_keenetic.ipk debian-binary control.tar.gz data.tar.gz
 echo "../iot4b_keenetic.ipk created"
 ls -lh ../iot4b_keenetic.ipk | awk '{print $5}'
-chmod +x ../iot4b_keenetic.ipk
 echo "Cleaning up..."
 rm -f control.tar.gz
 rm -f data.tar.gz
