@@ -24,8 +24,8 @@ masterNodes:
 everscale:
   elector: "0:09ff18e1396c3844c04cde933b1044e47b3b1e62c11a79572c4fd380d279084d"
   vendor:
-    address: "0:4b89819b5cdae07b1b97d7962bc5561b2f667f35d0e18cc9d426318a4edc97bd"
-    name: "IOT4Keenetic"
+    address: "0:041c0970f0de1f40a05f98e6659510fa6df85c78a45611f1b5a1635fa79dd9ab"
+    name: "IOT4OpenWRT"
     data: "betatest"
   owners: 
     0x6bbadda1506aeb790dcc8a03aa94c1b25f81edf20892c24cc81a062e788bfa7b: "0:0000000000000000000000000000000000000000000000000000000000000000" 
