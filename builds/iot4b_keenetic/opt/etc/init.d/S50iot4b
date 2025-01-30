@@ -4,7 +4,7 @@ START=50
 STOP=50
 
 SERVICE_NAME="iot4b"
-SERVICE_FILE="/etc/init.d/S50iot4b"
+SERVICE_FILE="/opt/etc/init.d/S${START}${SERVICE_NAME}"
 LOG_FILE="/opt/var/log/$SERVICE_NAME.log"
 
 start_service() {
