@@ -41,7 +41,8 @@ validate_key() {
 }
 
 # Prompt for blockchain group address
-echo "\n--- Blockchain Group Address Setup ---"
+echo ""
+echo "--- Blockchain Group Address Setup ---"
 while true; do
     group_address=$(get_input "Enter the Blockchain Address of the Device Group (Format: 0:<64 hex characters>): ")
     if validate_address "$group_address"; then
@@ -53,7 +54,8 @@ while true; do
 done
 
 # Prompt for owner's public key
-echo "\n--- Owner's Public Key Setup ---"
+echo ""
+echo "--- Owner's Public Key Setup ---"
 while true; do
     owner_key=$(get_input "Enter the Owner's Public Key (Format: 0x<64 hex characters>): ")
     if validate_key "$owner_key"; then
@@ -65,7 +67,8 @@ while true; do
 done
 
 # Replace placeholders in the configuration file
-echo "\nConfiguring the system with provided details..."
+echo ""
+echo "Configuring the system with provided details..."
 if [ -f "$CONFIG_FILE" ]; then
     sed -i "s|__GROUP__|$group_address|g; s|__OWNER__|$owner_key|g; s|__DEVICENAME__|$device_name|g" "$CONFIG_FILE"
     if [ $? -eq 0 ]; then
@@ -80,7 +83,8 @@ else
 fi
 
 # Start and enable the service
-echo "\nStarting the IoT4B service..."
+echo ""
+echo "Starting the IoT4B service..."
 if [ -x "$SERVICE_FILE" ]; then
     "$SERVICE_FILE" start
     if [ $? -eq 0 ]; then
@@ -102,7 +106,8 @@ else
 fi
 
 # Wait for smart contract deployment
-echo "\nWaiting for smart contract deployment (Timeout: ${TIMEOUT}s)..."
+echo ""
+echo "Waiting for smart contract deployment (Timeout: ${TIMEOUT}s)..."
 
 i=0
 while [ $i -lt $TIMEOUT ]; do
@@ -110,7 +115,9 @@ while [ $i -lt $TIMEOUT ]; do
         # Parse the address value without jq
         ADDRESS=$(grep -m1 '"address"' "$CONTRACT_FILE" | sed -E 's/.*"address":[[:space:]]*"([^"]+)".*/\1/')
         if [ -n "$ADDRESS" ]; then
-            echo "\n--- Smart Contract Deployment Successful ---"
+            echo ""
+            echo ""
+            echo "--- Smart Contract Deployment Successful ---"
             echo "Device Name: $device_name"
             echo "Contract Address: $ADDRESS"
             echo "Use this address to add the device to the application."
