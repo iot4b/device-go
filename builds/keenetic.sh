@@ -1,5 +1,7 @@
 #!/bin/sh
 
+echo "Building Keenetic package..."
+
 GOOS=linux GOARCH=mipsle go build -ldflags="-s -w" -o ./builds/iot4b_keenetic/opt/iot4b/iot4b main.go
 
 cd builds/iot4b_keenetic

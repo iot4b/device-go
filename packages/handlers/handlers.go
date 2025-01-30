@@ -86,16 +86,19 @@ func Update(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 	log.Debug("Update:", message.Payload.String())
 
 	var payload struct {
-		Address          dsm.EverAddress `json:"address"`
-		Group            dsm.EverAddress `json:"group"`
-		Node             dsm.EverAddress `json:"node"`
-		Lock             bool            `json:"lock,omitempty"`
-		Stat             bool            `json:"stat,omitempty"`
-		Events           bool            `json:"events,omitempty"`
-		Version          string          `json:"version,omitempty"`
-		LastRegisterTime string          `json:"lastRegisterTime,omitempty"`
-		NodePubKey       string          `json:"nodePubKey"`
-		Signature        string          `json:"signature"`
+		Address          dsm.EverAddress            `json:"address"`
+		Name             string                     `json:"name"`
+		Group            dsm.EverAddress            `json:"group"`
+		Node             dsm.EverAddress            `json:"node"`
+		DeviceAPI        dsm.EverAddress            `json:"deviceAPI"`
+		Owners           map[string]dsm.EverAddress `json:"owners"`
+		Lock             bool                       `json:"lock,omitempty"`
+		Stat             bool                       `json:"stat,omitempty"`
+		Events           bool                       `json:"events,omitempty"`
+		Version          string                     `json:"version,omitempty"`
+		LastRegisterTime string                     `json:"lastRegisterTime,omitempty"`
+		NodePubKey       string                     `json:"nodePubKey"`
+		Signature        string                     `json:"signature"`
 	}
 	err := json.Unmarshal(message.Payload.Bytes(), &payload)
 	if err != nil {
