@@ -46,6 +46,8 @@ FILE="/opt/iot4b/contract.json"
 TIMEOUT=60          # Секунды ожидания
 INTERVAL=3          # Интервал проверки
 
+echo "Waiting for smartcontract deployment..."
+
 while true; do
     if [ -f "$FILE" ]; then
         ADDRESS=$(grep -m1 '"address"' "$FILE" | sed -E 's/.*"address":[[:space:]]*"([^"]+)".*/\1/')
