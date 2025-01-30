@@ -1,18 +1,18 @@
 #!/bin/sh
 
 SERVICE="iot4b"
-SERVICE_FILE="/etc/init.d/S50iot4b"
+SERVICE_FILE="/opt/etc/init.d/S50$SERVICE"
 
 if [ -x "$SERVICE_FILE" ]; then
-    echo "Stopping iot4b service..."
+    echo "Stopping $SERVICE service..."
     "$SERVICE_FILE" stop
     "$SERVICE_FILE" disable
     killall "$SERVICE"
     rm "$SERVICE_FILE"
-    echo "Service iot4b removed"
+    echo "Service $SERVICE removed"
 fi
 
-rm -rf /opt/iot4b
-rm -f  /opt/var/log/iot4b.log
-echo "IOT4B removed"
+rm -rf "/opt/$SERVICE"
+rm -f  "/opt/var/log/$SERVICE.log"
+echo "$SERVICE removed"
 
