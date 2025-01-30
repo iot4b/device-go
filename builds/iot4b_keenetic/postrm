@@ -1,17 +1,16 @@
 #!/bin/sh
 
-LOG_FILE="/opt/var/log/iot4b.log"
 SERVICE_FILE="/etc/init.d/S50iot4b"
 
 if [ -x "$SERVICE_FILE" ]; then
+    echo "Stopping iot4b service..."
     "$SERVICE_FILE" stop
-    "$SERVICE_FILE" disable
+    "$SERVICE_FILE" status
     rm "$SERVICE_FILE"
+    echo "Service iot4b removed"
 fi
 
 rm -rf /opt/iot4b
-
-rm -f  LOG_FILE
-
-echo "IOT4B deleted"
+rm -f  /opt/var/log/iot4b.log
+echo "IOT4B removed"
 

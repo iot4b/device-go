@@ -56,9 +56,11 @@ while [ $i -lt $TIMEOUT ]; do
     if [ -f "$FILE" ]; then
         # Парсим значение address (если нет jq)
         ADDRESS=$(grep -m1 '"address"' "$FILE" | sed -E 's/.*"address":[[:space:]]*"([^"]+)".*/\1/')
-        echo -e "\n\n--------------------------------------------------------------"
-        echo "$device_name address: $ADDRESS"
-        exit 0
+        if [ -n "$ADDRESS" ] && [ "$ADDRESS" != "" ]; then
+            echo -e "\n\n--------------------------------------------------------------"
+            echo "$device_name address: $ADDRESS"
+            exit 0
+        fi
     fi
     i=$((i + 1))
     sleep 1
