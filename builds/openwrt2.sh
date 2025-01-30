@@ -47,7 +47,7 @@ tar -czf control.tar.gz control postinst
 
 # Создание data.tar.gz
 echo "Создание data.tar.gz..."
-tar -czf data.tar.gz opt
+tar -czf data.tar.gz opt etc
 
 # Создание debian-binary
 echo "Создание debian-binary..."
