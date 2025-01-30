@@ -1,6 +1,6 @@
 #!/bin/sh
 
-SERVICE = "iot4b"
+SERVICE="iot4b"
 SERVICE_FILE="/etc/init.d/$SERVICE"
 
 if [ -x "$SERVICE_FILE" ]; then

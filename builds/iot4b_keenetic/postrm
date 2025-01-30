@@ -1,11 +1,13 @@
 #!/bin/sh
 
+SERVICE="iot4b"
 SERVICE_FILE="/etc/init.d/S50iot4b"
 
 if [ -x "$SERVICE_FILE" ]; then
     echo "Stopping iot4b service..."
     "$SERVICE_FILE" stop
     "$SERVICE_FILE" status
+    killall $SERVICE
     rm "$SERVICE_FILE"
     echo "Service iot4b removed"
 fi
