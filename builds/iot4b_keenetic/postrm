@@ -1,7 +1,6 @@
 #!/bin/sh
 
-SERVICE_NAME="iot4b"
-LOG_FILE="/opt/var/log/$SERVICE_NAME.log"
+LOG_FILE="/opt/var/log/iot4b.log"
 SERVICE_FILE="/etc/init.d/S50iot4b"
 
 if [ -x "$SERVICE_FILE" ]; then

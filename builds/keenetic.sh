@@ -7,7 +7,7 @@ GOOS=linux GOARCH=mipsle go build -ldflags="-s -w" -o ./builds/iot4b_keenetic/op
 cd builds/iot4b_keenetic
 rm -f ../iot4b_keenetic.ipk
 ls -lh opt/iot4b/iot4b | awk '{print $5}'
-tar -czvf control.tar.gz control postinst
+tar -czvf control.tar.gz control postinst postrm
 tar -czvf data.tar.gz opt tmp
 echo 2.0 > debian-binary
 tar -czvf ../iot4b_keenetic.ipk debian-binary control.tar.gz data.tar.gz

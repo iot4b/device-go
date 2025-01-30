@@ -43,3 +43,23 @@ if [ -x $service_file ]; then
 else
     echo "Service script $service_file not found or not executable."
 fi
+
+FILE="/opt/iot4b/contract.json"
+TIMEOUT=60          # Секунды ожидания
+INTERVAL=3          # Интервал проверки
+
+while true; do
+    if [ -f "$FILE" ]; then
+        ADDRESS=$(grep -m1 '"address"' "$FILE" | sed -E 's/.*"address":[[:space:]]*"([^"]+)".*/\1/')
+        echo "$device_name address: $ADDRESS"
+        break
+    else
+        current_time=$(date +%s)
+        elapsed=$(( current_time - start_time ))
+        if [ "$elapsed" -ge "$TIMEOUT" ]; then
+            echo "Timeout reached. Smartcontract for $device_name  not deployed."
+            exit 1
+        fi
+    sleep $INTERVAL    
+    fi
+done
