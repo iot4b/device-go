@@ -7,3 +7,4 @@ device_bin
 device.bin
 builds/iot4b_keenetic.ipk
 builds/iot4b_openwrt.ipk
+builds/iot4b_openwrt2.ipk

@@ -11,16 +11,12 @@ MAINTAINER="IOT4B <sp@golbex.com>"
 DESCRIPTION="IOT4B device client"
 BUILD_DIR="./builds/${PACKAGE_NAME}_openwrt2"
 IPK_PATH="../${PACKAGE_NAME}_openwrt2.ipk"
-AR_PATH="ar"  # Замените при необходимости
 
-# Создание необходимых директорий
-mkdir -p "${BUILD_DIR}/CONTROL"
-mkdir -p "${BUILD_DIR}/opt/${PACKAGE_NAME}"
 
 # Создание файла control с правильным Installed-Size
 INSTALLED_SIZE=$(du -sk "${BUILD_DIR}/opt" | awk '{print $1}')
 
-cat <<EOF > "${BUILD_DIR}/CONTROL/control"
+cat <<EOF > "${BUILD_DIR}/control"
 Package: ${PACKAGE_NAME}
 Version: ${VERSION}
 Depends: libc
@@ -47,7 +43,7 @@ rm -f "${IPK_PATH}"
 
 # Создание control.tar.gz
 echo "Создание control.tar.gz..."
-tar -czf control.tar.gz CONTROL
+tar -czf control.tar.gz control postinst
 
 # Создание data.tar.gz
 echo "Создание data.tar.gz..."
@@ -59,14 +55,14 @@ echo "2.0" > debian-binary
 
 # Сборка .ipk пакета
 echo "Сборка .ipk пакета..."
-"$AR_PATH" rcs "${IPK_PATH}" debian-binary control.tar.gz data.tar.gz
+tar -czvf "${IPK_PATH}" debian-binary control.tar.gz data.tar.gz
 
 echo "Пакет создан: ${IPK_PATH}"
 ls -lh "${IPK_PATH}" | awk '{print "Размер IPK пакета:", $5}'
 
 # Очистка временных файлов
 echo "Очистка временных файлов..."
-rm -f control.tar.gz data.tar.gz debian-binary
+rm -f control.tar.gz data.tar.gz debian-binary control
 rm -f opt/${PACKAGE_NAME}/${PACKAGE_NAME}
 
 echo "Сборка и упаковка завершены успешно!"

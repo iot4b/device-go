@@ -3,7 +3,7 @@ START=50
 STOP=50
 
 SERVICE_NAME="iot4b"
-LOG_FILE="/var/log/$SERVICE_NAME.log"
+LOG_FILE="/opt/var/log/$SERVICE_NAME.log"
 
 start() {
     echo "Starting $SERVICE_NAME..."
@@ -11,7 +11,7 @@ start() {
         echo "$SERVICE_NAME is already running!"
         exit 1
     fi
-    cd /opt/iot4b && ./$SERVICE_NAME -env=iot4b > $LOG_FILE 2>&1 &
+    cd /opt/$SERVICE_NAME && ./$SERVICE_NAME -env=iot4b > $LOG_FILE 2>&1 &
     echo "Service $SERVICE_NAME started"
 }
 
