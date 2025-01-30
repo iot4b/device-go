@@ -20,10 +20,12 @@ get_input() {
     done
 }
 # Запрос адреса группы
+echo -e "\n\n--------------------------------------------------------------"
 echo "Enter the blockchain address of Device Group:"
 group_address=$(get_input)
 
 # Запрос публичного ключа владельца
+echo -e "\n\n--------------------------------------------------------------"
 echo "Enter the owner's public key (starting with 0x):"
 owner_key=$(get_input)
 
@@ -44,22 +46,23 @@ fi
 
 FILE="/opt/iot4b/contract.json"
 TIMEOUT=60          # Секунды ожидания
-INTERVAL=3          # Интервал проверки
 
+echo ""
+echo ""
 echo "Waiting for smartcontract deployment..."
 
-while true; do
+i=0
+while [ $i -lt $TIMEOUT ]; do
     if [ -f "$FILE" ]; then
+        # Парсим значение address (если нет jq)
         ADDRESS=$(grep -m1 '"address"' "$FILE" | sed -E 's/.*"address":[[:space:]]*"([^"]+)".*/\1/')
+        echo -e "\n\n--------------------------------------------------------------"
         echo "$device_name address: $ADDRESS"
-        break
-    else
-        current_time=$(date +%s)
-        elapsed=$(( current_time - start_time ))
-        if [ "$elapsed" -ge "$TIMEOUT" ]; then
-            echo "Timeout reached. Smartcontract for $device_name  not deployed."
-            exit 1
-        fi
-    sleep $INTERVAL    
+        exit 0
     fi
+    i=$((i + 1))
+    sleep 1
 done
+
+echo "Timeout reached. Smartcontract for $device_name not deployed."
+exit 1
