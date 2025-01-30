@@ -38,7 +38,8 @@ sed -i "s|__DEVICENAME__|$device_name|g" $config_file
 # Запуск сервиса
 service_file="/etc/init.d/iot4b"
 if [ -x $service_file ]; then
-    $service_file start    # Запустить сервис
+    $service_file start    
+    $service_file enable   
 else
     echo "Service script $service_file not found or not executable."
 fi
@@ -60,6 +61,7 @@ while [ $i -lt $TIMEOUT ]; do
             echo -e "\n\n--------------------------------------------------------------"
             echo "$device_name address: $ADDRESS"
             echo "Use this address for adding this device to the app"
+            echo -e "\n\n\n\n"
             exit 0
         fi
     fi

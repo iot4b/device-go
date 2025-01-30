@@ -3,19 +3,15 @@
 SERVICE="iot4b"
 SERVICE_FILE="/etc/init.d/$SERVICE"
 
-# Проверяем, существует ли сервис
 if [ -x "$SERVICE_FILE" ]; then
     echo "Stopping $SERVICE service..."
-    # Останавливаем
     "$SERVICE_FILE" stop
-    # Убиваем все процессы с именем $SERVICE (если остались)
-    killall "$SERVICE" 2>/dev/null
+    "$SERVICE_FILE" disable
+    killall "$SERVICE"
     echo "Service $SERVICE stopped"
-    # Удаляем скрипт сервиса
     rm -f "$SERVICE_FILE"
 fi
 
-# Удаляем директорию и лог-файл
 rm -rf "/opt/$SERVICE"
 rm -f  "/var/log/$SERVICE.log"
 
