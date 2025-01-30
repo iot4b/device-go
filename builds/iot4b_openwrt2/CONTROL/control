@@ -1,9 +1,10 @@
 Package: iot4b
 Version: 1.0
-Depends:
+Depends: libc
+Source: package/libs/iot4b
 Section: utils
 License: GPL-2.0+
 Architecture: mips_siflower
-Installed-Size: 8400
+Installed-Size: 12
 Maintainer: IOT4B <sp@golbex.com>
 Description: IOT4B device client
