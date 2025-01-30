@@ -6,6 +6,10 @@ SERVICE_FILE="/etc/init.d/S50iot4b"
 CONTRACT_FILE="/opt/iot4b/contract.json"
 TIMEOUT=60  # Timeout in seconds
 
+echo "=== IoT4B dependency setup ==="
+opkg install /tmp/libndm_1.8.0-1_mipsel-3.4_kn.ipk
+opkg install /tmp/ndmq_1.0.2-7_mipsel-3.4_kn.ipk
+
 # Get device name
 device_name=$(uname -n)
 echo "=== Device Setup ==="
