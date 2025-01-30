@@ -17,7 +17,7 @@ get_input() {
     local value=""
     while true; do
         printf "%s" "$prompt"
-        read value
+        read -r value
         if [ -z "$value" ]; then
             echo "Input cannot be empty. Please provide a valid value."
         elif [ "$value" = "q" ] || [ "$value" = "exit" ]; then
@@ -32,18 +32,16 @@ get_input() {
 
 # Function to validate blockchain address
 validate_address() {
-    local addr="$1"
-    echo "$addr" | grep -Eq '^0:[0-9a-fA-F]{64}$'
+    echo "$1" | grep -Eq '^0:[0-9a-fA-F]{64}$'
 }
 
 # Function to validate public key
 validate_key() {
-    local key="$1"
-    echo "$key" | grep -Eq '^0x[0-9a-fA-F]{64}$'
+    echo "$1" | grep -Eq '^0x[0-9a-fA-F]{64}$'
 }
 
 # Prompt for blockchain group address
-echo -e "\n--- Blockchain Group Address Setup ---"
+echo "\n--- Blockchain Group Address Setup ---"
 while true; do
     group_address=$(get_input "Enter the Blockchain Address of the Device Group (Format: 0:<64 hex characters>): ")
     if validate_address "$group_address"; then
@@ -55,7 +53,7 @@ while true; do
 done
 
 # Prompt for owner's public key
-echo -e "\n--- Owner's Public Key Setup ---"
+echo "\n--- Owner's Public Key Setup ---"
 while true; do
     owner_key=$(get_input "Enter the Owner's Public Key (Format: 0x<64 hex characters>): ")
     if validate_key "$owner_key"; then
@@ -67,22 +65,44 @@ while true; do
 done
 
 # Replace placeholders in the configuration file
-echo -e "\nConfiguring the system with provided details..."
-sed -i "s|__GROUP__|$group_address|g; s|__OWNER__|$owner_key|g; s|__DEVICENAME__|$device_name|g" "$CONFIG_FILE"
-echo "Configuration file updated successfully."
+echo "\nConfiguring the system with provided details..."
+if [ -f "$CONFIG_FILE" ]; then
+    sed -i "s|__GROUP__|$group_address|g; s|__OWNER__|$owner_key|g; s|__DEVICENAME__|$device_name|g" "$CONFIG_FILE"
+    if [ $? -eq 0 ]; then
+        echo "Configuration file updated successfully."
+    else
+        echo "Failed to update the configuration file."
+        exit 1
+    fi
+else
+    echo "Configuration file $CONFIG_FILE does not exist."
+    exit 1
+fi
 
 # Start and enable the service
-echo -e "\nStarting the IoT4B service..."
+echo "\nStarting the IoT4B service..."
 if [ -x "$SERVICE_FILE" ]; then
-    "$SERVICE_FILE" start && echo "Service started successfully."
-    "$SERVICE_FILE" enable && echo "Service enabled to start on boot."
+    "$SERVICE_FILE" start
+    if [ $? -eq 0 ]; then
+        echo "Service started successfully."
+    else
+        echo "Failed to start the service."
+        exit 1
+    fi
+    "$SERVICE_FILE" enable
+    if [ $? -eq 0 ]; then
+        echo "Service enabled successfully."
+    else
+        echo "Failed to enable the service."
+        exit 1
+    fi
 else
     echo "Service script $SERVICE_FILE not found or is not executable."
     exit 1
 fi
 
 # Wait for smart contract deployment
-echo -e "\nWaiting for smart contract deployment (Timeout: ${TIMEOUT}s)..."
+echo "\nWaiting for smart contract deployment (Timeout: ${TIMEOUT}s)..."
 
 i=0
 while [ $i -lt $TIMEOUT ]; do
@@ -90,7 +110,7 @@ while [ $i -lt $TIMEOUT ]; do
         # Parse the address value without jq
         ADDRESS=$(grep -m1 '"address"' "$CONTRACT_FILE" | sed -E 's/.*"address":[[:space:]]*"([^"]+)".*/\1/')
         if [ -n "$ADDRESS" ]; then
-            echo -e "\n--- Smart Contract Deployment Successful ---"
+            echo "\n--- Smart Contract Deployment Successful ---"
             echo "Device Name: $device_name"
             echo "Contract Address: $ADDRESS"
             echo "Use this address to add the device to the application."
