@@ -1,17 +1,27 @@
 #!/bin/sh
 
-device_name=$(uname -n)
-echo "Device name: $device_name"
+# Constants
+CONFIG_FILE="/opt/iot4b/init.json"
+SERVICE_FILE="/etc/init.d/iot4b"
+CONTRACT_FILE="/opt/iot4b/contract.json"
+TIMEOUT=60  # Timeout in seconds
 
-# Функция для ввода значения с проверкой на пустоту
+# Get device name
+device_name=$(uname -n)
+echo "=== Device Setup ==="
+echo "Device Name: $device_name"
+
+# Function to get non-empty input with option to exit
 get_input() {
+    local prompt="$1"
     local value=""
     while true; do
+        printf "%s" "$prompt"
         read value
         if [ -z "$value" ]; then
-            echo "Empty value is not allowed. Try again."
-        elif [[ "$value" == "q" || "$value" == "exit" ]]; then
-            echo "Exiting input."
+            echo "Input cannot be empty. Please provide a valid value."
+        elif [ "$value" = "q" ] || [ "$value" = "exit" ]; then
+            echo "Input process terminated by the user."
             exit 1
         else
             echo "$value"
@@ -19,49 +29,72 @@ get_input() {
         fi
     done
 }
-# Запрос адреса группы
-echo -e "\n\n--------------------------------------------------------------"
-echo "Enter the blockchain address of Device Group:"
-group_address=$(get_input)
 
-# Запрос публичного ключа владельца
-echo -e "\n\n--------------------------------------------------------------"
-echo "Enter the owner's public key (starting with 0x):"
-owner_key=$(get_input)
+# Function to validate blockchain address
+validate_address() {
+    local addr="$1"
+    echo "$addr" | grep -Eq '^0:[0-9a-fA-F]{64}$'
+}
 
-# Замена макросов в конфигурационном файле
-config_file="/opt/iot4b/init.json"
-sed -i "s|__GROUP__|$group_address|g" $config_file
-sed -i "s|__OWNER__|$owner_key|g" $config_file
-sed -i "s|__DEVICENAME__|$device_name|g" $config_file
+# Function to validate public key
+validate_key() {
+    local key="$1"
+    echo "$key" | grep -Eq '^0x[0-9a-fA-F]{64}$'
+}
 
-# Запуск сервиса
-service_file="/etc/init.d/iot4b"
-if [ -x $service_file ]; then
-    $service_file start    
-    $service_file enable   
+# Prompt for blockchain group address
+echo -e "\n--- Blockchain Group Address Setup ---"
+while true; do
+    group_address=$(get_input "Enter the Blockchain Address of the Device Group (Format: 0:<64 hex characters>): ")
+    if validate_address "$group_address"; then
+        echo "Blockchain address accepted."
+        break
+    else
+        echo "Invalid format. Ensure it starts with '0:' followed by exactly 64 hexadecimal characters (0-9, a-f). Please try again."
+    fi
+done
+
+# Prompt for owner's public key
+echo -e "\n--- Owner's Public Key Setup ---"
+while true; do
+    owner_key=$(get_input "Enter the Owner's Public Key (Format: 0x<64 hex characters>): ")
+    if validate_key "$owner_key"; then
+        echo "Public key accepted."
+        break
+    else
+        echo "Invalid format. Ensure it starts with '0x' followed by exactly 64 hexadecimal characters (0-9, a-f). Please try again."
+    fi
+done
+
+# Replace placeholders in the configuration file
+echo -e "\nConfiguring the system with provided details..."
+sed -i "s|__GROUP__|$group_address|g; s|__OWNER__|$owner_key|g; s|__DEVICENAME__|$device_name|g" "$CONFIG_FILE"
+echo "Configuration file updated successfully."
+
+# Start and enable the service
+echo -e "\nStarting the IoT4B service..."
+if [ -x "$SERVICE_FILE" ]; then
+    "$SERVICE_FILE" start && echo "Service started successfully."
+    "$SERVICE_FILE" enable && echo "Service enabled to start on boot."
 else
-    echo "Service script $service_file not found or not executable."
+    echo "Service script $SERVICE_FILE not found or is not executable."
+    exit 1
 fi
 
-
-FILE="/opt/iot4b/contract.json"
-TIMEOUT=60          # Секунды ожидания
-
-echo ""
-echo ""
-echo "Waiting for smartcontract deployment..."
+# Wait for smart contract deployment
+echo -e "\nWaiting for smart contract deployment (Timeout: ${TIMEOUT}s)..."
 
 i=0
 while [ $i -lt $TIMEOUT ]; do
-    if [ -f "$FILE" ]; then
-        # Парсим значение address (если нет jq)
-        ADDRESS=$(grep -m1 '"address"' "$FILE" | sed -E 's/.*"address":[[:space:]]*"([^"]+)".*/\1/')
-        if [ -n "$ADDRESS" ] && [ "$ADDRESS" != "" ]; then
-            echo -e "\n\n--------------------------------------------------------------"
-            echo "$device_name address: $ADDRESS"
-            echo "Use this address for adding this device to the app"
-            echo -e "\n\n\n\n"
+    if [ -f "$CONTRACT_FILE" ]; then
+        # Parse the address value without jq
+        ADDRESS=$(grep -m1 '"address"' "$CONTRACT_FILE" | sed -E 's/.*"address":[[:space:]]*"([^"]+)".*/\1/')
+        if [ -n "$ADDRESS" ]; then
+            echo -e "\n--- Smart Contract Deployment Successful ---"
+            echo "Device Name: $device_name"
+            echo "Contract Address: $ADDRESS"
+            echo "Use this address to add the device to the application."
+            echo "Setup completed successfully. You can now proceed with adding the device to your app."
             exit 0
         fi
     fi
@@ -69,5 +102,6 @@ while [ $i -lt $TIMEOUT ]; do
     sleep 1
 done
 
-echo "Timeout reached. Smartcontract for $device_name not deployed."
+echo "Timeout reached. Smart contract for $device_name was not deployed within ${TIMEOUT} seconds."
+echo "Please check the service logs or ensure that the blockchain network is reachable."
 exit 1
