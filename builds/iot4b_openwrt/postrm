@@ -1,0 +1,18 @@
+#!/bin/sh
+
+SERVICE_NAME="iot4b"
+LOG_FILE="/opt/var/log/$SERVICE_NAME.log"
+SERVICE_FILE="/etc/init.d/$SERVICE_NAME"
+
+if [ -x "$SERVICE_FILE" ]; then
+    "$SERVICE_FILE" stop
+    "$SERVICE_FILE" disable
+    rm "$SERVICE_FILE"
+fi
+
+rm -rf /opt/iot4b
+
+rm -f  LOG_FILE
+
+echo "IOT4B deleted"
+

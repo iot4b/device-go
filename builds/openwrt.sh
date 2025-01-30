@@ -43,7 +43,7 @@ rm -f "${IPK_PATH}"
 
 # Создание control.tar.gz
 echo "Создание control.tar.gz..."
-tar --format=ustar -czf control.tar.gz control postinst
+tar --format=ustar -czf control.tar.gz control postinst postrm
 
 # Создание data.tar.gz
 echo "Создание data.tar.gz..."
