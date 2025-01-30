@@ -59,6 +59,7 @@ while [ $i -lt $TIMEOUT ]; do
         if [ -n "$ADDRESS" ] && [ "$ADDRESS" != "" ]; then
             echo -e "\n\n--------------------------------------------------------------"
             echo "$device_name address: $ADDRESS"
+            echo "Use this address for adding this device to the app"
             exit 0
         fi
     fi
