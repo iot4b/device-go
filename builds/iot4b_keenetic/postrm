@@ -7,7 +7,7 @@ if [ -x "$SERVICE_FILE" ]; then
     echo "Stopping iot4b service..."
     "$SERVICE_FILE" stop
     "$SERVICE_FILE" status
-    killall $SERVICE
+    killall "$SERVICE"
     rm "$SERVICE_FILE"
     echo "Service iot4b removed"
 fi
