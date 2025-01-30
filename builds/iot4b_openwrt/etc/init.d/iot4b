@@ -3,7 +3,7 @@ START=50
 STOP=50
 
 SERVICE_NAME="iot4b"
-LOG_FILE="/opt/var/log/$SERVICE_NAME.log"
+LOG_FILE="/var/log/$SERVICE_NAME.log"
 
 start() {
     echo "Starting $SERVICE_NAME..."

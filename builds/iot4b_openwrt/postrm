@@ -17,6 +17,6 @@ fi
 
 # Удаляем директорию и лог-файл
 rm -rf "/opt/$SERVICE"
-rm -f  "/opt/var/log/$SERVICE.log"
+rm -f  "/var/log/$SERVICE.log"
 
 echo "$SERVICE removed"
