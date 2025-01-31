@@ -1,15 +1,19 @@
 #!/bin/sh
 
 # Constants
+SERVICE="iot4b"
 CONFIG_FILE="/opt/iot4b/init.json"
 SERVICE_FILE="/etc/init.d/iot4b"
 CONTRACT_FILE="/opt/iot4b/contract.json"
+CONFIG_FILE="/opt/iot4b/init.json"
+
 TIMEOUT=60  # Timeout in seconds
 
 # Get device name
 device_name=$(uname -n)
-echo "=== Device Setup =================================================================="
+echo "=== Device Setup ================================================================="
 echo "Device Name: $device_name"
+echo ""
 
 # Function to get non-empty input with validation
 get_valid_input() {
@@ -48,9 +52,22 @@ owner_key="$REPLY"
 echo "Public key accepted: $owner_key"
 echo ""
 
+# Update the configuration file
+if [[ -f "$CONFIG_FILE" ]]; then
+    [[ -n "$group_address" ]] && sed -i "s|__GROUP__|$group_address|g" "$CONFIG_FILE"
+    [[ -n "$owner_key" ]] && sed -i "s|__OWNER__|$owner_key|g" "$CONFIG_FILE"
+    [[ -n "$device_name" ]] && sed -i "s|__DEVICENAME__|$device_name|g" "$CONFIG_FILE"
+else
+    echo "Error: Configuration file '$CONFIG_FILE' not found!"
+    exit 1
+fi
+
 # Start and enable the service
 echo ""
 echo "Starting the IoT4B service..."
+
+killall "$SERVICE" 2>/dev/null
+
 if [ -x "$SERVICE_FILE" ]; then
     "$SERVICE_FILE" start
     if [ $? -eq 0 ]; then
