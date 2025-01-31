@@ -18,7 +18,7 @@ get_valid_input() {
     local value=""
     while true; do
         read -rp "$prompt" value
-        if [[ "$value" =~ $regex ]]; then
+        if echo "$value" | grep -Eq "$regex"; then
             break
         else
             echo "Invalid format. Please try again."
