@@ -8,79 +8,45 @@ TIMEOUT=60  # Timeout in seconds
 
 # Get device name
 device_name=$(uname -n)
-echo "=== Device Setup ==="
+echo "=== Device Setup =================================================================="
 echo "Device Name: $device_name"
 
-# Function to get non-empty input with option to exit
-get_input() {
+# Function to get non-empty input with validation
+get_valid_input() {
     local prompt="$1"
+    local regex="$2"
     local value=""
     while true; do
-        printf "%s" "$prompt"
-        read -r value
-        if [ -z "$value" ]; then
-            echo "Input cannot be empty. Please provide a valid value."
-        elif [ "$value" = "q" ] || [ "$value" = "exit" ]; then
-            echo "Input process terminated by the user."
-            exit 1
+        read -rp "$prompt" value
+        if [[ "$value" =~ $regex ]]; then
+            break
         else
-            echo "$value"
-            return
+            echo "Invalid format. Please try again."
         fi
     done
+    REPLY="$value"  # Store result in REPLY
 }
 
-# Function to validate blockchain address
-validate_address() {
-    echo "$1" | grep -Eq '^0:[0-9a-fA-F]{64}$'
-}
-
-# Function to validate public key
-validate_key() {
-    echo "$1" | grep -Eq '^0x[0-9a-fA-F]{64}$'
-}
+# Blockchain address pattern
+address_pattern='^0:[0-9a-fA-F]{64}$'
+# Public key pattern
+key_pattern='^0x[0-9a-fA-F]{64}$'
 
 # Prompt for blockchain group address
-echo ""
+echo "=================================================================================="
 echo "--- Blockchain Group Address Setup ---"
-while true; do
-    group_address=$(get_input "Enter the Blockchain Address of the Device Group (Format: 0:<64 hex characters>): ")
-    if validate_address "$group_address"; then
-        echo "Blockchain address accepted."
-        break
-    else
-        echo "Invalid format. Ensure it starts with '0:' followed by exactly 64 hexadecimal characters (0-9, a-f). Please try again."
-    fi
-done
+get_valid_input "Enter the Blockchain Address of the Device Group (Format: 0:<64 hex characters>): " "$address_pattern"
+group_address="$REPLY"
+echo "Blockchain address accepted: $group_address"
+echo ""
 
 # Prompt for owner's public key
-echo ""
+echo "=================================================================================="
 echo "--- Owner's Public Key Setup ---"
-while true; do
-    owner_key=$(get_input "Enter the Owner's Public Key (Format: 0x<64 hex characters>): ")
-    if validate_key "$owner_key"; then
-        echo "Public key accepted."
-        break
-    else
-        echo "Invalid format. Ensure it starts with '0x' followed by exactly 64 hexadecimal characters (0-9, a-f). Please try again."
-    fi
-done
-
-# Replace placeholders in the configuration file
+get_valid_input "Enter the Owner's Public Key (Format: 0x<64 hex characters>): " "$key_pattern"
+owner_key="$REPLY"
+echo "Public key accepted: $owner_key"
 echo ""
-echo "Configuring the system with provided details..."
-if [ -f "$CONFIG_FILE" ]; then
-    sed -i "s|__GROUP__|$group_address|g; s|__OWNER__|$owner_key|g; s|__DEVICENAME__|$device_name|g" "$CONFIG_FILE"
-    if [ $? -eq 0 ]; then
-        echo "Configuration file updated successfully."
-    else
-        echo "Failed to update the configuration file."
-        exit 1
-    fi
-else
-    echo "Configuration file $CONFIG_FILE does not exist."
-    exit 1
-fi
 
 # Start and enable the service
 echo ""
@@ -117,11 +83,14 @@ while [ $i -lt $TIMEOUT ]; do
         if [ -n "$ADDRESS" ]; then
             echo ""
             echo ""
+            echo "=================================================================================="
             echo "--- Smart Contract Deployment Successful ---"
             echo "Device Name: $device_name"
             echo "Contract Address: $ADDRESS"
             echo "Use this address to add the device to the application."
             echo "Setup completed successfully. You can now proceed with adding the device to your app."
+            echo ""
+            echo ""
             exit 0
         fi
     fi
