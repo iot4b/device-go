@@ -3,9 +3,13 @@
 # Constants
 SERVICE_NAME="iot4b"
 CONFIG_FILE="/opt/iot4b/init.json"
-SERVICE_FILE="/opt/etc/init.d/S50iot4b"
+SERVICE_FILE="/etc/init.d/S50iot4b"
 CONTRACT_FILE="/opt/iot4b/contract.json"
 TIMEOUT=60  # Timeout in seconds
+
+echo "=== IoT4B dependency setup ========================================================"
+opkg install /tmp/libndm_1.8.0-1_mipsel-3.4_kn.ipk
+opkg install /tmp/ndmq_1.0.2-7_mipsel-3.4_kn.ipk
 
 #!/bin/sh
 
@@ -96,12 +100,7 @@ while [ $i -lt $TIMEOUT ]; do
             echo "=================================================================================="
             echo "--- Smart Contract Deployment Successful ---"
             echo "Device Name: $device_name"
-            echo ""
-            echo "=================================================================================="
-            echo "--- Device Contract Address ---"
-            echo ""
-            echo "$ADDRESS"
-            echo ""
+            echo "Contract Address: $ADDRESS"
             echo "Use this address to add the device to the application."
             echo "Setup completed successfully. You can now proceed with adding the device to your app."
             echo ""
