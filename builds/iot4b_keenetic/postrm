@@ -1,7 +1,6 @@
 #!/bin/sh
 
 SERVICE="iot4b"
-SERVICE_FILE="/opt/etc/init.d/S50$SERVICE"
 
 if [ -x "$SERVICE_FILE" ]; then
     echo "Stopping $SERVICE service..."
@@ -14,4 +13,3 @@ fi
 rm -rf "/opt/$SERVICE"
 rm -f  "/opt/var/log/$SERVICE.log"
 echo "$SERVICE removed"
-
