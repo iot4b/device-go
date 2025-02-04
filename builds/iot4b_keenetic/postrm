@@ -6,7 +6,6 @@ SERVICE_FILE="/opt/etc/init.d/S50$SERVICE"
 if [ -x "$SERVICE_FILE" ]; then
     echo "Stopping $SERVICE service..."
     "$SERVICE_FILE" stop
-    "$SERVICE_FILE" disable
     killall "$SERVICE"
     rm "$SERVICE_FILE"
     echo "Service $SERVICE removed"

@@ -80,13 +80,6 @@ if [ -x "$SERVICE_FILE" ]; then
         echo "Failed to start the service."
         exit 1
     fi
-    "$SERVICE_FILE" enable
-    if [ $? -eq 0 ]; then
-        echo "Service enabled successfully."
-    else
-        echo "Failed to enable the service."
-        exit 1
-    fi
 else
     echo "Service script $SERVICE_FILE not found or is not executable."
     exit 1
