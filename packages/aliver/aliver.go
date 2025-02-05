@@ -1,7 +1,6 @@
 package aliver
 
 import (
-	"flag"
 	"time"
 
 	"github.com/coalalib/coalago"
@@ -33,8 +32,8 @@ func Run(s *coalago.Server, address string, aliveInterval time.Duration) {
 
 				//restart service
 				//TODO это костыль надо чтобы коала помнила адрес и перезапусклась на нем после рестарта
-				flag.StringVar(&port, "port", port, "override default coala port")
-				flag.Parse()
+				//flag.StringVar(&port, "port", port, "override default coala port")
+				//flag.Parse()
 				err = s.Listen(":" + port)
 				if err != nil {
 					log.Panic(err)
