@@ -18,11 +18,24 @@ import (
 	log "github.com/ndmsystems/golog"
 )
 
-var port = "5684"
+var port = "5683" // coala port
 
-//TODO  при старте девайса надо скачать смартконтракт девайса и сохранить локально.
-// В смарт контракте прописаны ключи которые имеют право присылать команды,  смарт вендора, из которого берем имя вендора для конфига
-// по клюбчам проверяем что команда подписана тем ключем, который стоит в разрешенных, и тогда выполняем ее.
+// инитим конфиги и logger
+func init() {
+	var env string
+	flag.StringVar(&env, "env", "dev", "set environment")
+	flag.StringVar(&port, "port", port, "override default coala port")
+	flag.Parse()
+
+	config.Init(env)
+	log.Init(config.Bool("debug"))
+}
+
+func listen(server *coalago.Server) {
+	if err := server.Listen(":" + port); err != nil {
+		log.Fatal(err)
+	}
+}
 
 func main() {
 	// инициируем ключи девайса. если есть файл, то читаем из него, если нет, то генерим новый
@@ -78,21 +91,4 @@ func main() {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 	<-c
-}
-
-// инитим конфиги и logger
-func init() {
-	var env string
-	flag.StringVar(&env, "env", "dev", "set environment")
-	flag.StringVar(&port, "port", port, "override default coala port")
-	flag.Parse()
-
-	config.Init(env)
-	log.Init(config.Bool("debug"))
-}
-
-func listen(server *coalago.Server) {
-	if err := server.Listen(":" + port); err != nil {
-		log.Fatal(err)
-	}
 }
