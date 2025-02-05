@@ -2,14 +2,6 @@
 
 SERVICE="iot4b"
 
-if [ -x "$SERVICE_FILE" ]; then
-    echo "Stopping $SERVICE service..."
-    "$SERVICE_FILE" stop
-    killall "$SERVICE"
-    rm "$SERVICE_FILE"
-    echo "Service $SERVICE removed"
-fi
-
-rm -rf "/opt/$SERVICE"
+killall "$SERVICE"
 rm -f  "/opt/var/log/$SERVICE.log"
 echo "$SERVICE removed"
