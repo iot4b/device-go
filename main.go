@@ -48,8 +48,7 @@ func main() {
 		config.Get("everscale.vendor.name"), //TODO убрать, это надо из смарта брать вендора в приложении
 		config.Get("everscale.vendor.data"),
 		config.Get("info.type"),
-		config.Get("info.version"),
-		config.Map("everscale.owners"))
+		config.Get("info.version"))
 
 	// сервер для запросов от клиентов и нод
 	server := coalago.NewServer()

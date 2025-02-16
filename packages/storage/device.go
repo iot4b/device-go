@@ -39,11 +39,11 @@ var (
 	localPath string
 )
 
-func Init(path, elector, vendor, vendorName, vendorData, Type, version string, owners map[string]any) {
+func Init(path, elector, vendor, vendorName, vendorData, dType, version string) {
 	localPath = path
 
 	log.Info("Init Local Storage")
-	log.Debug(path, elector, vendor, vendorName, vendorData, Type, version, owners)
+	log.Debug(path, elector, vendor, vendorName, vendorData, dType, version)
 
 	var err error
 
@@ -62,7 +62,7 @@ func Init(path, elector, vendor, vendorName, vendorData, Type, version string, o
 		Device.Elector = dsm.EverAddress(elector)
 		Device.Vendor = dsm.EverAddress(vendor)
 		Device.DeviceAPI = "0:0000000000000000000000000000000000000000000000000000000000000000"
-		Device.Type = Type
+		Device.Type = dType
 		Device.Version = version
 		Device.VendorName = vendorName
 		Device.VendorData = vendorData
