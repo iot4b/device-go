@@ -7,13 +7,6 @@ SERVICE_FILE="/opt/etc/init.d/S50iot4b"
 CONTRACT_FILE="/opt/iot4b/contract.json"
 TIMEOUT=60  # Timeout in seconds
 
-# todo: not working in postinst script, need to move out
-echo "=== IoT4B dependency setup ========================================================"
-opkg install /tmp/libndm_1.8.0-1_mipsel-3.4_kn.ipk
-opkg install /tmp/ndmq_1.0.2-7_mipsel-3.4_kn.ipk
-
-#!/bin/sh
-
 # Get device name
 device_name=$(uname -n)
 echo "=== Device Setup ================================================================="
