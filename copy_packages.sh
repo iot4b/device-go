@@ -8,20 +8,21 @@ BUILD_PATH="./builds"
 update_repo() {
     ARCH=$1
     PKG_FILE=$2
+    ARCH_PATH="$REPO_PATH/$ARCH"
 
     # Проверяем и создаём папку
-    if [ ! -d "$REPO_PATH/$ARCH" ]; then
-        echo "Создаю папку: $REPO_PATH/$ARCH"
-        mkdir -p "$REPO_PATH/$ARCH"
+    if [ ! -d "$ARCH_PATH" ]; then
+        echo "Создаю папку: $ARCH_PATH"
+        mkdir -p "$ARCH_PATH"
     fi
 
     # Удаляем старые файлы
-    echo "Удаляю старые файлы в $REPO_PATH/$ARCH"
-    rm -f "$REPO_PATH/$ARCH/"*
+    echo "Удаляю старые файлы в $ARCH_PATH"
+    rm -f "$ARCH_PATH/"*
 
     # Копируем новый пакет
     SRC_FILE="$BUILD_PATH/$PKG_FILE"
-    DEST_FILE="$REPO_PATH/$ARCH/iot4b-$ARCH.ipk"
+    DEST_FILE="$ARCH_PATH/iot4b-$ARCH.ipk"
 
     if [ -f "$SRC_FILE" ]; then
         echo "Копирую $SRC_FILE -> $DEST_FILE"
@@ -32,10 +33,9 @@ update_repo() {
     fi
 
     # Создание индексов
-    echo "Создаю индекс в $REPO_PATH/$ARCH"
-    cd "$REPO_PATH/$ARCH" || exit 1
-    opkg-make-index -a ./ > Packages
-    gzip -k Packages
+    echo "Создаю индекс в $ARCH_PATH"
+    opkg-make-index -a "$ARCH_PATH" > "$ARCH_PATH/Packages"
+    gzip -k "$ARCH_PATH/Packages"
 }
 
 # Вызов функции 4 раза для разных архитектур
