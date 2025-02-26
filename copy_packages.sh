@@ -40,7 +40,8 @@ update_repo() {
 
 # Вызов функции 4 раза для разных архитектур
 update_repo "mipsel" "iot4b_openwrt.ipk"
+update_repo "armv7l" "iot4b_openwrtarmv7l.ipk"
+update_repo "aarch64" "iot4b_openwrtaarch64.ipk"
 update_repo "mipsel-3.4_kn" "iot4b_keenetic.ipk"
-update_repo "armv7l" "iot4b_keenetic.ipk"
-update_repo "aarch64" "iot4b_keenetic.ipk"
+
 
