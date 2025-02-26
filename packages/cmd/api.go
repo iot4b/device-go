@@ -113,5 +113,6 @@ func run(cmd string) (string, error) {
 
 	// Осуществляет выполнение команды с сохранением форматирования вывода
 	out, err := exec.Command(parts[0], parts[1:]...).CombinedOutput()
+	log.Info("CMD:", cmd)
 	return string(out), err
 }

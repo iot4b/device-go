@@ -30,3 +30,9 @@ jobs:
         directory: ./ansible/playbooks
         options: |
           -i ../inventory/prod.yml
+
+    - name: Build
+      run: ./build_packages.sh
+
+    - name: Copy
+      run: ./copy_packages.sh
