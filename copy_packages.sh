@@ -8,8 +8,8 @@ BUILD_PATH="./builds"
 declare -A ARCH_FILES=(
     ["mipsel"]="iot4b_openwrt.ipk"
     ["mipsel-3.4_kn"]="iot4b_keenetic.ipk"
-    ["armv7l"]="iot4b_keenetic.ipk"
-    ["aarch64"]="iot4b_keenetic.ipk"
+    #["armv7l"]="iot4b_openwrtarmv7l.ipk"
+    #["aarch64"]="iot4b_openwrtaarch64.ipk"
 )
 
 # Очистка старых пакетов
