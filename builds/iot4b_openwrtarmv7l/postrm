@@ -1,0 +1,18 @@
+#!/bin/sh
+
+SERVICE="iot4b"
+SERVICE_FILE="/etc/init.d/$SERVICE"
+
+if [ -x "$SERVICE_FILE" ]; then
+    echo "Stopping $SERVICE service..."
+    "$SERVICE_FILE" stop
+    "$SERVICE_FILE" disable
+    killall "$SERVICE"
+    echo "Service $SERVICE stopped"
+    rm -f "$SERVICE_FILE"
+fi
+
+rm -rf "/opt/$SERVICE"
+rm -f  "/var/log/$SERVICE.log"
+
+echo "$SERVICE removed"

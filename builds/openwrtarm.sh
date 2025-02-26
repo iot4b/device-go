@@ -9,7 +9,7 @@ VERSION="1.0"
 ARCH="armv7l"
 MAINTAINER="IOT4B <sp@golbex.com>"
 DESCRIPTION="IOT4B device client"
-BUILD_DIR="./builds/${PACKAGE_NAME}_openwrt"
+BUILD_DIR="./builds/${PACKAGE_NAME}_openwrtarmv7l"
 IPK_PATH="../${PACKAGE_NAME}_openwrt_armv7l.ipk"
 
 

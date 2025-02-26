@@ -1,0 +1,29 @@
+
+debug: false
+env: prod
+
+info:
+  version: "1.0.0"
+  type: "router"
+
+localFiles:
+  keys: "keys.json"
+  contract: "contract.json"
+  init: "init.json"
+
+timeout:
+  alive: 10s #alive interval
+  coala: 3m  # timeout for coala reguests
+  registerRepeat: 24h #period for registration repeat
+
+masterNodes:
+  - 157.245.57.218:5683
+  - 188.166.71.64:5683
+  - 192.81.216.57:5683
+
+everscale:
+  elector: "0:09ff18e1396c3844c04cde933b1044e47b3b1e62c11a79572c4fd380d279084d"
+  vendor:
+    address: "0:041c0970f0de1f40a05f98e6659510fa6df85c78a45611f1b5a1635fa79dd9ab"
+    name: "IOT4OpenWRT"
+    data: "betatest"

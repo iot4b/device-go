@@ -9,7 +9,7 @@ VERSION="1.0"
 ARCH="aarch64"
 MAINTAINER="IOT4B <sp@golbex.com>"
 DESCRIPTION="IOT4B device client"
-BUILD_DIR="./builds/${PACKAGE_NAME}_openwrt"
+BUILD_DIR="./builds/${PACKAGE_NAME}_openwrtaarch64"
 IPK_PATH="../${PACKAGE_NAME}_openwrt_aarch64.ipk"
 
 
