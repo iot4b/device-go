@@ -1,3 +1,3 @@
 #!/bin/sh
 
-copy  *.ipk /opt/iot4b/repo
+cp  ./builds/*.ipk /opt/iot4b/repo
