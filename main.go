@@ -18,7 +18,7 @@ import (
 	log "github.com/ndmsystems/golog"
 )
 
-var port = "5683" // coala port
+var port = "5684" // coala port
 
 // инитим конфиги и logger
 func init() {
