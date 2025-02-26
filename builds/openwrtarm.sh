@@ -64,7 +64,7 @@ ls -lh "${IPK_PATH}" | awk '{print "Размер IPK пакета:", $5}'
 
 # Очистка временных файлов
 echo "Очистка временных файлов..."
-rm -f control.tar.gz data.tar.gz debian-binary control
+rm -f control.tar.gz data.tar.gz debian-binary
 rm -f opt/${PACKAGE_NAME}/${PACKAGE_NAME}
 
 echo "Сборка и упаковка завершены успешно!"

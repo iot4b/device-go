@@ -8,3 +8,6 @@ device.bin
 builds/iot4b_keenetic.ipk
 builds/iot4b_openwrt.ipk
 builds/iot4b_openwrt2.ipk
+builds/iot4b_openwrt_aarch64.ipk
+.gitignore
+builds/iot4b_openwrt_armv7l.ipk
