@@ -10,7 +10,8 @@ ls -lh opt/iot4b/iot4b | awk '{print $5}'
 tar -czvf control.tar.gz control postinst postrm
 tar -czvf data.tar.gz opt tmp
 echo 2.0 > debian-binary
-tar -czvf ../iot4b_keenetic.ipk debian-binary control.tar.gz data.tar.gz
+#tar -czvf ../iot4b_keenetic.ipk debian-binary control.tar.gz data.tar.gz
+ar rcs ../iot4b_keenetic.ipk debian-binary control.tar.gz data.tar.gz
 echo "../iot4b_keenetic.ipk created"
 ls -lh ../iot4b_keenetic.ipk | awk '{print $5}'
 echo "Cleaning up..."

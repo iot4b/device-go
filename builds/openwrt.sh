@@ -55,7 +55,9 @@ echo "2.0" > debian-binary
 
 # Сборка .ipk пакета
 echo "Сборка .ipk пакета..."
-tar --format=ustar -czvf "${IPK_PATH}" debian-binary control.tar.gz data.tar.gz
+
+#tar --format=ustar -czvf "${IPK_PATH}" debian-binary control.tar.gz data.tar.gz
+ar rcs  "${IPK_PATH}" debian-binary control.tar.gz data.tar.gz
 
 echo "Пакет создан: ${IPK_PATH}"
 ls -lh "${IPK_PATH}" | awk '{print "Размер IPK пакета:", $5}'
