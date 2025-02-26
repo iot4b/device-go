@@ -1,20 +1,30 @@
 #!/bin/sh
 
+# Пути к репозиториям и сборкам
+REPO_PATH="/opt/iot4b/repo/packages"
+BUILD_PATH="./builds"
 
-# Удаление старых пакетов
-rm -f /opt/iot4b/repo/packages/mipsel/*
-rm -f /opt/iot4b/repo/packages/mipsel-3.4_kn/*
+# Ассоциативный массив: Архитектура -> Имя пакета
+declare -A ARCH_FILES=(
+    ["mipsel"]="iot4b_openwrt.ipk"
+    ["mipsel-3.4_kn"]="iot4b_keenetic.ipk"
+    ["armv7l"]="iot4b_keenetic.ipk"
+    ["aarch64"]="iot4b_keenetic.ipk"
+)
+
+# Очистка старых пакетов
+for ARCH in "${!ARCH_FILES[@]}"; do
+    rm -f "$REPO_PATH/$ARCH/"*
+done
 
 # Копирование новых пакетов
-cp  ./builds/iot4b_openwrt.ipk /opt/iot4b/repo/packages/mipsel/iot4b-mipsel.ipk
-cp  ./builds/iot4b_keenetic.ipk /opt/iot4b/repo/packages/mipsel-3.4_kn/iot4b-mipsel-3.4_kn.ipk
+for ARCH in "${!ARCH_FILES[@]}"; do
+    cp "$BUILD_PATH/${ARCH_FILES[$ARCH]}" "$REPO_PATH/$ARCH/iot4b-$ARCH.ipk"
+done
 
 # Создание индексов
-cd /opt/iot4b/repo/packages/mipsel
-opkg-make-index -a ./ > ./Packages
-gzip -k Packages
-
-# Создание индексов
-cd /opt/iot4b/repo/packages/mipsel-3.4_kn
-opkg-make-index -a ./ > ./Packages
-gzip -k Packages
+for ARCH in "${!ARCH_FILES[@]}"; do
+    cd "$REPO_PATH/$ARCH" || exit 1
+    opkg-make-index -a ./ > Packages
+    gzip -k Packages
+done
