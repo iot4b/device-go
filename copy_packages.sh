@@ -1,30 +1,46 @@
 #!/bin/sh
 
-# Пути к репозиториям и сборкам
+# Пути к репозиторию и сборкам
 REPO_PATH="/opt/iot4b/repo/packages"
 BUILD_PATH="./builds"
 
-# Ассоциативный массив: Архитектура -> Имя пакета
-declare -A ARCH_FILES=(
-    ["mipsel"]="iot4b_openwrt.ipk"
-    ["mipsel-3.4_kn"]="iot4b_keenetic.ipk"
-    #["armv7l"]="iot4b_openwrtarmv7l.ipk"
-    #["aarch64"]="iot4b_openwrtaarch64.ipk"
-)
+# Функция для обработки пакетов
+update_repo() {
+    ARCH=$1
+    PKG_FILE=$2
 
-# Очистка старых пакетов
-for ARCH in "${!ARCH_FILES[@]}"; do
+    # Проверяем и создаём папку
+    if [ ! -d "$REPO_PATH/$ARCH" ]; then
+        echo "Создаю папку: $REPO_PATH/$ARCH"
+        mkdir -p "$REPO_PATH/$ARCH"
+    fi
+
+    # Удаляем старые файлы
+    echo "Удаляю старые файлы в $REPO_PATH/$ARCH"
     rm -f "$REPO_PATH/$ARCH/"*
-done
 
-# Копирование новых пакетов
-for ARCH in "${!ARCH_FILES[@]}"; do
-    cp "$BUILD_PATH/${ARCH_FILES[$ARCH]}" "$REPO_PATH/$ARCH/iot4b-$ARCH.ipk"
-done
+    # Копируем новый пакет
+    SRC_FILE="$BUILD_PATH/$PKG_FILE"
+    DEST_FILE="$REPO_PATH/$ARCH/iot4b-$ARCH.ipk"
 
-# Создание индексов
-for ARCH in "${!ARCH_FILES[@]}"; do
+    if [ -f "$SRC_FILE" ]; then
+        echo "Копирую $SRC_FILE -> $DEST_FILE"
+        cp "$SRC_FILE" "$DEST_FILE"
+    else
+        echo "Ошибка: Файл $SRC_FILE не найден!"
+        exit 1
+    fi
+
+    # Создание индексов
+    echo "Создаю индекс в $REPO_PATH/$ARCH"
     cd "$REPO_PATH/$ARCH" || exit 1
     opkg-make-index -a ./ > Packages
     gzip -k Packages
-done
+}
+
+# Вызов функции 4 раза для разных архитектур
+update_repo "mipsel" "iot4b_openwrt.ipk"
+update_repo "mipsel-3.4_kn" "iot4b_keenetic.ipk"
+update_repo "armv7l" "iot4b_keenetic.ipk"
+update_repo "aarch64" "iot4b_keenetic.ipk"
+
