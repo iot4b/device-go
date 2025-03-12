@@ -28,15 +28,8 @@ func Run(s *coalago.Server, address string, aliveInterval time.Duration) {
 				log.Error("retryErr > 10 - start registration")
 				//todo запуск процесса регистрации
 				retryErr = 0
-
 				//restart service
-				//TODO это костыль надо чтобы коала помнила адрес и перезапусклась на нем после рестарта
-				//flag.StringVar(&port, "port", port, "override default coala port")
-				//flag.Parse()
-				//err = s.Listen(":" + port)
-				//if err != nil {
-				//	log.Panic(err)
-				//}
+				s.Refresh()
 			}
 		}
 		time.Sleep(aliveInterval)
