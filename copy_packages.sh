@@ -34,8 +34,52 @@ update_repo() {
 
     # Создание индексов
     echo "Создаю индекс в $ARCH_PATH"
-    opkg-make-index -a "$ARCH_PATH" > "$ARCH_PATH/Packages"
+    if file "$DEST_FILE" | grep -q "gzip compressed data"; then
+        opkg_make_index "$ARCH"
+    else
+        opkg-make-index -a "$ARCH_PATH" > "$ARCH_PATH/Packages"
+    fi
     gzip -k "$ARCH_PATH/Packages"
+}
+
+# alternative to opkg-make-index utility for tar based ipk packages
+opkg_make_index() {
+    ARCH=$1
+    ARCH_PATH="$REPO_PATH/$ARCH"
+    PKG_FILE="$ARCH_PATH/iot4b-$ARCH.ipk"
+    CONTROL_DIR=$(mktemp -d)
+
+    # Extract control info
+    tar -xzf "$PKG_FILE" -C "$CONTROL_DIR"
+    tar -xzf "$CONTROL_DIR/control.tar.gz" -C "$CONTROL_DIR"
+
+    # Collect info
+    MD5SUM=$(md5sum "$PKG_FILE" | cut -d ' ' -f1)
+    SIZE=$(stat --printf="%s" "$PKG_FILE")
+    FILENAME=$(basename "$PKG_FILE")
+
+    # Read fields from control file
+    PACKAGE=$(grep "^Package:" "$CONTROL_DIR/control" | cut -d ' ' -f2)
+    VERSION=$(grep "^Version:" "$CONTROL_DIR/control" | cut -d ' ' -f2)
+    SECTION=$(grep "^Section:" "$CONTROL_DIR/control" | cut -d ' ' -f2)
+    ARCHITECTURE=$(grep "^Architecture:" "$CONTROL_DIR/control" | cut -d ' ' -f2)
+    MAINTAINER=$(grep "^Maintainer:" "$CONTROL_DIR/control" | cut -d ' ' -f2-)
+    DESCRIPTION=$(grep "^Description:" "$CONTROL_DIR/control" | cut -d ' ' -f2-)
+
+    # Generate Packages file
+    cat << EOF > "$ARCH_PATH/Packages"
+Package: $PACKAGE
+Version: $VERSION
+Section: $SECTION
+Architecture: $ARCHITECTURE
+Maintainer: $MAINTAINER
+MD5Sum: $MD5SUM
+Size: $SIZE
+Filename: $FILENAME
+Description: $DESCRIPTION
+EOF
+
+    rm -rf "$CONTROL_DIR"
 }
 
 # Вызов функции 4 раза для разных архитектур
