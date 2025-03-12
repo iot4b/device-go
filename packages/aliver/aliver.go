@@ -11,7 +11,7 @@ var NodeHost string
 
 func Run(s *coalago.Server, address string, aliveInterval time.Duration) {
 	log.Info("run aliver")
-	var retryErr = 0
+	var retryErr int
 	for {
 		if NodeHost == "" {
 			time.Sleep(time.Second)
@@ -26,11 +26,16 @@ func Run(s *coalago.Server, address string, aliveInterval time.Duration) {
 			retryErr++
 			if retryErr > 10 {
 				log.Error("retryErr > 10 - start registration")
-				//todo запуск процесса регистрации
 				retryErr = 0
-				//restart service
-				s.Refresh()
+				if err := s.Refresh(); err != nil {
+					log.Error("Refresh error:", err)
+				} else {
+					log.Info("Server refreshed")
+					time.Sleep(2 * time.Second) // даём время новому listener'у запуститься
+				}
 			}
+		} else {
+			retryErr = 0
 		}
 		time.Sleep(aliveInterval)
 	}

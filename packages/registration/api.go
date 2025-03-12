@@ -106,7 +106,7 @@ func Register() error {
 	// update local data
 	storage.Save()
 
-	aliver.NodeHost = fasterHost //TODO надо перезапускать и al;iver и вообще весь сервер коалы
+	aliver.NodeHost = fasterHost
 
 	log.Debugw("Register result", "RegisteredDevice", storage.Device, "fasterHost", fasterHost)
 
