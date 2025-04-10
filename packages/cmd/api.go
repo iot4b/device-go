@@ -74,9 +74,9 @@ func (c CMD) VerifySignature() bool {
 	log.Debug(c.UUID)
 	if !config.IsProd() {
 		// for testing purposes "testing" signature is allowed as well as valid signature
-		return c.Sign == "testing" || crypto.Keys.VerifySignature(c.Sender, c.getHash(), c.Sign)
+		return c.Sign == "testing" || crypto.VerifySignature(c.Sender, c.getHash(), c.Sign)
 	}
-	return crypto.Keys.VerifySignature(c.Sender, c.getHash(), c.Sign)
+	return crypto.VerifySignature(c.Sender, c.getHash(), c.Sign)
 }
 
 func (c CMD) Execute() (string, error) {

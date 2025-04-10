@@ -40,7 +40,7 @@ func (k *keys) Sign(unsigned []byte) string {
 }
 
 // VerifySignature reports whether sig is a valid signature of message by public key
-func (k *keys) VerifySignature(pubKey string, message []byte, sig string) bool {
+func VerifySignature(pubKey string, message []byte, sig string) bool {
 	public, err := hex.DecodeString(pubKey)
 	if err != nil {
 		return false
