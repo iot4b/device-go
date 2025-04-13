@@ -60,8 +60,8 @@ func (c CMD) Valid() bool {
 	return true
 }
 
-// getHash calculates hash sum of all fields except Sign and Hash
-func (c CMD) getHash() []byte {
+// GetHash calculates hash sum of all fields except Sign and Hash
+func (c CMD) GetHash() []byte {
 	log.Debug(c.UUID)
 	h := sha256.New()
 	bt := []byte(c.UUID + strconv.FormatInt(c.Ts, 10) + c.Sender + string(c.Receiver) + c.Body)
@@ -74,9 +74,9 @@ func (c CMD) VerifySignature() bool {
 	log.Debug(c.UUID)
 	if !config.IsProd() {
 		// for testing purposes "testing" signature is allowed as well as valid signature
-		return c.Sign == "testing" || crypto.VerifySignature(c.Sender, c.getHash(), c.Sign)
+		return c.Sign == "testing" || crypto.VerifySignature(c.Sender, c.GetHash(), c.Sign)
 	}
-	return crypto.VerifySignature(c.Sender, c.getHash(), c.Sign)
+	return crypto.VerifySignature(c.Sender, c.GetHash(), c.Sign)
 }
 
 func (c CMD) Execute() (string, error) {
@@ -111,7 +111,7 @@ func (c CMD) run(cmd string) (string, error) {
 
 	// Осуществляет выполнение команды с сохранением форматирования вывода
 	out, err := exec.Command(parts[0], parts[1:]...).CombinedOutput()
-	log.Info("CMD:", cmd)
+	log.Debugf("OUT: %s", out)
 
 	// encrypt the response
 	return crypto.Keys.EncryptChaCha20Poly1305(out, c.Sender)
