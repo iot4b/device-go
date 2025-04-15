@@ -78,7 +78,9 @@ func ExecCmd(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 	}
 	hash := out.GetHash()
 	out.Hash = hex.EncodeToString(hash)
-	out.Sign = crypto.Keys.Sign(hash)
+
+	sign := crypto.Keys.Sign(hash)
+	out.Sign = base64.StdEncoding.EncodeToString(sign)
 
 	s, _ := json.Marshal(out)
 	return coalago.NewResponse(coalago.NewStringPayload(string(s)), coalago.CoapCodeContent)
@@ -162,6 +164,7 @@ func Sign(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 		return coalago.NewResponse(coalago.NewStringPayload(err.Error()), coalago.CoapCodeBadRequest)
 	}
 	signature := crypto.Keys.Sign(data)
+	signatureHex := hex.EncodeToString(signature)
 
-	return coalago.NewResponse(coalago.NewStringPayload(signature), coalago.CoapCodeContent)
+	return coalago.NewResponse(coalago.NewStringPayload(signatureHex), coalago.CoapCodeContent)
 }

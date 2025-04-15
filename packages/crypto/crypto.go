@@ -25,18 +25,18 @@ type keys struct {
 }
 
 // Sign unsigned message using sign key pair, returns signature
-func (k *keys) Sign(unsigned []byte) string {
+func (k *keys) Sign(unsigned []byte) []byte {
 	private, err := hex.DecodeString(k.Secret)
 	if err != nil {
-		return ""
+		return nil
 	}
 	public, err := hex.DecodeString(k.PublicSign)
 	if err != nil {
-		return ""
+		return nil
 	}
 	signature := sign.Sign(nil, unsigned, (*[64]byte)(append(private, public...)))
 
-	return base64.StdEncoding.EncodeToString(signature[:64])
+	return signature[:64]
 }
 
 // VerifySignature reports whether sig is a valid signature of message by public key
