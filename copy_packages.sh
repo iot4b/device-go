@@ -93,5 +93,5 @@ update_repo "mipsel-3.4_kn" "iot4b_keenetic.ipk"
 
 cp BUILD_PATH/iot4b_install.sh "$REPO_PATH/install.sh"
 cp BUILD_PATH/libndm_1.8.0-1_mipsel-3.4_kn.ipk "$REPO_PATH/mipsel-3.4_kn/libndm_1.8.0-1_mipsel-3.4_kn.ipk"
-cp BUILD_PATH/libndm_1.8.0-1_mipsel-3.4_kn.ipk "$REPO_PATH/mipsel-3.4_kn/ndmq_1.0.2-7_mipsel-3.4_kn.ipk"
+cp BUILD_PATH/ndmq_1.0.2-7_mipsel-3.4_kn.ipk "$REPO_PATH/mipsel-3.4_kn/ndmq_1.0.2-7_mipsel-3.4_kn.ipk"
 
