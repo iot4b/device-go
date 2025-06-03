@@ -6,38 +6,28 @@ import (
 	"device-go/packages/dsm"
 	"device-go/packages/storage"
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 	"time"
 
 	"github.com/jinzhu/copier"
 
 	"github.com/coalalib/coalago"
+	"github.com/google/uuid"
 	log "github.com/ndmsystems/golog"
 )
 
 type info struct {
-	Address    dsm.EverAddress `json:"address"`
-	Group      dsm.EverAddress `json:"group"`
-	Node       dsm.EverAddress `json:"node"`
-	Elector    dsm.EverAddress `json:"elector"`
-	Vendor     dsm.EverAddress `json:"vendor"`
-	Owners     map[string]any  `json:"owners"`
-	Lock       bool            `json:"lock"`
-	Stat       bool            `json:"stat"`
-	Events     bool            `json:"events"`
-	Type       string          `json:"type"`
-	Version    string          `json:"version"`
-	VendorName string          `json:"vendorName"`
-	PublicSign string          `json:"public_sign"`
-	PublicNacl string          `json:"public_nacl"`
+	Address   dsm.EverAddress `json:"address"`
+	PublicKey string          `json:"publicKey"`
 }
 
-// info для коалы
+// GetInfo info для коалы
 func GetInfo(_ *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
-	i := info{}
-	copier.Copy(&i, storage.Device)
-	i.PublicSign = crypto.Keys.PublicSign
-	i.PublicNacl = crypto.Keys.PublicNacl
+	i := info{
+		Address:   storage.Device.Address,
+		PublicKey: crypto.Keys.PublicSign,
+	}
 
 	info, err := json.Marshal(i)
 	if err != nil {
@@ -74,11 +64,26 @@ func ExecCmd(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 		return coalago.NewResponse(coalago.NewStringPayload("invalid sender"), coalago.CoapCodeUnauthorized)
 	}
 	// execute command
-	out, err := command.Execute()
+	result, err := command.Execute()
 	if err != nil {
-		return coalago.NewResponse(coalago.NewStringPayload(out+" err:"+err.Error()), coalago.CoapCodeBadRequest)
+		return coalago.NewResponse(coalago.NewStringPayload("command.Execute :"+err.Error()), coalago.CoapCodeInternalServerError)
 	}
-	return coalago.NewResponse(coalago.NewStringPayload(out), coalago.CoapCodeContent)
+
+	// generate response with signature
+	out := cmd.CMD{
+		UUID:   uuid.New().String(),
+		Ts:     time.Now().Unix(),
+		Sender: crypto.Keys.PublicSign,
+		Body:   result,
+	}
+	hash := out.GetHash()
+	out.Hash = hex.EncodeToString(hash)
+
+	sign := crypto.Keys.Sign(hash)
+	out.Sign = base64.StdEncoding.EncodeToString(sign)
+
+	s, _ := json.Marshal(out)
+	return coalago.NewResponse(coalago.NewStringPayload(string(s)), coalago.CoapCodeContent)
 }
 
 // Update local device info with actual data from blockchain
@@ -114,9 +119,9 @@ func Update(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 	format := "2006-01-02 15:04"
 	now := time.Now().UTC()
 	cur := now.Format(format)
-	if !crypto.Keys.VerifySignature(payload.NodePubKey, []byte(cur), payload.Signature) {
+	if !crypto.VerifySignature(payload.NodePubKey, []byte(cur), payload.Signature) {
 		prev := now.Add(-time.Minute).Format(format)
-		if !crypto.Keys.VerifySignature(payload.NodePubKey, []byte(prev), payload.Signature) {
+		if !crypto.VerifySignature(payload.NodePubKey, []byte(prev), payload.Signature) {
 			return coalago.NewResponse(coalago.NewStringPayload("invalid signature"), coalago.CoapCodeBadRequest)
 		}
 	}
@@ -159,6 +164,7 @@ func Sign(message *coalago.CoAPMessage) *coalago.CoAPResourceHandlerResult {
 		return coalago.NewResponse(coalago.NewStringPayload(err.Error()), coalago.CoapCodeBadRequest)
 	}
 	signature := crypto.Keys.Sign(data)
+	signatureHex := hex.EncodeToString(signature)
 
-	return coalago.NewResponse(coalago.NewStringPayload(signature), coalago.CoapCodeContent)
+	return coalago.NewResponse(coalago.NewStringPayload(signatureHex), coalago.CoapCodeContent)
 }

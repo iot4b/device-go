@@ -5,8 +5,10 @@ go 1.23.0
 toolchain go1.24.1
 
 require (
+	filippo.io/edwards25519 v1.1.0
 	github.com/coalalib/coalago v1.1.1
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510
+	github.com/google/uuid v1.6.0
 	github.com/jinzhu/copier v0.4.0
 	github.com/ndmsystems/golog v0.0.3
 	github.com/pkg/errors v0.9.1

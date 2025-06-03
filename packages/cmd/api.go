@@ -28,8 +28,8 @@ func (c CMD) Readable() string {
 	if len(body) > 50 {
 		body = body[:50]
 	}
-	return fmt.Sprintf("uuid: %s ts: %v sender: %s sender_nacl: %s receiver: %s hash: %s sign: %s body: %s",
-		c.UUID, c.Ts, c.Sender, c.SenderNacl, c.Receiver, c.Hash, c.Sign, body)
+	return fmt.Sprintf("uuid: %s ts: %v sender: %s receiver: %s hash: %s sign: %s body: %s",
+		c.UUID, c.Ts, c.Sender, c.Receiver, c.Hash, c.Sign, body)
 }
 
 // Valid checks if all fields are filled
@@ -43,9 +43,6 @@ func (c CMD) Valid() bool {
 		return false
 	}
 	if len(c.Sender) == 0 {
-		return false
-	}
-	if len(c.SenderNacl) == 0 {
 		return false
 	}
 	if len(c.Receiver) == 0 {
@@ -63,11 +60,11 @@ func (c CMD) Valid() bool {
 	return true
 }
 
-// getHash calculates hash sum of all fields except Sign and Hash
-func (c CMD) getHash() []byte {
+// GetHash calculates hash sum of all fields except Sign and Hash
+func (c CMD) GetHash() []byte {
 	log.Debug(c.UUID)
 	h := sha256.New()
-	bt := []byte(c.UUID + strconv.FormatInt(c.Ts, 10) + c.Sender + c.SenderNacl + string(c.Receiver) + c.Body)
+	bt := []byte(c.UUID + strconv.FormatInt(c.Ts, 10) + c.Sender + string(c.Receiver) + c.Body)
 	h.Write(bt)
 	return h.Sum(nil)
 }
@@ -77,23 +74,24 @@ func (c CMD) VerifySignature() bool {
 	log.Debug(c.UUID)
 	if !config.IsProd() {
 		// for testing purposes "testing" signature is allowed as well as valid signature
-		return c.Sign == "testing" || crypto.Keys.VerifySignature(c.Sender, c.getHash(), c.Sign)
+		return c.Sign == "testing" || crypto.VerifySignature(c.Sender, c.GetHash(), c.Sign)
 	}
-	return crypto.Keys.VerifySignature(c.Sender, c.getHash(), c.Sign)
+	return crypto.VerifySignature(c.Sender, c.GetHash(), c.Sign)
 }
 
 func (c CMD) Execute() (string, error) {
 	log.Debug(c.Readable())
 
-	cmd, err := crypto.Keys.Decrypt(c.Body, c.SenderNacl)
+	// decrypt plain cmd
+	cmd, err := crypto.Keys.DecryptChaCha20Poly1305(c.Body, c.Sender)
 	if err != nil {
 		return "", err
 	}
 
-	return run(cmd)
+	return c.run(cmd)
 }
 
-func run(cmd string) (string, error) {
+func (c CMD) run(cmd string) (string, error) {
 	log.Debug("CMD:", cmd)
 
 	parts, err := shlex.Split(cmd)
@@ -108,11 +106,13 @@ func run(cmd string) (string, error) {
 		// run keenetic command
 		kcmd := fmt.Sprintf("ndmq -p \"%s\" -x", strings.Join(parts[1:], " "))
 		log.Debug("Run Keenetic CMD:", kcmd)
-		return run(kcmd)
+		return c.run(kcmd)
 	}
 
 	// Осуществляет выполнение команды с сохранением форматирования вывода
 	out, err := exec.Command(parts[0], parts[1:]...).CombinedOutput()
-	log.Info("CMD:", cmd)
-	return string(out), err
+	log.Debugf("OUT: %s", out)
+
+	// encrypt the response
+	return crypto.Keys.EncryptChaCha20Poly1305(out, c.Sender)
 }
