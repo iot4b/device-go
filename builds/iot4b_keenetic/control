@@ -1,6 +1,6 @@
 Package: iot4b
 Version: 1.0
-Depends:
+Depends: ndmq, libndm
 Section: utils
 Architecture: mipsel-3.4_kn
 Maintainer: IOT4B <sp@golbex.com>
