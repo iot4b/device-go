@@ -12,9 +12,9 @@ localFiles:
   init: "device.init.dev.json"
 
 timeout:
-  alive: 10s #alive interval
-  coala: 3m  # timeout for coala reguests
-  registerRepeat: 1h #period for registration repeat
+  alive: 10s # alive interval
+  coala: 3m  # timeout for coala requests
+  registerRepeat: 1h # period for registration repeat
 
 masterNodes:
   - 157.245.57.218:5683
@@ -23,7 +23,5 @@ masterNodes:
 
 everscale:
   elector: "0:20a9657c902ad65dd6eb08b4eb7ec4d3f45bebda5d763bbd7b0b3826824a216a"
-  vendor:
-    address: "0:389e290e6f83d7837f317792c42c370c025c58d34f7e9bdd2c076950acc9c4c9"
-    name: "IOT4B dev device"
-    data: "{\"serialNumber\":\"DSF34-G4FG34GF\"}"
+  vendor: "0:389e290e6f83d7837f317792c42c370c025c58d34f7e9bdd2c076950acc9c4c9"
+  deviceAPI: "0:0000000000000000000000000000000000000000000000000000000000000000"

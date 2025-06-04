@@ -8,13 +8,13 @@ info:
 
 localFiles:
   keys: "device.keys.json"
-  contract: "device.contract.dev.json"
+  contract: "device.contract.json"
   init: "device.init.json"
 
 timeout:
-  alive: 10s #alive interval
-  coala: 3m  # timeout for coala reguests
-  registerRepeat: 1h #period for registration repeat
+  alive: 10s # alive interval
+  coala: 3m  # timeout for coala requests
+  registerRepeat: 1h # period for registration repeat
 
 masterNodes:
   - 157.245.57.218:5683
@@ -23,7 +23,5 @@ masterNodes:
 
 everscale:
   elector: "0:20a9657c902ad65dd6eb08b4eb7ec4d3f45bebda5d763bbd7b0b3826824a216a"
-  vendor:
-    address: "0:9da539518766ebbb30541d460d15c1036c004053b9d4cb9b3b24ce6b058dad12"
-    name: "Keenetic"
-    data: ""
+  vendor: "0:4b89819b5cdae07b1b97d7962bc5561b2f667f35d0e18cc9d426318a4edc97bd"
+  deviceAPI: "0:a13c217c3dd65154e30165a018c8ac5615086de149983f9204388c2d2adc54df"

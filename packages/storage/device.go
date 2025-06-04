@@ -1,7 +1,6 @@
 package storage
 
 import (
-	"device-go/packages/config"
 	"device-go/packages/dsm"
 	"device-go/packages/utils"
 	"encoding/json"
@@ -21,13 +20,11 @@ type device struct {
 
 	Owners map[string]any `json:"owners"` // owners data: public_key => contract_address
 
-	Lock       bool   `json:"lock"`                 // if device is locked
-	Stat       bool   `json:"stat"`                 // нужно ли девайсу слать статистику
-	Events     bool   `json:"events"`               // sending events
-	Type       string `json:"dtype,omitempty"`      // модель/тип девайса
-	Version    string `json:"version,omitempty"`    // версия текущей прошивки на девайсе
-	VendorName string `json:"vendorName,omitempty"` // название производителя
-	VendorData string `json:"vendorData,omitempty"` // данные, которые идут от производителя девайса
+	Lock    bool   `json:"lock"`              // if device is locked
+	Stat    bool   `json:"stat"`              // нужно ли девайсу слать статистику
+	Events  bool   `json:"events"`            // sending events
+	Type    string `json:"dtype,omitempty"`   // модель/тип девайса
+	Version string `json:"version,omitempty"` // версия текущей прошивки на девайсе
 
 	LastRegisterTime string `json:"lastRegisterTime,omitempty"` // last registration timestamp
 
@@ -39,11 +36,11 @@ var (
 	localPath string
 )
 
-func Init(path, elector, vendor, vendorName, vendorData, dType, version string) {
+func Init(path, initFile, elector, vendor, deviceAPI, dType, version string) {
 	localPath = path
 
 	log.Info("Init Local Storage")
-	log.Debug(path, elector, vendor, vendorName, vendorData, dType, version)
+	log.Debug(path, elector, vendor, deviceAPI, dType, version)
 
 	var err error
 
@@ -55,17 +52,15 @@ func Init(path, elector, vendor, vendorName, vendorData, dType, version string) 
 		}
 	} else {
 		// read from init params from file in config.localFiles.init
-		Device, err = read(config.Get("localFiles.init"))
+		Device, err = read(initFile)
 		if err != nil {
-			log.Fatal("failed to read file", config.Get("localFiles.init"))
+			log.Fatal("failed to read file", initFile)
 		}
 		Device.Elector = dsm.EverAddress(elector)
 		Device.Vendor = dsm.EverAddress(vendor)
-		Device.DeviceAPI = "0:0000000000000000000000000000000000000000000000000000000000000000"
+		Device.DeviceAPI = dsm.EverAddress(deviceAPI)
 		Device.Type = dType
 		Device.Version = version
-		Device.VendorName = vendorName
-		Device.VendorData = vendorData
 
 		if err = Save(); err != nil {
 			log.Errorf("storage.Save: %v", err)

@@ -6,7 +6,7 @@ toolchain go1.24.1
 
 require (
 	filippo.io/edwards25519 v1.1.0
-	github.com/coalalib/coalago v1.1.1
+	github.com/coalalib/coalago v1.1.5
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510
 	github.com/google/uuid v1.6.0
 	github.com/jinzhu/copier v0.4.0
@@ -28,7 +28,6 @@ require (
 	github.com/lucas-clemente/aes12 v0.0.0-20171027163421-cd47fb39b79f // indirect
 	github.com/magiconair/properties v1.8.9 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
-	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
 	github.com/spf13/afero v1.12.0 // indirect
 	github.com/spf13/cast v1.7.1 // indirect

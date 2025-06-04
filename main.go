@@ -43,10 +43,10 @@ func main() {
 	crypto.Init(config.Get("localFiles.keys"))
 	storage.Init(
 		config.Get("localFiles.contract"),
+		config.Get("localFiles.init"),
 		config.Get("everscale.elector"),
-		config.Get("everscale.vendor.address"),
-		config.Get("everscale.vendor.name"), //TODO убрать, это надо из смарта брать вендора в приложении
-		config.Get("everscale.vendor.data"),
+		config.Get("everscale.vendor"),
+		config.Get("everscale.deviceAPI"),
 		config.Get("info.type"),
 		config.Get("info.version"))
 

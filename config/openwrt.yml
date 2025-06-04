@@ -8,13 +8,13 @@ info:
 
 localFiles:
   keys: "device.keys.json"
-  contract: "device.contract.dev.json"
+  contract: "device.contract.json"
   init: "device.init.json"
 
 timeout:
-  alive: 10s #alive interval
-  coala: 3m  # timeout for coala reguests
-  registerRepeat: 1h #period for registration repeat
+  alive: 10s # alive interval
+  coala: 3m  # timeout for coala requests
+  registerRepeat: 1h # period for registration repeat
 
 masterNodes:
   - 157.245.57.218:5683
@@ -23,7 +23,5 @@ masterNodes:
 
 everscale:
   elector: "0:20a9657c902ad65dd6eb08b4eb7ec4d3f45bebda5d763bbd7b0b3826824a216a"
-  vendor:
-    address: "0:9da539518766ebbb30541d460d15c1036c004053b9d4cb9b3b24ce6b058dad12"
-    name: "OpenWRT"
-    data: "initial version"
+  vendor: "0:041c0970f0de1f40a05f98e6659510fa6df85c78a45611f1b5a1635fa79dd9ab"
+  deviceAPI: "0:ac89285c69ebf4748d04a3a19bc8f831ef3cda7954d10a4c76465dcd06a82691"
