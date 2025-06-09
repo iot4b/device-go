@@ -16,17 +16,6 @@ import (
 	log "github.com/ndmsystems/golog"
 )
 
-type registerDeviceResp struct {
-	Address dsm.EverAddress `json:"a,omitempty"` //ever SC address текущего Device
-	Node    dsm.EverAddress `json:"n,omitempty"` //ever SC address Node, с которой девайс создал последнее соединение
-	Elector dsm.EverAddress `json:"e,omitempty"` //ever SC адрес Elector'a, который обслуживает сеть нод для текущего девайса
-	Vendor  dsm.EverAddress `json:"v,omitempty"` //ever SC address производителя текущего девайса
-
-	Stat bool `json:"s,omitempty"` // нужно ли девайсу слать статистику
-
-	Hash string `json:"h,omitempty"` // actual contract code hash
-}
-
 // Register - регистрируем устройство на ноде.
 // Возвращает ip:port ноды
 func Register() error {
@@ -64,6 +53,7 @@ func Register() error {
 	copier.Copy(&req, storage.Device)
 	req.PublicSign = crypto.Keys.PublicSign
 	req.PublicNacl = crypto.Keys.PublicNacl
+	req.Events = true
 
 	payload, err := json.Marshal(req)
 	if err != nil {
@@ -92,7 +82,7 @@ func Register() error {
 	}
 
 	// парсим ответ и обновляем локальный дамп контракта
-	registerResp := registerDeviceResp{}
+	registerResp := registerResponse{}
 	err = json.Unmarshal(resp.Body, &registerResp)
 	if err != nil {
 		return fmt.Errorf("json.Unmarshal(%s): %v", resp.Body, err)

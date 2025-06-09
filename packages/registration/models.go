@@ -17,7 +17,21 @@ type registerRequest struct {
 	Type       string          `json:"t,omitempty"`  // название модели устройства
 	VendorName string          `json:"vn,omitempty"` // vendor name
 	VendorData string          `json:"vd,omitempty"` // произволный блок данных в любом формате
+	Stat       bool            `json:"st"`           // storing statistics
+	Events     bool            `json:"ev"`           // sending events
 	Hash       string          `json:"h"`            // hash of current contract code (contract version identifier)
+}
+
+type registerResponse struct {
+	Address dsm.EverAddress `json:"a,omitempty"` //ever SC address текущего Device
+	Node    dsm.EverAddress `json:"n,omitempty"` //ever SC address Node, с которой девайс создал последнее соединение
+	Elector dsm.EverAddress `json:"e,omitempty"` //ever SC адрес Elector'a, который обслуживает сеть нод для текущего девайса
+	Vendor  dsm.EverAddress `json:"v,omitempty"` //ever SC address производителя текущего девайса
+
+	Stat   bool `json:"st,omitempty"` // storing statistics
+	Events bool `json:"ev,omitempty"` // sending events
+
+	Hash string `json:"h,omitempty"` // actual contract code hash
 }
 
 // getEndpoints возвращает список активных нод в таком формате
