@@ -9,9 +9,20 @@ VERSION="1.0"
 ARCH="mips_siflower"
 MAINTAINER="IOT4B <sp@golbex.com>"
 DESCRIPTION="IOT4B device client"
-BUILD_DIR="./builds/${PACKAGE_NAME}_openwrt"
-IPK_PATH="../${PACKAGE_NAME}_openwrt.ipk"
 
+if [[ "$1" == "arm" ]]; then
+  ARCH="armv7l"
+  GOARCH_FLAGS=(GOARCH=arm GOARM=7)
+elif [[ "$1" == "arm64" ]]; then
+  ARCH="aarch64"
+  GOARCH_FLAGS=(GOARCH=arm64)
+else
+  ARCH="mips_siflower"
+  GOARCH_FLAGS=(GOARCH=mipsle)
+fi
+
+BUILD_DIR="./builds/${PACKAGE_NAME}_openwrt_${ARCH}"
+IPK_PATH="../${PACKAGE_NAME}_openwrt_${ARCH}.ipk"
 
 # Создание файла control с правильным Installed-Size
 INSTALLED_SIZE=$(du -sk "${BUILD_DIR}/opt" | awk '{print $1}')
@@ -31,7 +42,7 @@ EOF
 
 # Компиляция бинарника Go для mipsle
 echo "Компиляция бинарника Go для ${ARCH}..."
-GOOS=linux GOARCH=mipsle go build -ldflags="-s -w" -o "${BUILD_DIR}/opt/${PACKAGE_NAME}/${PACKAGE_NAME}" main.go
+env GOOS=linux "${GOARCH_FLAGS[@]}" go build -ldflags="-s -w" -o "${BUILD_DIR}/opt/${PACKAGE_NAME}/${PACKAGE_NAME}" main.go
 echo "Бинарник собран. Размер:"
 ls -lh "${BUILD_DIR}/opt/${PACKAGE_NAME}/${PACKAGE_NAME}" | awk '{print "Размер бинарника:", $5}'
 

@@ -4,7 +4,7 @@ Depends: libc
 Source: 
 Section: utils
 License: GPL-2.0+
-Architecture: mips_siflower
-Installed-Size: 16
+Architecture: aarch64
+Installed-Size: 8
 Maintainer: IOT4B <sp@golbex.com>
 Description: IOT4B device client
