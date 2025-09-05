@@ -5,5 +5,7 @@ device_bin
 .DS_Store
 .vscode/settings.json
 device.bin
-builds/iot4b_keenetic.ipk
+builds/iot4b_keenetic*.ipk
+builds/iot4b_keenetic*/control
 builds/iot4b_openwrt*.ipk
+builds/iot4b_openwrt*/control

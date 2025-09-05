@@ -1,0 +1,7 @@
+#!/bin/sh
+
+SERVICE="iot4b"
+
+killall "$SERVICE"
+rm -f  "/opt/var/log/$SERVICE.log"
+echo "$SERVICE removed"

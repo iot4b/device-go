@@ -6,8 +6,9 @@ BUILD_PATH="./builds"
 
 # Функция для обработки пакетов
 update_repo() {
-    ARCH=$1
-    PKG_FILE=$2
+    OS=$1
+    ARCH=$2
+    PKG_FILE="iot4b_${OS}_${ARCH}.ipk"
     ARCH_PATH="$REPO_PATH/$ARCH"
 
     # Проверяем и создаём папку
@@ -22,7 +23,7 @@ update_repo() {
 
     # Копируем новый пакет
     SRC_FILE="$BUILD_PATH/$PKG_FILE"
-    DEST_FILE="$ARCH_PATH/iot4b-$ARCH.ipk"
+    DEST_FILE="$ARCH_PATH/iot4b-$OS-$ARCH.ipk"
 
     if [ -f "$SRC_FILE" ]; then
         echo "Копирую $SRC_FILE -> $DEST_FILE"
@@ -35,7 +36,7 @@ update_repo() {
     # Создание индексов
     echo "Создаю индекс в $ARCH_PATH"
     if file "$DEST_FILE" | grep -q "gzip compressed data"; then
-        opkg_make_index "$ARCH"
+        opkg_make_index "$OS" "$ARCH"
     else
         opkg-make-index -a "$ARCH_PATH" > "$ARCH_PATH/Packages"
     fi
@@ -44,9 +45,10 @@ update_repo() {
 
 # alternative to opkg-make-index utility for tar based ipk packages
 opkg_make_index() {
-    ARCH=$1
+    OS=$1
+    ARCH=$2
     ARCH_PATH="$REPO_PATH/$ARCH"
-    PKG_FILE="$ARCH_PATH/iot4b-$ARCH.ipk"
+    PKG_FILE="$ARCH_PATH/iot4b-$OS-$ARCH.ipk"
     CONTROL_DIR=$(mktemp -d)
 
     # Extract control info
@@ -83,13 +85,18 @@ EOF
 }
 
 # Вызов функции 4 раза для разных архитектур
-update_repo "armv7l" "iot4b_openwrt_armv7l.ipk"
-update_repo "mipsel" "iot4b_openwrt.ipk"
-update_repo "aarch64" "iot4b_openwrt_aarch64.ipk"
-update_repo "mipsel-3.4_kn" "iot4b_keenetic.ipk"
+update_repo "keenetic" "mipsel-3.4_kn"
+update_repo "keenetic" "aarch64-3.10_kn"
+update_repo "openwrt" "mips_siflower"
+update_repo "openwrt" "armv7l"
+update_repo "openwrt" "aarch64"
 
 
 # копируем файлы в папку REPO_PATH
 cp "${BUILD_PATH}/iot4b_install.sh" "${REPO_PATH}/install.sh"
+
 cp "${BUILD_PATH}/libndm_1.8.0-1_mipsel-3.4_kn.ipk" "${REPO_PATH}/mipsel-3.4_kn/libndm_1.8.0-1_mipsel-3.4_kn.ipk"
 cp "${BUILD_PATH}/ndmq_1.0.2-7_mipsel-3.4_kn.ipk" "${REPO_PATH}/mipsel-3.4_kn/ndmq_1.0.2-7_mipsel-3.4_kn.ipk"
+
+cp "${BUILD_PATH}/libndm_1.1.25-1_aarch64-3.10_kn.ipk" "${REPO_PATH}/aarch64-3.10_kn/libndm_1.1.25-1_aarch64-3.10_kn.ipk"
+cp "${BUILD_PATH}/ndmq_1.0.2-11_aarch64-3.10_kn.ipk" "${REPO_PATH}/aarch64-3.10_kn/ndmq_1.0.2-11_aarch64-3.10_kn.ipk"

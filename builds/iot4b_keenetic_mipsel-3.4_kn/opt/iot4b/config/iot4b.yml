@@ -1,0 +1,27 @@
+
+debug: false
+env: prod
+
+info:
+  version: "1.0.0"
+  type: "router"
+
+localFiles:
+  keys: "keys.json"
+  contract: "contract.json"
+  init: "init.json"
+
+timeout:
+  alive: 10s # alive interval
+  coala: 3m  # timeout for coala requests
+  registerRepeat: 24h # period for registration repeat
+
+masterNodes:
+  - 157.245.57.218:5683
+  - 188.166.71.64:5683
+  - 192.81.216.57:5683
+
+everscale:
+  elector: "0:09ff18e1396c3844c04cde933b1044e47b3b1e62c11a79572c4fd380d279084d"
+  vendor: "0:4b89819b5cdae07b1b97d7962bc5561b2f667f35d0e18cc9d426318a4edc97bd"
+  deviceAPI: "0:a13c217c3dd65154e30165a018c8ac5615086de149983f9204388c2d2adc54df"
