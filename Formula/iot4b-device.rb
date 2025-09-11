@@ -1,7 +1,7 @@
 class Iot4bDevice < Formula
   desc "IOT4B Device"
   homepage "https://github.com/iot4b/device-go"
-  url "https://github.com/iot4b/device-go/archive/refs/tags/v1.1.0.tar.gz"
+  url "https://github.com/iot4b/device-go/archive/refs/tags/1.1.0.tar.gz"
   sha256 "b1305ce01260403b20833855e92d41ccc3e47744fdcc7726111394d4ab52e149"
   license "MIT"
 
