@@ -2,7 +2,7 @@ class Iot4bDevice < Formula
   desc "IOT4B Device"
   homepage "https://github.com/iot4b/device-go"
   url "https://github.com/iot4b/device-go/archive/refs/tags/1.1.0.tar.gz"
-  sha256 "8a8087b3db8669e41262f6384c81a7b6387424acb0f30e199ecaf5e6c9f18af2"
+  sha256 "2e0472541cc03f1ff4766e4bc52af995a3291a9afde6f3098ef559f2b78db048"
   license "MIT"
 
   depends_on "go" => :build
