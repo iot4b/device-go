@@ -4,6 +4,8 @@ import (
 	"device-go/packages/dsm"
 	"device-go/packages/utils"
 	"encoding/json"
+	"os"
+	"path/filepath"
 
 	log "github.com/ndmsystems/golog"
 	"github.com/pkg/errors"
@@ -36,7 +38,7 @@ var (
 	localPath string
 )
 
-func Init(path, initFile, elector, vendor, deviceAPI, dType, version string) {
+func Init(path, initFile, elector, vendor, deviceAPI, dType, version, group, owner string) {
 	localPath = path
 
 	log.Info("Init Local Storage")
@@ -51,19 +53,42 @@ func Init(path, initFile, elector, vendor, deviceAPI, dType, version string) {
 			log.Fatal(err)
 		}
 	} else {
-		// read from init params from file in config.localFiles.init
-		Device, err = read(initFile)
+		home, err := os.UserHomeDir()
 		if err != nil {
-			log.Fatal("failed to read file", initFile)
+			log.Fatal(err)
 		}
-		Device.Elector = dsm.EverAddress(elector)
-		Device.Vendor = dsm.EverAddress(vendor)
-		Device.DeviceAPI = dsm.EverAddress(deviceAPI)
-		Device.Type = dType
-		Device.Version = version
+		homeFilePath := filepath.Join(home, ".config", "iot4b-device", localPath)
+		if utils.FileExists(homeFilePath) {
+			Device, err = read(homeFilePath)
+			if err != nil {
+				log.Fatal(err)
+			}
+		} else {
+			// read from init params from file in config.localFiles.init
+			Device, err = read(initFile)
+			if err != nil {
+				if group == "" || owner == "" {
+					log.Fatal("group and owner is required")
+				}
+				hostname, err := os.Hostname()
+				if err != nil {
+					hostname = "iot4b-device"
+				}
+				Device = device{
+					Name:   hostname,
+					Group:  dsm.EverAddress(group),
+					Owners: map[string]any{owner: "0:0000000000000000000000000000000000000000000000000000000000000000"},
+				}
+			}
+			Device.Elector = dsm.EverAddress(elector)
+			Device.Vendor = dsm.EverAddress(vendor)
+			Device.DeviceAPI = dsm.EverAddress(deviceAPI)
+			Device.Type = dType
+			Device.Version = version
 
-		if err = Save(); err != nil {
-			log.Errorf("storage.Save: %v", err)
+			if err = Save(); err != nil {
+				log.Errorf("storage.Save: %v", err)
+			}
 		}
 	}
 }
@@ -76,7 +101,15 @@ func Save() error {
 	}
 	err = utils.SaveFile(localPath, data)
 	if err != nil {
-		return errors.Wrapf(err, "utils.SaveFile(%s, data)", localPath)
+		home, err := os.UserHomeDir()
+		if err != nil {
+			log.Fatal(err)
+		}
+		homeFilePath := filepath.Join(home, ".config", "iot4b-device", localPath)
+		err = utils.SaveFile(homeFilePath, data)
+		if err != nil {
+			return errors.Wrapf(err, "utils.SaveFile(%s, data)", homeFilePath)
+		}
 	}
 	return nil
 }

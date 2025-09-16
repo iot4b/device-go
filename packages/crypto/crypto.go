@@ -7,11 +7,13 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"io"
+	"os"
+	"path/filepath"
+
 	"golang.org/x/crypto/curve25519"
 	"golang.org/x/crypto/nacl/box"
 	"golang.org/x/crypto/nacl/sign"
-	"io"
-	"os"
 
 	log "github.com/ndmsystems/golog"
 )
@@ -92,7 +94,16 @@ func Init(path string) {
 func load(path string) (k keys, err error) {
 	file, err := os.Open(path)
 	if err != nil {
-		return
+		var home string
+		home, err = os.UserHomeDir()
+		if err != nil {
+			return
+		}
+		filePath := filepath.Join(home, ".config", "iot4b-device", path)
+		file, err = os.Open(filePath)
+		if err != nil {
+			return
+		}
 	}
 	defer file.Close()
 
@@ -132,7 +143,16 @@ func save(path string, key keys) error {
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(path, data, 0644)
+	err = os.WriteFile(path, data, 0644)
+	if err != nil {
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return err
+		}
+		filePath := filepath.Join(home, ".config", "iot4b-device", path)
+		return os.WriteFile(filePath, data, 0644)
+	}
+	return nil
 }
 
 // hexTo32b converts hex string to 32-byte array

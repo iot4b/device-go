@@ -8,7 +8,11 @@ class Iot4bDevice < Formula
   depends_on "go" => :build
 
   def install
+    # Build binary
     system "go", "build", *std_go_args(ldflags: "-s -w", output: bin/"iot4b-device")
+
+    # Install default config
+    (etc/"iot4b-device").install "config/prod.yaml"
   end
 
   test do

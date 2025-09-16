@@ -1,6 +1,8 @@
 package config
 
 import (
+	"os/exec"
+	"path/filepath"
 	"strconv"
 	"time"
 
@@ -23,7 +25,15 @@ func Init(e string) {
 
 	config.SetConfigName(env) // (without extension)
 	if err := config.ReadInConfig(); err != nil {
-		panic(err)
+		brewPrefix, err := exec.Command("brew", "--prefix").Output()
+		if err != nil {
+			panic(err)
+		}
+		configPath := filepath.Join(string(brewPrefix), "etc", "iot4b-device")
+		config.AddConfigPath(configPath)
+		if err := config.ReadInConfig(); err != nil {
+			panic(err)
+		}
 	}
 }
 
