@@ -4,6 +4,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	log "github.com/ndmsystems/golog"
@@ -29,7 +30,7 @@ func Init(e string) {
 		if err != nil {
 			panic(err)
 		}
-		configPath := filepath.Join(string(brewPrefix), "etc", "iot4b-device")
+		configPath := filepath.Join(strings.TrimSpace(string(brewPrefix)), "etc", "iot4b-device")
 		config.AddConfigPath(configPath)
 		if err := config.ReadInConfig(); err != nil {
 			panic(err)
