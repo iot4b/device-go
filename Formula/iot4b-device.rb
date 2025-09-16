@@ -12,7 +12,7 @@ class Iot4bDevice < Formula
     system "go", "build", *std_go_args(ldflags: "-s -w", output: bin/"iot4b-device")
 
     # Install default config
-    (etc/"iot4b-device").install "config/prod.yaml"
+    (etc/"iot4b-device").install "config/prod.yml"
   end
 
   test do
