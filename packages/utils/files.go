@@ -2,11 +2,14 @@ package utils
 
 import (
 	"encoding/json"
-	log "github.com/ndmsystems/golog"
-	"github.com/pkg/errors"
 	"io"
 	"os"
+
+	log "github.com/ndmsystems/golog"
+	"github.com/pkg/errors"
 )
+
+const FilesDir = "iot4b"
 
 var (
 	ErrUnmarshal = errors.New("file unmarshal error")

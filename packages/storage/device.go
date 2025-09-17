@@ -34,61 +34,51 @@ type device struct {
 }
 
 var (
-	Device    device
-	localPath string
+	Device   device
+	filePath string
 )
 
 func Init(path, initFile, elector, vendor, deviceAPI, dType, version, group, owner string) {
-	localPath = path
+	home, err := os.UserHomeDir()
+	if err != nil {
+		log.Fatal(err)
+	}
+	filePath = filepath.Join(home, ".config", utils.FilesDir, path)
 
 	log.Info("Init Local Storage")
 	log.Debug(path, elector, vendor, deviceAPI, dType, version)
 
-	var err error
-
 	// чекаем локально наличие файла
-	if utils.FileExists(localPath) {
-		Device, err = read(localPath)
+	if utils.FileExists(filePath) {
+		Device, err = read(filePath)
 		if err != nil {
 			log.Fatal(err)
 		}
 	} else {
-		home, err := os.UserHomeDir()
+		// read from init params from file in config.localFiles.init
+		Device, err = read(initFile)
 		if err != nil {
-			log.Fatal(err)
+			if group == "" || owner == "" {
+				log.Fatal("group and owner is required")
+			}
+			name, err := os.Hostname()
+			if err != nil {
+				name = "iot4b-device"
+			}
+			Device = device{
+				Name:   name,
+				Group:  dsm.EverAddress(group),
+				Owners: map[string]any{owner: "0:0000000000000000000000000000000000000000000000000000000000000000"},
+			}
 		}
-		homeFilePath := filepath.Join(home, ".config", "iot4b-device", localPath)
-		if utils.FileExists(homeFilePath) {
-			Device, err = read(homeFilePath)
-			if err != nil {
-				log.Fatal(err)
-			}
-		} else {
-			// read from init params from file in config.localFiles.init
-			Device, err = read(initFile)
-			if err != nil {
-				if group == "" || owner == "" {
-					log.Fatal("group and owner is required")
-				}
-				hostname, err := os.Hostname()
-				if err != nil {
-					hostname = "iot4b-device"
-				}
-				Device = device{
-					Name:   hostname,
-					Group:  dsm.EverAddress(group),
-					Owners: map[string]any{owner: "0:0000000000000000000000000000000000000000000000000000000000000000"},
-				}
-			}
-			Device.Elector = dsm.EverAddress(elector)
-			Device.Vendor = dsm.EverAddress(vendor)
-			Device.DeviceAPI = dsm.EverAddress(deviceAPI)
-			Device.Type = dType
-			Device.Version = version
+		Device.Elector = dsm.EverAddress(elector)
+		Device.Vendor = dsm.EverAddress(vendor)
+		Device.DeviceAPI = dsm.EverAddress(deviceAPI)
+		Device.Type = dType
+		Device.Version = version
 
-			if err = Save(); err != nil {
-				log.Errorf("storage.Save: %v", err)
-			}
+		if err = Save(); err != nil {
+			log.Errorf("storage.Save: %v", err)
 		}
 	}
 }
@@ -99,17 +89,9 @@ func Save() error {
 	if err != nil {
 		return errors.Wrap(err, "json.Marshal(device)")
 	}
-	err = utils.SaveFile(localPath, data)
+	err = utils.SaveFile(filePath, data)
 	if err != nil {
-		home, err := os.UserHomeDir()
-		if err != nil {
-			log.Fatal(err)
-		}
-		homeFilePath := filepath.Join(home, ".config", "iot4b-device", localPath)
-		err = utils.SaveFile(homeFilePath, data)
-		if err != nil {
-			return errors.Wrapf(err, "utils.SaveFile(%s, data)", homeFilePath)
-		}
+		return errors.Wrapf(err, "utils.SaveFile(%s, data)", filePath)
 	}
 	return nil
 }

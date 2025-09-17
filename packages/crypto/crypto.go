@@ -3,6 +3,7 @@ package crypto
 import (
 	"crypto/ed25519"
 	"crypto/rand"
+	"device-go/packages/utils"
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
@@ -18,7 +19,10 @@ import (
 	log "github.com/ndmsystems/golog"
 )
 
-var Keys keys
+var (
+	Keys     keys
+	filePath string
+)
 
 type keys struct {
 	PublicSign string `json:"public_sign"` // public key for signing
@@ -75,15 +79,20 @@ func (k *keys) Decrypt(data, sender string) (string, error) {
 }
 
 // Init key storage, load from existing file or generate a new one
-func Init(path string) {
-	var err error
-	Keys, err = load(path)
+func Init(fileName string) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		log.Fatal(err)
+	}
+	filePath = filepath.Join(home, ".config", utils.FilesDir, fileName)
+
+	Keys, err = load()
 	if err != nil {
 		Keys, err = generate()
 		if err != nil {
 			log.Fatal(err)
 		}
-		err = save(path, Keys)
+		err = save()
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -91,19 +100,10 @@ func Init(path string) {
 }
 
 // load key pair from json file
-func load(path string) (k keys, err error) {
-	file, err := os.Open(path)
+func load() (k keys, err error) {
+	file, err := os.Open(filePath)
 	if err != nil {
-		var home string
-		home, err = os.UserHomeDir()
-		if err != nil {
-			return
-		}
-		filePath := filepath.Join(home, ".config", "iot4b-device", path)
-		file, err = os.Open(filePath)
-		if err != nil {
-			return
-		}
+		return
 	}
 	defer file.Close()
 
@@ -138,21 +138,12 @@ func generate() (k keys, err error) {
 }
 
 // save key pair to json file
-func save(path string, key keys) error {
-	data, err := json.Marshal(key)
+func save() error {
+	data, err := json.Marshal(Keys)
 	if err != nil {
 		return err
 	}
-	err = os.WriteFile(path, data, 0644)
-	if err != nil {
-		home, err := os.UserHomeDir()
-		if err != nil {
-			return err
-		}
-		filePath := filepath.Join(home, ".config", "iot4b-device", path)
-		return os.WriteFile(filePath, data, 0644)
-	}
-	return nil
+	return os.WriteFile(filePath, data, 0644)
 }
 
 // hexTo32b converts hex string to 32-byte array

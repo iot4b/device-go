@@ -4,7 +4,7 @@
 SERVICE_NAME="iot4b"
 CONFIG_FILE="/opt/iot4b/init.json"
 SERVICE_FILE="/etc/init.d/iot4b"
-CONTRACT_FILE="/opt/iot4b/contract.json"
+CONTRACT_FILE="$HOME/.config/iot4b/contract.json"
 
 TIMEOUT=60  # Timeout in seconds
 
