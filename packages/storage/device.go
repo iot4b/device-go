@@ -1,11 +1,14 @@
 package storage
 
 import (
+	"bufio"
 	"device-go/packages/dsm"
 	"device-go/packages/utils"
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	log "github.com/ndmsystems/golog"
 	"github.com/pkg/errors"
@@ -38,16 +41,13 @@ var (
 	filePath string
 )
 
-func Init(path, initFile, elector, vendor, deviceAPI, dType, version, group, owner string) {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		log.Fatal(err)
-	}
-	filePath = filepath.Join(home, ".config", utils.FilesDir, path)
+func Init(path, initFile, elector, vendor, deviceAPI, dType, version string) {
+	filePath = filepath.Join(utils.GetFilesDir(), path)
 
 	log.Info("Init Local Storage")
 	log.Debug(path, elector, vendor, deviceAPI, dType, version)
 
+	var err error
 	// чекаем локально наличие файла
 	if utils.FileExists(filePath) {
 		Device, err = read(filePath)
@@ -58,13 +58,7 @@ func Init(path, initFile, elector, vendor, deviceAPI, dType, version, group, own
 		// read from init params from file in config.localFiles.init
 		Device, err = read(initFile)
 		if err != nil {
-			if group == "" || owner == "" {
-				log.Fatal("group and owner is required")
-			}
-			name, err := os.Hostname()
-			if err != nil {
-				name = "iot4b-device"
-			}
+			name, group, owner := promptUserData()
 			Device = device{
 				Name:   name,
 				Group:  dsm.EverAddress(group),
@@ -114,4 +108,28 @@ func read(path string) (d device, err error) {
 	}
 	log.Debugf("%+v", d)
 	return d, err
+}
+
+func promptUserData() (name, group, owner string) {
+	reader := bufio.NewReader(os.Stdin)
+	name, _ = os.Hostname()
+	fmt.Printf("Enter device name [%s]: ", name)
+	name, _ = reader.ReadString('\n')
+	name = strings.TrimSpace(name)
+	if name == "" {
+		log.Fatal("device name is required")
+	}
+	fmt.Print("Enter device group address: ")
+	group, _ = reader.ReadString('\n')
+	group = strings.TrimSpace(group)
+	if group == "" {
+		log.Fatal("device group address is required")
+	}
+	fmt.Print("Enter owner public key: ")
+	owner, _ = reader.ReadString('\n')
+	owner = strings.TrimSpace(owner)
+	if owner == "" {
+		log.Fatal("owner public key is required")
+	}
+	return
 }

@@ -19,16 +19,12 @@ import (
 )
 
 var port = "5684" // coala port
-var group = ""
-var owner = ""
 
 // инитим конфиги и logger
 func init() {
 	var env string
 	flag.StringVar(&env, "env", "prod", "set environment")
 	flag.StringVar(&port, "port", port, "override default coala port")
-	flag.StringVar(&group, "group", group, "device group contract address")
-	flag.StringVar(&owner, "owner", owner, "owner public key")
 	flag.Parse()
 
 	config.Init(env)
@@ -52,9 +48,7 @@ func main() {
 		config.Get("everscale.vendor"),
 		config.Get("everscale.deviceAPI"),
 		config.Get("info.type"),
-		config.Get("info.version"),
-		group,
-		owner)
+		config.Get("info.version"))
 
 	// сервер для запросов от клиентов и нод
 	server := coalago.NewServer()

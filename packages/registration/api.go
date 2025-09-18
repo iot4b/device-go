@@ -98,7 +98,7 @@ func Register() error {
 
 	aliver.NodeHost = fasterHost
 
-	log.Debugw("Register result", "RegisteredDevice", storage.Device, "fasterHost", fasterHost)
+	log.Infow("Register result", "RegisteredDevice", storage.Device, "nodeHost", fasterHost)
 
 	return nil
 }

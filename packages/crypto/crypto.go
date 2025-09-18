@@ -80,12 +80,9 @@ func (k *keys) Decrypt(data, sender string) (string, error) {
 
 // Init key storage, load from existing file or generate a new one
 func Init(fileName string) {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		log.Fatal(err)
-	}
-	filePath = filepath.Join(home, ".config", utils.FilesDir, fileName)
+	filePath = filepath.Join(utils.GetFilesDir(), fileName)
 
+	var err error
 	Keys, err = load()
 	if err != nil {
 		Keys, err = generate()
