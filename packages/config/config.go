@@ -1,10 +1,7 @@
 package config
 
 import (
-	"os/exec"
-	"path/filepath"
 	"strconv"
-	"strings"
 	"time"
 
 	log "github.com/ndmsystems/golog"
@@ -26,12 +23,7 @@ func Init(e string) {
 
 	config.SetConfigName(env) // (without extension)
 	if err := config.ReadInConfig(); err != nil {
-		brewPrefix, err := exec.Command("brew", "--prefix").Output()
-		if err != nil {
-			panic(err)
-		}
-		configPath := filepath.Join(strings.TrimSpace(string(brewPrefix)), "etc", "iot4b-device")
-		config.AddConfigPath(configPath)
+		config.AddConfigPath("/opt/homebrew/etc/iot4b-device")
 		if err := config.ReadInConfig(); err != nil {
 			panic(err)
 		}

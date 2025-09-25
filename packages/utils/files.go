@@ -4,13 +4,14 @@ import (
 	"encoding/json"
 	"io"
 	"os"
+	"os/user"
 	"path/filepath"
 
 	log "github.com/ndmsystems/golog"
 	"github.com/pkg/errors"
 )
 
-const FilesDir = "iot4b"
+const FilesDir = "iot4b-device"
 
 var (
 	ErrUnmarshal = errors.New("file unmarshal error")
@@ -69,7 +70,11 @@ func FileExists(filename string) bool {
 func GetFilesDir() string {
 	home, err := os.UserHomeDir()
 	if err != nil {
-		log.Fatal(err)
+		u, err := user.Current()
+		if err != nil {
+			log.Fatal(err)
+		}
+		home = u.HomeDir
 	}
 	dir := filepath.Join(home, ".config", FilesDir)
 	_, err = os.Stat(dir)

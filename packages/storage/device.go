@@ -2,6 +2,7 @@ package storage
 
 import (
 	"bufio"
+	"device-go/packages/config"
 	"device-go/packages/dsm"
 	"device-go/packages/utils"
 	"encoding/json"
@@ -9,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	log "github.com/ndmsystems/golog"
 	"github.com/pkg/errors"
@@ -88,6 +90,23 @@ func Save() error {
 		return errors.Wrapf(err, "utils.SaveFile(%s, data)", filePath)
 	}
 	return nil
+}
+
+func WaitForData() {
+	filePath = filepath.Join(utils.GetFilesDir(), config.Get("localFiles.contract"))
+	for {
+		if utils.FileExists(filePath) {
+			break
+		}
+		time.Sleep(time.Second)
+	}
+	Update()
+}
+
+// Update Device data from file
+func Update() (err error) {
+	Device, err = read(filePath)
+	return
 }
 
 // IsOwner checks if key is one of the owners from device contract
