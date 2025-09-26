@@ -132,23 +132,34 @@ func read(path string) (d device, err error) {
 func promptUserData() (name, group, owner string) {
 	reader := bufio.NewReader(os.Stdin)
 	name, _ = os.Hostname()
-	fmt.Printf("Enter device name [%s]: ", name)
-	name, _ = reader.ReadString('\n')
-	name = strings.TrimSpace(name)
-	if name == "" {
-		log.Fatal("device name is required")
+	fmt.Printf("Enter device name [%s]\n", name)
+	for {
+		name, _ = reader.ReadString('\n')
+		name = strings.TrimSpace(name)
+		if name != "" {
+			break
+		}
+		fmt.Println("Device name is required, please try again")
 	}
-	fmt.Print("Enter device group address: ")
-	group, _ = reader.ReadString('\n')
-	group = strings.TrimSpace(group)
-	if group == "" {
-		log.Fatal("device group address is required")
+	fmt.Println("Enter device group address")
+	for {
+		group, _ = reader.ReadString('\n')
+		group = strings.TrimSpace(group)
+		if utils.MatchRegex(`^0:[0-9a-fA-F]{64}$`, group) {
+			break
+		}
+		fmt.Println("Please enter group address in a format:")
+		fmt.Println("0:0000000000000000000000000000000000000000000000000000000000000000")
 	}
-	fmt.Print("Enter owner public key: ")
-	owner, _ = reader.ReadString('\n')
-	owner = strings.TrimSpace(owner)
-	if owner == "" {
-		log.Fatal("owner public key is required")
+	fmt.Println("Enter owner public key")
+	for {
+		owner, _ = reader.ReadString('\n')
+		owner = strings.TrimSpace(owner)
+		if utils.MatchRegex(`^0x[0-9a-fA-F]{64}$`, owner) {
+			break
+		}
+		fmt.Println("Please enter public key in a format:")
+		fmt.Println("0x0000000000000000000000000000000000000000000000000000000000000000")
 	}
 	return
 }

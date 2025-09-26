@@ -20,24 +20,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var port = "5684" // coala port
-
-// инитим конфиги и logger
-func init() {
-	//var env string
-	//flag.StringVar(&env, "env", "prod", "set environment")
-	//flag.StringVar(&port, "port", port, "override default coala port")
-	//flag.Parse()
-
-	config.Init("prod")
-	log.Init(config.Bool("debug"))
-}
-
-func listen(server *coalago.Server) {
-	if err := server.Listen(":" + port); err != nil {
-		log.Fatal(err)
-	}
-}
+var env string  // environment (config name)
+var port string // coala port
 
 func main() {
 	var rootCmd = &cobra.Command{
@@ -45,6 +29,11 @@ func main() {
 		Short: "Device CLI",
 		Run:   runDevice,
 	}
+	rootCmd.PersistentFlags().StringVar(&env, "env", "prod", "Set environment")
+	rootCmd.PersistentFlags().StringVar(&port, "port", "5684", "Set coala port")
+
+	config.Init(env)
+	log.Init(config.Bool("debug"))
 
 	var initCmd = &cobra.Command{
 		Use:   "init",
@@ -106,6 +95,12 @@ func runDevice(_ *cobra.Command, _ []string) {
 	<-c
 }
 
+func listen(server *coalago.Server) {
+	if err := server.Listen(":" + port); err != nil {
+		log.Fatal(err)
+	}
+}
+
 func initDevice(_ *cobra.Command, _ []string) {
 	log.Info("Init Device")
 	storage.Init(
@@ -122,7 +117,8 @@ func initDevice(_ *cobra.Command, _ []string) {
 		return
 	}
 	if !isServiceRunning() {
-		log.Info("Waiting for iot4b-device service to start. Use the command:")
+		log.Info("iot4b-device service is not running.")
+		log.Info("to start it run the following command in a separate terminal:")
 		log.Info("brew services start iot4b-device")
 		for {
 			if isServiceRunning() {
