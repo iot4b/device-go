@@ -46,7 +46,6 @@ var (
 func Init(path, initFile, elector, vendor, deviceAPI, dType, version string) {
 	filePath = filepath.Join(utils.GetFilesDir(), path)
 
-	log.Info("Init Local Storage")
 	log.Debug(path, elector, vendor, deviceAPI, dType, version)
 
 	var err error

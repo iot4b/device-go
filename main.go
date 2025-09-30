@@ -8,6 +8,7 @@ import (
 	"device-go/packages/handlers"
 	"device-go/packages/registration"
 	"device-go/packages/storage"
+	"fmt"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -31,6 +32,7 @@ func main() {
 	}
 	rootCmd.PersistentFlags().StringVar(&env, "env", "prod", "Set environment")
 	rootCmd.PersistentFlags().StringVar(&port, "port", "5684", "Set coala port")
+	rootCmd.ParseFlags(os.Args[1:])
 
 	config.Init(env)
 	log.Init(config.Bool("debug"))
@@ -43,7 +45,7 @@ func main() {
 
 	rootCmd.AddCommand(initCmd)
 	if err := rootCmd.Execute(); err != nil {
-		log.Fatal(err)
+		os.Exit(1)
 	}
 }
 
@@ -102,7 +104,7 @@ func listen(server *coalago.Server) {
 }
 
 func initDevice(_ *cobra.Command, _ []string) {
-	log.Info("Init Device")
+	fmt.Println("Init Device")
 	storage.Init(
 		config.Get("localFiles.contract"),
 		config.Get("localFiles.init"),
@@ -112,14 +114,14 @@ func initDevice(_ *cobra.Command, _ []string) {
 		config.Get("info.type"),
 		config.Get("info.version"))
 	if storage.Device.Address != "" {
-		log.Info("Device contract is already deployed. Address:")
-		log.Info(storage.Device.Address)
+		fmt.Println("Device contract is already deployed. Address:")
+		fmt.Println(storage.Device.Address)
 		return
 	}
 	if !isServiceRunning() {
-		log.Info("iot4b-device service is not running.")
-		log.Info("to start it run the following command in a separate terminal:")
-		log.Info("brew services start iot4b-device")
+		fmt.Println("iot4b-device service is not running.")
+		fmt.Println("to start it run the following command in a separate terminal:")
+		fmt.Println("brew services start iot4b-device")
 		for {
 			if isServiceRunning() {
 				break
@@ -128,14 +130,14 @@ func initDevice(_ *cobra.Command, _ []string) {
 		}
 	}
 
-	log.Info("Waiting for contract deployment...")
+	fmt.Println("Waiting for contract deployment...")
 	for {
 		storage.Update()
 		if storage.Device.Address != "" {
-			log.Info("Device contract is deployed.")
-			log.Infof("Address: %s", storage.Device.Address)
-			log.Infof("Group:   %s", storage.Device.Group)
-			log.Infof("Elector: %s", storage.Device.Elector)
+			fmt.Println("Device contract is deployed.")
+			fmt.Printf("Address: %s\n", storage.Device.Address)
+			fmt.Printf("Group:   %s\n", storage.Device.Group)
+			fmt.Printf("Elector: %s\n", storage.Device.Elector)
 			return
 		}
 		time.Sleep(time.Second)
