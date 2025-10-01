@@ -1,6 +1,6 @@
 check process {{SERVICEBIN}}-{{port}}
 	matching "{{SERVICEBIN}}-{{port}}"
-	start program = "/bin/bash -c 'cd {{DEPLOYPATH}}-{{port}} && nohup ./{{SERVICEBIN}}-{{port}} -env {{config}} -port {{port}} 2>&1 < /dev/null | logger -p user.error -t {{SERVICEBIN}}-{{port}} &'"
+	start program = "/bin/bash -c 'cd {{DEPLOYPATH}}-{{port}} && nohup ./{{SERVICEBIN}}-{{port}} --env {{config}} --port {{port}} 2>&1 < /dev/null | logger -p user.error -t {{SERVICEBIN}}-{{port}} &'"
 	stop program = "/bin/bash -c '/bin/ps ax | /bin/grep {{SERVICEBIN}}-{{port}} | /bin/grep -v grep | /usr/bin/awk "{print \$1}" | /usr/bin/xargs /bin/kill -9 || true'"
 	if cpu usage > 95% for 10 cycles then alert
 	if memory usage > 80% for 5 cycles then alert
