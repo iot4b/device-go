@@ -93,11 +93,14 @@ func Save() error {
 
 func WaitForData() {
 	filePath = filepath.Join(utils.GetFilesDir(), config.Get("localFiles.contract"))
-	for {
-		if utils.FileExists(filePath) {
-			break
+	if !utils.FileExists(filePath) {
+		log.Info("Waiting for contract data file...")
+		for {
+			time.Sleep(time.Second)
+			if utils.FileExists(filePath) {
+				break
+			}
 		}
-		time.Sleep(time.Second)
 	}
 	Update()
 }
