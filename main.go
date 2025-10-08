@@ -13,6 +13,7 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
+	"runtime"
 	"strings"
 	"syscall"
 	"time"
@@ -21,6 +22,8 @@ import (
 	log "github.com/ndmsystems/golog"
 	"github.com/spf13/cobra"
 )
+
+const serviceName = "iot4bd"
 
 var env string  // environment (config name)
 var port string // coala port
@@ -133,9 +136,14 @@ func initDevice(_ *cobra.Command, _ []string) {
 		return
 	}
 	if !isServiceRunning() {
-		fmt.Println("iot4b-device service is not running.")
-		fmt.Println("to start it run the following command in a separate terminal:")
-		fmt.Println("brew services start iot4b-device")
+		fmt.Printf("%s service is not running.\n", serviceName)
+		fmt.Printf("to start it run the following command in a separate terminal:\n")
+		if runtime.GOOS == "darwin" {
+			fmt.Printf("brew services start %s\n", serviceName)
+		} else if runtime.GOOS == "linux" {
+			fmt.Printf("systemctl start %s\n", serviceName)
+		}
+
 		for {
 			time.Sleep(time.Second)
 			if isServiceRunning() {
@@ -159,7 +167,7 @@ func initDevice(_ *cobra.Command, _ []string) {
 }
 
 func isServiceRunning() bool {
-	out, err := exec.Command("pgrep", "-x", "iot4b-device").Output()
+	out, err := exec.Command("pgrep", "-x", serviceName).Output()
 	if err != nil {
 		return false
 	}

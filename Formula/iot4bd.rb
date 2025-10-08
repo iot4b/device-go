@@ -1,4 +1,4 @@
-class Iot4bDevice < Formula
+class Iot4bd < Formula
   desc "IOT4B Device"
   homepage "https://github.com/iot4b/device-go"
   url "https://github.com/iot4b/device-go/archive/refs/tags/1.2.3.tar.gz"
@@ -9,21 +9,21 @@ class Iot4bDevice < Formula
 
   def install
     # Build binary
-    system "go", "build", *std_go_args(ldflags: "-s -w", output: bin/"iot4b-device")
+    system "go", "build", *std_go_args(ldflags: "-s -w", output: bin/"iot4bd")
 
     # Install default config
-    (etc/"iot4b-device").install "config/prod.yml"
+    (etc/"iot4bd").install "config/prod.yml"
   end
 
   service do
-    run [opt_bin/"iot4b-device"]
+    run [opt_bin/"iot4bd"]
     keep_alive true
     working_dir var
-    log_path var/"log/iot4b-device.log"
-    error_log_path var/"log/iot4b-device.log"
+    log_path var/"log/iot4bd.log"
+    error_log_path var/"log/iot4bd.log"
   end
 
   test do
-    assert_match "iot4b-device version 1.2.3", shell_output("#{bin}/iot4b-device --version")
+    assert_match "iot4bd version 1.2.3", shell_output("#{bin}/iot4bd --version")
   end
 end

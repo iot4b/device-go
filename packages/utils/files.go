@@ -11,7 +11,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-const FilesDir = "iot4b-device"
+const filesDir = "iot4bd"
 
 var (
 	ErrUnmarshal = errors.New("file unmarshal error")
@@ -76,7 +76,7 @@ func GetFilesDir() string {
 		}
 		home = u.HomeDir
 	}
-	dir := filepath.Join(home, ".config", FilesDir)
+	dir := filepath.Join(home, ".config", filesDir)
 	_, err = os.Stat(dir)
 	if os.IsNotExist(err) {
 		err = os.MkdirAll(dir, 0755)

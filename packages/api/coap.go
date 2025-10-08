@@ -63,6 +63,9 @@ func send(msg *coalago.CoAPMessage, path, method string) ([]byte, error) {
 		log.Error(err)
 		return nil, err
 	}
+	if resp == nil {
+		return nil, errors.New("nil response")
+	}
 	if resp.Code != coalago.CoapCodeContent {
 		return nil, errors.New(string(resp.Body))
 	}
