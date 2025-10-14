@@ -1,0 +1,27 @@
+
+debug: false
+env: prod
+
+info:
+  version: "0.0.1"
+  type: "golang device emulator"
+
+localFiles:
+  keys: "device.keys.json"
+  contract: "device.contract.prod.json"
+  init: "device.init.prod.json"
+
+timeout:
+  alive: 10s # alive interval
+  coala: 3m  # timeout for coala requests
+  registerRepeat: 24h # period for registration repeat
+
+masterNodes:
+  - 157.245.57.218:5683
+  - 188.166.71.64:5683
+  - 192.81.216.57:5683
+
+everscale:
+  elector: "0:09ff18e1396c3844c04cde933b1044e47b3b1e62c11a79572c4fd380d279084d"
+  vendor: "0:9dd72e6259676545b8a4e3a957e34cb464dc080efe43d67e04970439d4e5b5ad"
+  deviceAPI: "0:b3327142f0c73f703ff9aaccb9efc1cc66caffaab28b39b34db25c30d52a60c3"

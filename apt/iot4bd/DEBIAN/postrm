@@ -1,0 +1,9 @@
+#!/bin/bash
+set -e
+
+case "$1" in
+    remove|purge)
+        systemctl disable iot4bd.service || true
+        systemctl daemon-reload || true
+        ;;
+esac

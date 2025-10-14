@@ -1,0 +1,5 @@
+#!/bin/bash
+set -e
+systemctl daemon-reload
+systemctl enable iot4bd.service
+systemctl start iot4bd.service

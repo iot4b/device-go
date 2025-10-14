@@ -1,0 +1,8 @@
+Package: iot4bd
+Version: 1.2.3
+Section: utils
+Priority: optional
+Architecture: amd64
+Depends: systemd
+Maintainer: IOT4B <sp@golbex.com>
+Description: IOT4B Device Service
