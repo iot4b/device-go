@@ -32,9 +32,9 @@ if [ -f "$control" ]; then
   arch=$(awk -F': ' '/^Architecture:/ {print $2; exit}' "$control" | tr -d ' \t\r\n' || true)
   if [ -n "$pkg" ]; then
     if [ -n "$arch" ]; then
-      out_deb="$root/${pkg}_${arch}.deb"
+      out_deb="$root/apt/${pkg}_${arch}.deb"
     else
-      out_deb="$root/${pkg}.deb"
+      out_deb="$root/apt/${pkg}.deb"
     fi
   fi
 fi

@@ -105,8 +105,6 @@ update_repo "openwrt" "mips_siflower"
 update_repo "openwrt" "armv7l"
 update_repo "openwrt" "aarch64"
 
-update_apt
-
 # копируем файлы в папку REPO_PATH
 cp "${BUILD_PATH}/iot4b_install.sh" "${REPO_PATH}/install.sh"
 
@@ -115,3 +113,5 @@ cp "${BUILD_PATH}/ndmq_1.0.2-7_mipsel-3.4_kn.ipk" "${REPO_PATH}/mipsel-3.4_kn/nd
 
 cp "${BUILD_PATH}/libndm_1.1.25-1_aarch64-3.10_kn.ipk" "${REPO_PATH}/aarch64-3.10_kn/libndm_1.1.25-1_aarch64-3.10_kn.ipk"
 cp "${BUILD_PATH}/ndmq_1.0.2-11_aarch64-3.10_kn.ipk" "${REPO_PATH}/aarch64-3.10_kn/ndmq_1.0.2-11_aarch64-3.10_kn.ipk"
+
+update_apt
