@@ -84,6 +84,20 @@ EOF
     rm -rf "$CONTROL_DIR"
 }
 
+update_apt() {
+  APT_REPO_PATH="/opt/iot4b/repo/apt"
+  APT_BUILD_PATH="$(cd "$(dirname "$0")" >/dev/null 2>&1 && pwd -P)/apt"
+
+  echo "Обновляю APT репозиторий"
+  cp "${APT_BUILD_PATH}/iot4bd_amd64.deb" "${APT_REPO_PATH}/iot4bd_amd64.deb"
+  dpkg-scanpackages --arch amd64 ${APT_REPO_PATH} > ${APT_REPO_PATH}/dists/stable/main/binary-amd64/Packages
+  cat ${APT_REPO_PATH}/dists/stable/main/binary-amd64/Packages | gzip -9 > ${APT_REPO_PATH}/dists/stable/main/binary-amd64/Packages.gz
+  cd ${APT_REPO_PATH}/dists/stable || exit 1
+  "${APT_BUILD_PATH}/generate-release.sh" > Release
+  cat Release | gpg --default-key iot4bd -abs > Release.gpg
+  cat Release | gpg --default-key iot4bd -abs --clearsign > InRelease
+}
+
 # Вызов функции 4 раза для разных архитектур
 update_repo "keenetic" "mipsel-3.4_kn"
 update_repo "keenetic" "aarch64-3.10_kn"
@@ -91,6 +105,7 @@ update_repo "openwrt" "mips_siflower"
 update_repo "openwrt" "armv7l"
 update_repo "openwrt" "aarch64"
 
+update_apt
 
 # копируем файлы в папку REPO_PATH
 cp "${BUILD_PATH}/iot4b_install.sh" "${REPO_PATH}/install.sh"

@@ -5,3 +5,5 @@
 ./builds/build.sh openwrt mips_siflower
 ./builds/build.sh openwrt armv7l
 ./builds/build.sh openwrt aarch64
+
+./apt/build.sh
