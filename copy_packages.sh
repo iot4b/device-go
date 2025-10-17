@@ -90,9 +90,10 @@ update_apt() {
 
   echo "Обновляю APT репозиторий"
   cp "${APT_BUILD_PATH}/iot4bd_amd64.deb" "${APT_REPO_PATH}/iot4bd_amd64.deb"
-  dpkg-scanpackages --arch amd64 ${APT_REPO_PATH} > ${APT_REPO_PATH}/dists/stable/main/binary-amd64/Packages
-  cat ${APT_REPO_PATH}/dists/stable/main/binary-amd64/Packages | gzip -9 > ${APT_REPO_PATH}/dists/stable/main/binary-amd64/Packages.gz
-  cd ${APT_REPO_PATH}/dists/stable || exit 1
+  cd ${APT_REPO_PATH} || exit 1
+  dpkg-scanpackages --arch amd64 . > dists/stable/main/binary-amd64/Packages
+  cat dists/stable/main/binary-amd64/Packages | gzip -9 > dists/stable/main/binary-amd64/Packages.gz
+  cd dists/stable || exit 1
   "${APT_BUILD_PATH}/generate-release.sh" > Release
   cat Release | gpg --default-key iot4bd -abs > Release.gpg
   cat Release | gpg --default-key iot4bd -abs --clearsign > InRelease
