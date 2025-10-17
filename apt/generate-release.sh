@@ -18,7 +18,7 @@ cat << EOF
 Origin: IOT4B Repository
 Label: IOT4B
 Suite: iot4bd
-Codename: iot4bd
+Codename: stable
 Version: 1.0
 Architectures: amd64
 Components: main
