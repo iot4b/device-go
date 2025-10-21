@@ -2,6 +2,7 @@ package main
 
 import (
 	"device-go/packages/aliver"
+	"device-go/packages/api"
 	"device-go/packages/config"
 	"device-go/packages/crypto"
 	"device-go/packages/events"
@@ -41,13 +42,20 @@ func main() {
 	config.Init(env)
 	log.Init(config.Bool("debug"))
 
-	var initCmd = &cobra.Command{
+	initCmd := &cobra.Command{
 		Use:   "init",
 		Short: "Initialize the device",
-		Run:   initDevice,
+		Run:   deviceInit,
+	}
+
+	statusCmd := &cobra.Command{
+		Use:   "status",
+		Short: "Show device status",
+		Run:   deviceStatus,
 	}
 
 	rootCmd.AddCommand(initCmd)
+	rootCmd.AddCommand(statusCmd)
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
 	}
@@ -120,7 +128,7 @@ func listen(server *coalago.Server) {
 	}
 }
 
-func initDevice(_ *cobra.Command, _ []string) {
+func deviceInit(_ *cobra.Command, _ []string) {
 	fmt.Println("Init Device")
 	storage.Init(
 		config.Get("localFiles.contract"),
@@ -172,4 +180,30 @@ func isServiceRunning() bool {
 		return false
 	}
 	return strings.TrimSpace(string(out)) != ""
+}
+
+func deviceStatus(_ *cobra.Command, _ []string) {
+	storage.Init(
+		config.Get("localFiles.contract"),
+		config.Get("localFiles.init"),
+		config.Get("everscale.elector"),
+		config.Get("everscale.vendor"),
+		config.Get("everscale.deviceAPI"),
+		config.Get("info.type"),
+		config.Get("info.version"))
+	fmt.Print("Status:  ")
+	input := map[string]string{"address": string(storage.Device.Address)}
+	_, err := api.GET("device/info", input)
+	if err != nil {
+		fmt.Println("Offline")
+	} else {
+		fmt.Println("Online")
+	}
+	fmt.Printf("Name:    %s\n", storage.Device.Name)
+	fmt.Printf("Address: %s\n", storage.Device.Address)
+	fmt.Printf("Node:    %s\n", storage.Device.Node)
+	fmt.Printf("Group:   %s\n", storage.Device.Group)
+	fmt.Printf("Elector: %s\n", storage.Device.Elector)
+	balance := api.GetBalance()
+	fmt.Printf("Balance: %.9f EVER\n", balance)
 }

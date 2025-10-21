@@ -1,7 +1,6 @@
 package registration
 
 import (
-	"device-go/packages/aliver"
 	"device-go/packages/config"
 	"device-go/packages/crypto"
 	"device-go/packages/dsm"
@@ -92,11 +91,10 @@ func Register() error {
 	// копируем актуальные поля
 	copier.Copy(&storage.Device, registerResp)
 	storage.Device.Node = dsm.EverAddress(fasterAddress)
+	storage.Device.NodeIpPort = fasterHost
 
 	// update local data
 	storage.Save()
-
-	aliver.NodeHost = fasterHost
 
 	log.Infow("Register result", "RegisteredDevice", storage.Device, "nodeHost", fasterHost)
 

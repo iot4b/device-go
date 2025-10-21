@@ -1,8 +1,8 @@
 package api
 
 import (
-	"device-go/packages/aliver"
 	"device-go/packages/config"
+	"device-go/packages/storage"
 	"encoding/json"
 
 	"github.com/coalalib/coalago"
@@ -57,8 +57,8 @@ func build(method coalago.CoapCode, path string, data any) (*coalago.CoAPMessage
 }
 
 func send(msg *coalago.CoAPMessage, path, method string) ([]byte, error) {
-	log.Debug("coap:", method, aliver.NodeHost, path, msg.Payload.String())
-	resp, err := client.Send(msg, aliver.NodeHost)
+	log.Debug("coap:", method, storage.Device.NodeIpPort, path, msg.Payload.String())
+	resp, err := client.Send(msg, storage.Device.NodeIpPort)
 	if err != nil {
 		log.Error(err)
 		return nil, err

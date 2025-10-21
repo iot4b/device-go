@@ -36,6 +36,8 @@ type device struct {
 	LastRegisterTime string `json:"lastRegisterTime,omitempty"` // last registration timestamp
 
 	Hash string `json:"hash"` // hash of current contract code (contract version identifier)
+
+	NodeIpPort string `json:"nodeIpPort,omitempty"`
 }
 
 var (

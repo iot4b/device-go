@@ -1,26 +1,25 @@
 package aliver
 
 import (
+	"device-go/packages/storage"
 	"time"
 
 	"github.com/coalalib/coalago"
 	log "github.com/ndmsystems/golog"
 )
 
-var NodeHost string
-
 func Run(s *coalago.Server, address string, aliveInterval time.Duration) {
 	log.Info("run aliver")
 	var retryErr int
 	for {
-		if NodeHost == "" {
+		if storage.Device.NodeIpPort == "" {
 			time.Sleep(time.Second)
 			continue
 		}
 		aliveMessage := coalago.NewCoAPMessage(coalago.ACK, coalago.GET)
 		aliveMessage.SetURIPath("/l")
 		aliveMessage.SetURIQuery("a", address)
-		_, err := s.Send(aliveMessage, NodeHost)
+		_, err := s.Send(aliveMessage, storage.Device.NodeIpPort)
 		if err != nil {
 			log.Error(err, retryErr)
 			retryErr++
