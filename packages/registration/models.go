@@ -15,7 +15,6 @@ type registerRequest struct {
 	PublicNacl string          `json:"n"`            // device public key for nacl box encryption
 	Version    string          `json:"ver"`          // версия прошивки
 	Type       string          `json:"t,omitempty"`  // название модели устройства
-	VendorName string          `json:"vn,omitempty"` // vendor name
 	VendorData string          `json:"vd,omitempty"` // произволный блок данных в любом формате
 	Stat       bool            `json:"st"`           // storing statistics
 	Events     bool            `json:"ev"`           // sending events
