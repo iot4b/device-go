@@ -3,12 +3,12 @@ prod:
     device1:
       ansible_host: 144.126.201.225
       port: 5684
-    device2:
-      ansible_host: 144.126.201.225
-      port: 5685
-    device3:
-      ansible_host: 144.126.201.225
-      port: 5686
+#    device2:
+#      ansible_host: 144.126.201.225
+#      port: 5685
+#    device3:
+#      ansible_host: 144.126.201.225
+#      port: 5686
 
   ##################################################
   vars:

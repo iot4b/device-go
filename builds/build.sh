@@ -5,7 +5,7 @@ set -e
 
 # Определение переменных
 PACKAGE_NAME="iot4b"
-VERSION="1.0"
+VERSION="1.2.6"
 ARCH="mips_siflower"
 MAINTAINER="IOT4B <sp@golbex.com>"
 DESCRIPTION="IOT4B device client"
