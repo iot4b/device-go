@@ -1,8 +1,8 @@
 class Iot4bd < Formula
   desc "IOT4B Device"
   homepage "https://github.com/iot4b/device-go"
-  url "https://github.com/iot4b/device-go/archive/refs/tags/1.2.5.tar.gz"
-  sha256 "640418038f2d901fdd00f72c7778be382d61b5e31bcaeff439d32a45b184094b"
+  url "https://github.com/iot4b/device-go/archive/refs/tags/1.2.6.tar.gz"
+  sha256 "5a6178348c255992829575bd5c731fa5b3d7c178f9ef1580483d5706e62140ef"
   license "MIT"
 
   depends_on "go" => :build
@@ -24,6 +24,6 @@ class Iot4bd < Formula
   end
 
   test do
-    assert_match "iot4bd version 1.2.5", shell_output("#{bin}/iot4bd --version")
+    assert_match "iot4bd version 1.2.6", shell_output("#{bin}/iot4bd --version")
   end
 end
