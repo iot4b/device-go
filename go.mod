@@ -6,12 +6,13 @@ toolchain go1.24.1
 
 require (
 	filippo.io/edwards25519 v1.1.0
-	github.com/coalalib/coalago v1.1.12
+	github.com/coalalib/coalago v1.1.19
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510
 	github.com/google/uuid v1.6.0
 	github.com/jinzhu/copier v0.4.0
 	github.com/ndmsystems/golog v0.0.3
 	github.com/pkg/errors v0.9.1
+	github.com/spf13/cobra v1.10.1
 	github.com/spf13/viper v1.19.0
 )
 
@@ -21,7 +22,6 @@ require (
 	github.com/sagikazarmark/locafero v0.7.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
-	github.com/spf13/cobra v1.10.1 // indirect
 	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394 // indirect
 )
 

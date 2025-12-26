@@ -87,44 +87,45 @@ func runDevice(_ *cobra.Command, _ []string) {
 	server.POST("/update", handlers.Update)
 	server.POST("/sign", handlers.Sign)
 
+	go listen(server)
+	go sigterm()
+
 	for {
+		start := storage.Device.NodeIpPort == ""
 		// регистрируем устройство на ноде
 		// если ошибка, то повторяем цикл регистрации
 		err := registration.Register()
 		if err == nil {
-			// стартуем сервер
-			go listen(server)
-
-			// delay for alive correct work
-			time.Sleep(time.Second)
+			go sendEvents(start)
 
 			// начинаем слать alive пакеты, чтобы сохранять соединение для udp punching
-			go aliver.Run(server, storage.Device.Address.String(), config.Time("timeout.alive"))
-
-			if storage.Device.Events {
-				// delay after first alive to store ip:port and send event
-				time.Sleep(time.Second)
-				events.Send(new(events.Start))
-			}
-
-			time.Sleep(config.Time("timeout.registerRepeat"))
-			go registration.Repeat()
-
-			break
+			aliver.Run(server, config.Time("timeout.alive"))
 		} else {
 			log.Error(err)
-			time.Sleep(3 * time.Second)
+			time.Sleep(5 * time.Second)
 		}
 	}
-
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
-	<-c
 }
 
 func listen(server *coalago.Server) {
 	if err := server.Listen(":" + port); err != nil {
 		log.Fatal(err)
+	}
+}
+
+func sigterm() {
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	<-c
+	os.Exit(0)
+}
+
+func sendEvents(start bool) {
+	if storage.Device.Events {
+		if start {
+			events.Send(new(events.Start))
+		}
+		events.Send(new(events.Register))
 	}
 }
 

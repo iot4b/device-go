@@ -54,6 +54,7 @@ func Init(path, initFile, elector, vendor, deviceAPI, dType, version string) {
 	// чекаем локально наличие файла
 	if utils.FileExists(filePath) {
 		Device, err = read(filePath)
+		Device.NodeIpPort = "" // should be empty before first registration
 		if err != nil {
 			log.Fatal(err)
 		}

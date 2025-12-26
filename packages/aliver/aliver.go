@@ -8,30 +8,21 @@ import (
 	log "github.com/ndmsystems/golog"
 )
 
-func Run(s *coalago.Server, address string, aliveInterval time.Duration) {
+func Run(s *coalago.Server, aliveInterval time.Duration) {
 	log.Info("run aliver")
 	var retryErr int
 	for {
-		if storage.Device.NodeIpPort == "" {
-			time.Sleep(time.Second)
-			continue
-		}
 		aliveMessage := coalago.NewCoAPMessage(coalago.ACK, coalago.GET)
+		aliveMessage.SetSchemeCOAPS()
 		aliveMessage.SetURIPath("/l")
-		aliveMessage.SetURIQuery("a", address)
+		aliveMessage.SetURIQuery("a", storage.Device.Address.String())
 		_, err := s.Send(aliveMessage, storage.Device.NodeIpPort)
 		if err != nil {
 			log.Error(err, retryErr)
 			retryErr++
 			if retryErr > 10 {
 				log.Error("retryErr > 10 - start registration")
-				retryErr = 0
-				if err := s.Refresh(); err != nil {
-					log.Error("Refresh error:", err)
-				} else {
-					log.Info("Server refreshed")
-					time.Sleep(2 * time.Second) // даём время новому listener'у запуститься
-				}
+				return
 			}
 		} else {
 			retryErr = 0

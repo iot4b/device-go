@@ -4,7 +4,6 @@ import (
 	"device-go/packages/config"
 	"device-go/packages/crypto"
 	"device-go/packages/dsm"
-	"device-go/packages/events"
 	"device-go/packages/storage"
 	"encoding/json"
 	"fmt"
@@ -99,25 +98,4 @@ func Register() error {
 	log.Infow("Register result", "RegisteredDevice", storage.Device, "nodeHost", fasterHost)
 
 	return nil
-}
-
-// Repeat registration in a period
-// TODO delete this function
-func Repeat() {
-	log.Info("Repeat registration")
-	for {
-		err := Register()
-		if err != nil {
-			log.Error(err)
-			time.Sleep(3 * time.Second)
-			continue
-		}
-		if storage.Device.Events {
-			// send event after alive
-			time.Sleep(config.Time("timeout.alive"))
-			events.Send(new(events.Register))
-		}
-
-		time.Sleep(config.Time("timeout.registerRepeat"))
-	}
 }
