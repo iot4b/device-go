@@ -9,7 +9,7 @@ info:
 localFiles:
   keys: "device.keys.json"
   contract: "device.contract.dev.json"
-  init: "device.init.dev.json"
+  setup: "device.setup.dev.json"
 
 timeout:
   alive: 10s # alive interval
@@ -22,6 +22,6 @@ masterNodes:
   - 192.81.216.57:5683
 
 everscale:
-  elector: "0:20a9657c902ad65dd6eb08b4eb7ec4d3f45bebda5d763bbd7b0b3826824a216a"
-  vendor: "0:389e290e6f83d7837f317792c42c370c025c58d34f7e9bdd2c076950acc9c4c9"
+  elector: "0:5e06c86431235383f139aa78af3f1b141080a418f9b5056dee18407e0af42922"
+  vendor: "0:0000000000000000000000000000000000000000000000000000000000000000"
   deviceAPI: "0:0000000000000000000000000000000000000000000000000000000000000000"

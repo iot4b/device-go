@@ -3,7 +3,7 @@ set -e
 
 case "$1" in
     remove|purge)
-        systemctl disable iot4bd.service || true
+        systemctl disable iot4b.service || true
         systemctl daemon-reload || true
         ;;
 esac

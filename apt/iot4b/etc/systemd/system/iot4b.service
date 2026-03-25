@@ -3,12 +3,11 @@ Description=IOT4B Device Service
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/iot4bd
+ExecStart=/usr/bin/iot4b
 Restart=always
 User=root
 Group=root
-Environment=IOT4BD_CONFIG=/etc/iot4bd/prod.yml
+Environment=IOT4B_CONFIG=/etc/iot4b/prod.yml
 
 [Install]
 WantedBy=multi-user.target
-

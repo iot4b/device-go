@@ -89,7 +89,7 @@ update_apt() {
   APT_BUILD_PATH="$(cd "$(dirname "$0")" >/dev/null 2>&1 && pwd -P)/apt"
 
   echo "Обновляю APT репозиторий"
-  cp "${APT_BUILD_PATH}/iot4bd_amd64.deb" "${APT_REPO_PATH}/iot4bd_amd64.deb"
+  cp "${APT_BUILD_PATH}/iot4b_amd64.deb" "${APT_REPO_PATH}/iot4b_amd64.deb"
   cd ${APT_REPO_PATH} || exit 1
   dpkg-scanpackages --arch amd64 . > dists/stable/main/binary-amd64/Packages
   cat dists/stable/main/binary-amd64/Packages | gzip -9 > dists/stable/main/binary-amd64/Packages.gz

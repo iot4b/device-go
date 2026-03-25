@@ -17,7 +17,7 @@ do_hash() {
 cat << EOF
 Origin: IOT4B Repository
 Label: IOT4B
-Suite: iot4bd
+Suite: iot4b
 Codename: stable
 Version: 1.0
 Architectures: amd64
@@ -28,4 +28,3 @@ EOF
 do_hash "MD5Sum" "md5sum"
 do_hash "SHA1" "sha1sum"
 do_hash "SHA256" "sha256sum"
-

@@ -3,13 +3,13 @@ set -euo pipefail
 
 # repo root (script is in apt/)
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-pkg_name="iot4bd"
+pkg_name="iot4b"
 
-# choose package dir (prefer iot4bd, fallback to iot4b)
+# choose package dir
 if [ -d "$root/apt/$pkg_name" ]; then
   pkg_dir="$root/apt/$pkg_name"
 else
-  echo "No package directory found. Expected \`iot4bd\` in $root/apt" >&2
+  echo "No package directory found. Expected \`iot4b\` in $root/apt" >&2
   exit 1
 fi
 

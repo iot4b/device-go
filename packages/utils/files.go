@@ -11,7 +11,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-const filesDir = "iot4bd"
+const filesDir = "iot4b"
 
 var (
 	ErrUnmarshal = errors.New("file unmarshal error")

@@ -1,6 +1,0 @@
-#!/bin/bash
-set -e
-
-if systemctl is-active --quiet iot4bd.service; then
-    systemctl stop iot4bd.service
-fi

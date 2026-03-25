@@ -23,9 +23,9 @@ func Init(e string) {
 
 	config.SetConfigName(env) // (without extension)
 	if err := config.ReadInConfig(); err != nil {
-		config.AddConfigPath("/opt/homebrew/etc/iot4bd")
+		config.AddConfigPath("/opt/homebrew/etc/iot4b")
 		if err := config.ReadInConfig(); err != nil {
-			config.AddConfigPath("/etc/iot4bd")
+			config.AddConfigPath("/etc/iot4b")
 			if err := config.ReadInConfig(); err != nil {
 				panic(err)
 			}
