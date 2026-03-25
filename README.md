@@ -1,32 +1,39 @@
-## EVER-IOT DEVICE CLIENT APP
+# IoT4B Device
 
-### Install
+This repository contains the IoT4B device binary.
 
-```shell
-git clone https://github.com/ever-iot/device-go
-cd ./device-go
-go mod tidy
-```
+## Start
 
-### Run
-
-```shell
-go run main.go -env <config-name> -port <port-number>
-```
-example for testing on linux device in dev mode will be used ./config/dev.yml
-```
-```shell
-go run main.go -env dev
+```sh
+go run main.go
 ```
 
-example for testing on Keenetic device in dev mode
-```
-```shell
-go run main.go -env keenetic 
+If the device has not been configured yet, it will wait until a device contract address is provided.
+
+## Setup
+
+Run in a separate terminal:
+
+```sh
+go run main.go setup
 ```
 
-example for testing on Openwrt device in dev mode
-```
-```shell
-go run main.go -env openwrt 
-```
+During setup the device:
+- prints its device public key
+- asks you to enter the deployed device contract address
+
+If the contract address is already configured, `setup` will show the saved address and exit.
+
+## Add The Device In The App
+
+1. Run `setup`.
+2. Copy the device public key from the setup console.
+3. On the target group in the app tap `(+)` (add device).
+4. Enter the device name.
+5. Paste the device public key into the public key field.
+6. Confirm the deploy and wait a bit.
+7. The app will show a popup with the device contract address.
+8. Copy the contract address from the popup.
+9. Go back to the device setup console and paste the contract address into the prompt.
+
+After that, the device stores the contract address, registers on the node, should appear online in the app and can receive commands.
