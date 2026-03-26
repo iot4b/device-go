@@ -89,7 +89,9 @@ func Register() error {
 
 	// копируем актуальные поля
 	copier.Copy(&storage.Device, registerResp)
-	storage.Device.Node = dsm.EverAddress(fasterAddress)
+	if storage.Device.Node == "" && fasterAddress != "" {
+		storage.Device.Node = dsm.EverAddress(fasterAddress)
+	}
 	storage.Device.NodeIpPort = fasterHost
 
 	// update local data

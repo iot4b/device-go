@@ -12,7 +12,6 @@ if [ -x "$SERVICE_FILE" ]; then
     rm -f "$SERVICE_FILE"
 fi
 
-rm -rf "/opt/$SERVICE"
 rm -f  "/var/log/$SERVICE.log"
 
 echo "$SERVICE removed"

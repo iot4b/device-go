@@ -22,15 +22,22 @@ type registerRequest struct {
 }
 
 type registerResponse struct {
-	Address dsm.EverAddress `json:"a,omitempty"` //ever SC address текущего Device
-	Node    dsm.EverAddress `json:"n,omitempty"` //ever SC address Node, с которой девайс создал последнее соединение
-	Elector dsm.EverAddress `json:"e,omitempty"` //ever SC адрес Elector'a, который обслуживает сеть нод для текущего девайса
-	Vendor  dsm.EverAddress `json:"v,omitempty"` //ever SC address производителя текущего девайса
-
-	Stat   bool `json:"st,omitempty"` // storing statistics
-	Events bool `json:"ev,omitempty"` // sending events
-
-	Hash string `json:"h,omitempty"` // actual contract code hash
+	Name             string          `json:"nm,omitempty"`
+	Address          dsm.EverAddress `json:"a,omitempty"`   //ever SC address текущего Device
+	Group            dsm.EverAddress `json:"g,omitempty"`   //ever SC address of DeviceGroup
+	Node             dsm.EverAddress `json:"n,omitempty"`   //ever SC address Node, с которой девайс создал последнее соединение
+	Elector          dsm.EverAddress `json:"e,omitempty"`   //ever SC адрес Elector'a, который обслуживает сеть нод для текущего девайса
+	Vendor           dsm.EverAddress `json:"v,omitempty"`   //ever SC address производителя текущего девайса
+	DeviceAPI        dsm.EverAddress `json:"api,omitempty"` // device API contract address
+	Owners           []string        `json:"o,omitempty"`   // owner public keys
+	Version          string          `json:"ver,omitempty"`
+	Type             string          `json:"t,omitempty"`
+	VendorData       string          `json:"vd,omitempty"`
+	Stat             bool            `json:"st,omitempty"` // storing statistics
+	Events           bool            `json:"ev,omitempty"` // sending events
+	Lock             bool            `json:"lock,omitempty"`
+	LastRegisterTime string          `json:"lastRegisterTime,omitempty"`
+	Hash             string          `json:"h,omitempty"` // actual contract code hash
 }
 
 // getEndpoints возвращает список активных нод в таком формате
