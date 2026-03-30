@@ -27,7 +27,7 @@ if [ -f /etc/openwrt_release ]; then
     echo "Detected OpenWRT."
     download_and_install "$ARCH/iot4b-openwrt-$ARCH.ipk"
     echo "Done"
-elif grep -qi "NDMS" /proc/version; then
+elif echo "$ARCH" | grep -q "_kn"; then
     echo "Detected Keenetic."
     if [ "$ARCH" = "mipsel-3.4_kn" ]; then
       download_and_install "$LIBNDM_PKG_MIPS"
