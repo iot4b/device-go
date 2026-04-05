@@ -46,7 +46,7 @@ jobs:
 
       - name: Generate release checksums
         run: |
-          sha256sum builds/*.ipk apt/*.deb > checksums.txt
+          sha256sum opkg/*.ipk apt/*.deb > checksums.txt
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
@@ -55,7 +55,7 @@ jobs:
           generate_release_notes: true
           files: |
             apt/*.deb
-            builds/*.ipk
+            opkg/*.ipk
             checksums.txt
 
       - name: Generate Homebrew formula

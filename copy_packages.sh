@@ -2,7 +2,7 @@
 
 # Пути к репозиторию и сборкам
 REPO_PATH="/opt/iot4b/repo/opkg"
-BUILD_PATH="./builds"
+BUILD_PATH="./opkg"
 
 # Функция для обработки пакетов
 update_repo() {

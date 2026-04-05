@@ -30,7 +30,7 @@ else
   DEPENDS="libc"
 fi
 
-BUILD_DIR="./builds/${PACKAGE_NAME}_${OS}_${ARCH}"
+BUILD_DIR="./opkg/${PACKAGE_NAME}_${OS}_${ARCH}"
 IPK_PATH="../${PACKAGE_NAME}_${OS}_${ARCH}.ipk"
 
 # Создание файла control с правильным Installed-Size
