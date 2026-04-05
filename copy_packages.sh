@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Пути к репозиторию и сборкам
-REPO_PATH="/opt/iot4b/repo/packages"
+REPO_PATH="/opt/iot4b/repo/opkg"
 BUILD_PATH="./builds"
 
 # Функция для обработки пакетов
@@ -87,9 +87,15 @@ EOF
 update_apt() {
   APT_REPO_PATH="/opt/iot4b/repo/apt"
   APT_BUILD_PATH="$(cd "$(dirname "$0")" >/dev/null 2>&1 && pwd -P)/apt"
+  APT_DEB="$(find "${APT_BUILD_PATH}" -maxdepth 1 -name 'iot4b*.deb' | head -n 1)"
+
+  if [ -z "${APT_DEB}" ]; then
+    echo "Ошибка: deb пакет не найден в ${APT_BUILD_PATH}"
+    exit 1
+  fi
 
   echo "Обновляю APT репозиторий"
-  cp "${APT_BUILD_PATH}/iot4b_amd64.deb" "${APT_REPO_PATH}/iot4b_amd64.deb"
+  cp "${APT_DEB}" "${APT_REPO_PATH}/$(basename "${APT_DEB}")"
   cd ${APT_REPO_PATH} || exit 1
   dpkg-scanpackages --arch amd64 . > dists/stable/main/binary-amd64/Packages
   cat dists/stable/main/binary-amd64/Packages | gzip -9 > dists/stable/main/binary-amd64/Packages.gz

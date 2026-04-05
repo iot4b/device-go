@@ -1,4 +1,5 @@
 #!/bin/sh
+set -eu
 
 ./builds/build.sh keenetic mipsel-3.4_kn
 ./builds/build.sh keenetic aarch64-3.10_kn

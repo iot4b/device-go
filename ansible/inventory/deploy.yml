@@ -1,0 +1,7 @@
+deploy:
+  hosts:
+    device:
+      ansible_host: 144.126.201.225
+      port: 5684
+  vars:
+    ansible_ssh_user: root

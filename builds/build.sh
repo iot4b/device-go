@@ -3,14 +3,18 @@
 # Прекращает выполнение скрипта при ошибке
 set -e
 
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+eval "$("${ROOT_DIR}/scripts/release-vars.sh")"
+
 # Определение переменных
 PACKAGE_NAME="iot4b"
-VERSION="1.2.6"
+VERSION="${IOT4B_VERSION}"
 ARCH="mips_siflower"
 MAINTAINER="IOT4B <sp@golbex.com>"
 DESCRIPTION="IOT4B device client"
 OS="$1"
 ARCH="$2"
+LD_FLAGS="-s -w -X device-go/packages/buildinfo.Version=${IOT4B_VERSION} -X device-go/packages/buildinfo.Commit=${IOT4B_COMMIT} -X device-go/packages/buildinfo.BuildDate=${IOT4B_BUILD_DATE}"
 
 if [[ "$ARCH" == "armv7l" ]]; then
   GOARCH_FLAGS=(GOARCH=arm GOARM=7)
@@ -47,7 +51,8 @@ EOF
 
 # Компиляция бинарника Go для mipsle
 echo "Компиляция бинарника Go для ${OS} ${ARCH}..."
-env GOOS=linux "${GOARCH_FLAGS[@]}" go build -ldflags="-s -w" -o "${BUILD_DIR}/opt/${PACKAGE_NAME}/${PACKAGE_NAME}" main.go
+cd "${ROOT_DIR}" || exit 1
+env GOOS=linux "${GOARCH_FLAGS[@]}" go build -ldflags="${LD_FLAGS}" -o "${BUILD_DIR}/opt/${PACKAGE_NAME}/${PACKAGE_NAME}" ./main.go
 echo "Бинарник собран. Размер:"
 ls -lh "${BUILD_DIR}/opt/${PACKAGE_NAME}/${PACKAGE_NAME}" | awk '{print "Размер бинарника:", $5}'
 

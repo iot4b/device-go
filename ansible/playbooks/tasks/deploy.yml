@@ -1,0 +1,51 @@
+- name: Ensure curl and gpg are installed
+  apt:
+    name:
+      - curl
+      - gpg
+    state: present
+    update_cache: true
+
+- name: Install iot4b APT keyring
+  shell: |
+    set -euo pipefail
+    curl -fsSL "{{ iot4b_apt_key_url }}" | gpg --dearmor --yes -o "{{ iot4b_apt_keyring }}"
+  args:
+    executable: /bin/bash
+
+- name: Configure iot4b APT repository
+  apt_repository:
+    repo: "{{ iot4b_apt_repo }}"
+    filename: "{{ iot4b_apt_source_file }}"
+    state: present
+    update_cache: true
+
+- name: Gather installed package facts
+  package_facts:
+    manager: auto
+
+- name: Install iot4b when missing
+  apt:
+    name: iot4b
+    state: present
+    update_cache: true
+  when: "'iot4b' not in ansible_facts.packages"
+
+- name: Upgrade iot4b when already installed
+  apt:
+    name: iot4b
+    state: latest
+    only_upgrade: true
+    update_cache: true
+  when: "'iot4b' in ansible_facts.packages"
+
+- name: Ensure iot4b service is enabled and started
+  systemd:
+    name: iot4b
+    enabled: true
+    state: started
+
+- name: Check iot4b service status
+  command: systemctl status iot4b --no-pager
+  register: iot4b_service_status
+  changed_when: false

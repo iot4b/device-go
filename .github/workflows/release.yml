@@ -1,0 +1,102 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: self-hosted
+    env:
+      HOME: "/root"
+      HOMEBREW_TAP_REPO: ${{ vars.HOMEBREW_TAP_REPO }}
+      HOMEBREW_TAP_BRANCH: ${{ vars.HOMEBREW_TAP_BRANCH || 'main' }}
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.21"
+
+      - name: Prepare release metadata
+        run: |
+          chmod +x scripts/release-vars.sh scripts/generate-homebrew-formula.sh
+          eval "$(./scripts/release-vars.sh)"
+          echo "IOT4B_VERSION=${IOT4B_VERSION}" >> "$GITHUB_ENV"
+          echo "IOT4B_GIT_TAG=${IOT4B_GIT_TAG}" >> "$GITHUB_ENV"
+          echo "IOT4B_COMMIT=${IOT4B_COMMIT}" >> "$GITHUB_ENV"
+          echo "IOT4B_BUILD_DATE=${IOT4B_BUILD_DATE}" >> "$GITHUB_ENV"
+
+      - name: Run tests
+        run: go test ./...
+
+      - name: Build APT and OPKG packages
+        run: ./build_packages.sh
+
+      - name: Publish APT and OPKG repositories
+        run: ./copy_packages.sh
+
+      - name: Generate release checksums
+        run: |
+          sha256sum builds/*.ipk apt/*.deb > checksums.txt
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: iot4b ${{ env.IOT4B_GIT_TAG }}
+          generate_release_notes: true
+          files: |
+            apt/*.deb
+            builds/*.ipk
+            checksums.txt
+
+      - name: Generate Homebrew formula
+        run: |
+          source_url="https://github.com/${GITHUB_REPOSITORY}/archive/refs/tags/${GITHUB_REF_NAME}.tar.gz"
+          curl -fsSL "${source_url}" -o source.tar.gz
+          source_sha="$(sha256sum source.tar.gz | cut -d' ' -f1)"
+          ./scripts/generate-homebrew-formula.sh "${IOT4B_VERSION}" "${source_url}" "${source_sha}" > iot4b.rb
+
+      - name: Update Homebrew tap
+        if: ${{ secrets.HOMEBREW_TAP_TOKEN != '' && env.HOMEBREW_TAP_REPO != '' }}
+        env:
+          HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+        run: |
+          git clone "https://x-access-token:${HOMEBREW_TAP_TOKEN}@github.com/${HOMEBREW_TAP_REPO}.git" tap
+          cd tap
+          git checkout "${HOMEBREW_TAP_BRANCH}"
+          mkdir -p Formula
+          cp ../iot4b.rb Formula/iot4b.rb
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Formula/iot4b.rb
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git commit -m "iot4b ${IOT4B_VERSION}"
+          git push origin "${HOMEBREW_TAP_BRANCH}"
+
+  deploy:
+    runs-on: self-hosted
+    needs: publish
+    env:
+      HOME: "/root"
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Run APT-based validation deploy
+        uses: dawidd6/action-ansible-playbook@v2
+        with:
+          playbook: deploy.yml
+          directory: ./ansible/playbooks
+          options: |
+            -i ../inventory/deploy.yml

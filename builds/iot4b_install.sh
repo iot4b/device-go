@@ -1,6 +1,6 @@
 #!/bin/sh
 
-PKG_URL="http://repo.iot4b.co/packages/"
+PKG_URL="http://repo.iot4b.co/opkg/"
 LIBNDM_PKG_MIPS="mipsel-3.4_kn/libndm_1.8.0-1_mipsel-3.4_kn.ipk"
 LIBNDM_PKG_ARM64="aarch64-3.10_kn/libndm_1.1.25-1_aarch64-3.10_kn.ipk"
 NDMQ_PKG_MIPS="mipsel-3.4_kn/ndmq_1.0.2-7_mipsel-3.4_kn.ipk"

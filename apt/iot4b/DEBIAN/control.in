@@ -1,5 +1,5 @@
 Package: iot4b
-Version: 1.2.6
+Version: @VERSION@
 Section: utils
 Priority: optional
 Architecture: amd64

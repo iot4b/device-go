@@ -1,4 +1,0 @@
-- name: Compile binary file 
-  run_once: true
-  delegate_to: localhost
-  shell: cd ../../ && CGO_ENABLED={{CGO}} GOOS={{GOOS}} GOARCH={{GOARCH}} go build -ldflags="-s -w" -o {{BuildBin}} -v 

@@ -1,6 +1,9 @@
 #!/bin/sh
 set -e
 
+ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+eval "$("${ROOT_DIR}/scripts/release-vars.sh")"
+
 do_hash() {
     HASH_NAME=$1
     HASH_CMD=$2
@@ -19,7 +22,7 @@ Origin: IOT4B Repository
 Label: IOT4B
 Suite: iot4b
 Codename: stable
-Version: 1.0
+Version: ${IOT4B_VERSION}
 Architectures: amd64
 Components: main
 Description: IOT4B APT repository

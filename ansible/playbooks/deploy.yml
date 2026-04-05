@@ -1,0 +1,13 @@
+---
+- name: "Install or upgrade iot4b on the Linux validation server"
+  hosts: deploy
+  serial: 1
+  gather_facts: false
+  vars:
+    iot4b_apt_repo: "deb [signed-by=/usr/share/keyrings/iot4b-archive-keyring.gpg] http://repo.iot4b.co/apt stable main"
+    iot4b_apt_key_url: "http://repo.iot4b.co/apt/iot4b.asc"
+    iot4b_apt_keyring: "/usr/share/keyrings/iot4b-archive-keyring.gpg"
+    iot4b_apt_source_file: "iot4b"
+
+  tasks:
+    - include_tasks: tasks/deploy.yml
