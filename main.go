@@ -3,6 +3,7 @@ package main
 import (
 	"device-go/packages/aliver"
 	"device-go/packages/api"
+	"device-go/packages/buildinfo"
 	"device-go/packages/config"
 	"device-go/packages/crypto"
 	"device-go/packages/events"
@@ -27,16 +28,28 @@ const serviceName = "iot4b"
 
 var env string  // environment (config name)
 var port string // coala port
+var showVersion bool
 
 func main() {
 	var rootCmd = &cobra.Command{
 		Use:   "iot4b",
 		Short: "Device CLI",
-		Run:   runDevice,
+		Run: func(cmd *cobra.Command, args []string) {
+			if showVersion {
+				fmt.Println(buildinfo.Summary())
+				return
+			}
+			runDevice(cmd, args)
+		},
 	}
-	rootCmd.PersistentFlags().StringVar(&env, "env", "dev", "Set environment")
+	rootCmd.PersistentFlags().StringVar(&env, "env", "iot4b", "Set environment")
 	rootCmd.PersistentFlags().StringVar(&port, "port", "5684", "Set coala port")
+	rootCmd.PersistentFlags().BoolVarP(&showVersion, "version", "v", false, "Print version information")
 	rootCmd.ParseFlags(os.Args[1:])
+	if showVersion || isVersionCommand(os.Args[1:]) {
+		fmt.Println(buildinfo.Summary())
+		return
+	}
 
 	config.Init(env)
 	log.Init(config.Bool("debug"))
@@ -53,8 +66,17 @@ func main() {
 		Run:   deviceStatus,
 	}
 
+	versionCmd := &cobra.Command{
+		Use:   "version",
+		Short: "Show build version",
+		Run: func(_ *cobra.Command, _ []string) {
+			fmt.Println(buildinfo.Summary())
+		},
+	}
+
 	rootCmd.AddCommand(setupCmd)
 	rootCmd.AddCommand(statusCmd)
+	rootCmd.AddCommand(versionCmd)
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
 	}
@@ -71,7 +93,7 @@ func runDevice(_ *cobra.Command, _ []string) {
 		config.Get("everscale.vendor"),
 		config.Get("everscale.deviceAPI"),
 		config.Get("info.type"),
-		config.Get("info.version"))
+		buildinfo.Version)
 
 	waitForContractAddress()
 
@@ -135,7 +157,7 @@ func deviceSetup(_ *cobra.Command, _ []string) {
 		config.Get("everscale.vendor"),
 		config.Get("everscale.deviceAPI"),
 		config.Get("info.type"),
-		config.Get("info.version"))
+		buildinfo.Version)
 	printDevicePublicKey()
 	if storage.Device.Address != "" {
 		fmt.Println("Device contract address is already configured:")
@@ -177,7 +199,7 @@ func deviceStatus(_ *cobra.Command, _ []string) {
 		config.Get("everscale.vendor"),
 		config.Get("everscale.deviceAPI"),
 		config.Get("info.type"),
-		config.Get("info.version"))
+		buildinfo.Version)
 	if storage.Device.Address == "" {
 		fmt.Println("Status:  Not configured")
 		fmt.Printf("Name:    %s\n", storage.Device.Name)
@@ -198,7 +220,7 @@ func deviceStatus(_ *cobra.Command, _ []string) {
 	fmt.Printf("Group:   %s\n", storage.Device.Group)
 	fmt.Printf("Elector: %s\n", storage.Device.Elector)
 	balance := api.GetBalance()
-	fmt.Printf("Balance: %.9f EVER\n", balance)
+	fmt.Printf("Balance: %.9f TON\n", balance)
 }
 
 func waitForContractAddress() {
@@ -222,4 +244,17 @@ func printDevicePublicKey() {
 	fmt.Println(crypto.Keys.PublicSign)
 	fmt.Println("Copy this key into the app, deploy the device, then paste the deployed contract address here.")
 	fmt.Println("The setup file is managed automatically. You do not need to create or copy it by hand.")
+}
+
+func isVersionCommand(args []string) bool {
+	if len(args) == 0 {
+		return false
+	}
+	for _, arg := range args {
+		if strings.HasPrefix(arg, "-") {
+			continue
+		}
+		return arg == "version"
+	}
+	return false
 }

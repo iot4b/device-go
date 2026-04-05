@@ -44,11 +44,11 @@ var (
 	setupFilePath string
 )
 
-func Init(path, setupPath, elector, vendor, deviceAPI, dType, version string) {
+func Init(path, setupPath, elector, vendor, deviceAPI, dType, deviceVersion string) {
 	filePath = filepath.Join(utils.GetFilesDir(), path)
 	setupFilePath = resolveSetupFilePath(setupPath)
 
-	log.Debug(path, elector, vendor, deviceAPI, dType, version)
+	log.Debug(path, elector, vendor, deviceAPI, dType, deviceVersion)
 
 	var err error
 	// чекаем локально наличие файла
@@ -76,7 +76,7 @@ func Init(path, setupPath, elector, vendor, deviceAPI, dType, version string) {
 	Device.Vendor = dsm.EverAddress(vendor)
 	Device.DeviceAPI = dsm.EverAddress(deviceAPI)
 	Device.Type = dType
-	Device.Version = version
+	Device.Version = deviceVersion
 	Device.NodeIpPort = "" // should be empty before first registration
 
 	if err = Save(); err != nil {
