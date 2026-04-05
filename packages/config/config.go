@@ -127,13 +127,3 @@ func Info() map[string]interface{} {
 	info["ts"] = time.Now().Unix()
 	return info
 }
-
-// IsProd returns true if env is prod
-func IsProd() bool {
-	return env == "prod"
-}
-
-// IsKeenetic if keenetic device
-func IsKeenetic() bool {
-	return env == "keenetic"
-}

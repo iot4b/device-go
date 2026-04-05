@@ -1,9 +1,8 @@
 
 debug: false
-env: prod
+env: iot4b
 
 info:
-  version: "1.0.0"
   type: "router"
 
 localFiles:

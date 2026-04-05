@@ -1,14 +1,14 @@
 
-debug: false
+debug: true
 env: iot4b
 
 info:
-  type: "router"
+  type: "golang device emulator"
 
 localFiles:
-  keys: "keys.json"
-  contract: "contract.json"
-  setup: "setup.json"
+  keys: "device.keys.json"
+  contract: "device.contract.dev.json"
+  setup: "device.setup.dev.json"
 
 timeout:
   alive: 10s # alive interval

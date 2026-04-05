@@ -1,9 +1,8 @@
 
 debug: true
-env: dev
+env: iot4b
 
 info:
-  version: "0.0.1"
   type: "golang device emulator"
 
 localFiles:

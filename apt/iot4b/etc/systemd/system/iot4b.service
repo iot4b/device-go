@@ -7,7 +7,7 @@ ExecStart=/usr/bin/iot4b
 Restart=always
 User=root
 Group=root
-Environment=IOT4B_CONFIG=/etc/iot4b/prod.yml
+Environment=IOT4B_CONFIG=/etc/iot4b/iot4b.yml
 
 [Install]
 WantedBy=multi-user.target

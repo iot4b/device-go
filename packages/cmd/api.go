@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"crypto/sha256"
-	"device-go/packages/config"
 	"device-go/packages/crypto"
 	"encoding/json"
 	"fmt"
@@ -72,10 +71,6 @@ func (c CMD) GetHash() []byte {
 // VerifySignature of command result with public key of sender
 func (c CMD) VerifySignature() bool {
 	log.Debug(c.UUID)
-	if !config.IsProd() {
-		// for testing purposes "testing" signature is allowed as well as valid signature
-		return c.Sign == "testing" || crypto.VerifySignature(c.Sender, c.GetHash(), c.Sign)
-	}
 	return crypto.VerifySignature(c.Sender, c.GetHash(), c.Sign)
 }
 
