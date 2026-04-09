@@ -12,9 +12,7 @@ import (
 	"device-go/packages/storage"
 	"fmt"
 	"os"
-	"os/exec"
 	"os/signal"
-	"runtime"
 	"strings"
 	"syscall"
 	"time"
@@ -23,8 +21,6 @@ import (
 	log "github.com/ndmsystems/golog"
 	"github.com/spf13/cobra"
 )
-
-const serviceName = "iot4b"
 
 var env string  // environment (config name)
 var port string // coala port
@@ -95,8 +91,6 @@ func runDevice(_ *cobra.Command, _ []string) {
 		config.Get("info.type"),
 		buildinfo.Version)
 
-	waitForContractAddress()
-
 	// сервер для запросов от клиентов и нод
 	server := coalago.NewServer()
 	server.GET("/info", handlers.GetInfo)
@@ -106,18 +100,28 @@ func runDevice(_ *cobra.Command, _ []string) {
 
 	go listen(server)
 	go sigterm()
+	go registration.PairingHeartbeat()
 
 	for {
-		//start := storage.Device.NodeIpPort == ""
-		// регистрируем устройство на ноде
-		// если ошибка, то повторяем цикл регистрации
-		err := registration.Register()
-		if err == nil {
-			//go sendEvents(start)
-
-			// начинаем слать alive пакеты, чтобы сохранять соединение для udp punching
-			aliver.Run(server, config.Time("timeout.alive"))
+		var err error
+		if storage.Device.Address == "" {
+			err = registration.Pair()
+			if err == nil {
+				time.Sleep(2 * time.Second)
+				continue
+			}
 		} else {
+			err = registration.Register()
+			if err == nil {
+				//go sendEvents(start)
+
+				// начинаем слать alive пакеты, чтобы сохранять соединение для udp punching
+				aliver.Run(server, config.Time("timeout.alive"))
+				continue
+			}
+		}
+
+		if err != nil {
 			log.Error(err)
 			time.Sleep(5 * time.Second)
 		}
@@ -147,7 +151,6 @@ func sendEvents(start bool) {
 }
 
 func deviceSetup(_ *cobra.Command, _ []string) {
-	fmt.Println("Setup Device")
 	log.Init(false)
 	crypto.Init(config.Get("localFiles.keys"))
 	storage.Init(
@@ -158,36 +161,7 @@ func deviceSetup(_ *cobra.Command, _ []string) {
 		config.Get("everscale.deviceAPI"),
 		config.Get("info.type"),
 		buildinfo.Version)
-	printDevicePublicKey()
-	if storage.Device.Address != "" {
-		fmt.Println("Device contract address is already configured:")
-		fmt.Println(storage.Device.Address)
-		return
-	}
-
-	if err := storage.PromptForContractAddress(); err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Println("Device contract address saved.")
-	fmt.Printf("Address: %s\n", storage.Device.Address)
-	if !isServiceRunning() {
-		fmt.Printf("%s service is not running.\n", serviceName)
-		fmt.Printf("to start it run the following command:\n")
-		if runtime.GOOS == "darwin" {
-			fmt.Printf("brew services start %s\n", serviceName)
-		} else if runtime.GOOS == "linux" {
-			fmt.Printf("systemctl start %s\n", serviceName)
-		}
-	}
-}
-
-func isServiceRunning() bool {
-	out, err := exec.Command("pgrep", "-x", serviceName).Output()
-	if err != nil {
-		return false
-	}
-	return strings.TrimSpace(string(out)) != ""
+	registration.Setup()
 }
 
 func deviceStatus(_ *cobra.Command, _ []string) {
@@ -201,9 +175,13 @@ func deviceStatus(_ *cobra.Command, _ []string) {
 		config.Get("info.type"),
 		buildinfo.Version)
 	if storage.Device.Address == "" {
-		fmt.Println("Status:  Not configured")
-		fmt.Printf("Name:    %s\n", storage.Device.Name)
-		fmt.Printf("PubKey:  %s\n", crypto.Keys.PublicSign)
+		fmt.Println("Status:  Pairing")
+		fmt.Printf("Name:         %s\n", storage.Device.Name)
+		fmt.Printf("PubKey:       %s\n", crypto.Keys.PublicSign)
+		if storage.Pairing.Code != "" {
+			fmt.Printf("Pairing Code: %s\n", storage.Pairing.Code)
+			fmt.Printf("Node:         %s\n", storage.Pairing.NodeIpPort)
+		}
 		return
 	}
 	fmt.Print("Status:  ")
@@ -221,29 +199,6 @@ func deviceStatus(_ *cobra.Command, _ []string) {
 	fmt.Printf("Elector: %s\n", storage.Device.Elector)
 	balance := api.GetBalance()
 	fmt.Printf("Balance: %.9f TON\n", balance)
-}
-
-func waitForContractAddress() {
-	if storage.HasContractAddress() {
-		return
-	}
-
-	printDevicePublicKey()
-	log.Info("Device contract address is not configured yet.")
-	log.Info("Run `iot4b setup` to save the deployed contract address. The setup file will be created automatically.")
-	for !storage.HasContractAddress() {
-		time.Sleep(time.Second)
-		if err := storage.Update(); err != nil {
-			log.Error(err)
-		}
-	}
-}
-
-func printDevicePublicKey() {
-	fmt.Println("Device public key:")
-	fmt.Println(crypto.Keys.PublicSign)
-	fmt.Println("Copy this key into the app, deploy the device, then paste the deployed contract address here.")
-	fmt.Println("The setup file is managed automatically. You do not need to create or copy it by hand.")
 }
 
 func isVersionCommand(args []string) bool {

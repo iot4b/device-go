@@ -1,11 +1,9 @@
 package storage
 
 import (
-	"bufio"
 	"device-go/packages/dsm"
 	"device-go/packages/utils"
 	"encoding/json"
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -39,9 +37,8 @@ type device struct {
 }
 
 var (
-	Device        device
-	filePath      string
-	setupFilePath string
+	Device   device
+	filePath string
 )
 
 func Init(path, setupPath, elector, vendor, deviceAPI, dType, deviceVersion string) {
@@ -60,8 +57,12 @@ func Init(path, setupPath, elector, vendor, deviceAPI, dType, deviceVersion stri
 	} else if setup, setupErr := readSetup(); setupErr == nil && setup.Address != "" {
 		Device = newInitialDevice()
 		Device.Address = dsm.EverAddress(setup.Address)
+		Pairing = setup.Pairing
 	} else {
 		Device = newInitialDevice()
+	}
+	if setup, setupErr := readSetup(); setupErr == nil {
+		Pairing = setup.Pairing
 	}
 
 	if Device.Name == "" {
@@ -99,8 +100,19 @@ func Save() error {
 
 // Update Device data from file
 func Update() (err error) {
-	Device, err = read(filePath)
-	return
+	if utils.FileExists(filePath) {
+		Device, err = read(filePath)
+		if err != nil {
+			return err
+		}
+	}
+	if setup, setupErr := readSetup(); setupErr == nil {
+		Pairing = setup.Pairing
+		if Device.Address == "" && setup.Address != "" {
+			Device.Address = dsm.EverAddress(setup.Address)
+		}
+	}
+	return nil
 }
 
 // IsOwner checks if key is one of the owners from device contract
@@ -132,25 +144,6 @@ func HasContractAddress() bool {
 	return Device.Address != ""
 }
 
-func PromptForContractAddress() error {
-	reader := bufio.NewReader(os.Stdin)
-	fmt.Println("Enter device contract address")
-	for {
-		address, _ := reader.ReadString('\n')
-		address = strings.TrimSpace(address)
-		if utils.MatchRegex(`^0:[0-9a-fA-F]{64}$`, address) {
-			Device.Address = dsm.EverAddress(address)
-			Device.NodeIpPort = ""
-			if err := Save(); err != nil {
-				return err
-			}
-			return SaveSetup()
-		}
-		fmt.Println("Please enter device contract address in a format:")
-		fmt.Println("0:0000000000000000000000000000000000000000000000000000000000000000")
-	}
-}
-
 func newInitialDevice() device {
 	name, err := os.Hostname()
 	if err != nil {
@@ -161,44 +154,4 @@ func newInitialDevice() device {
 		Name:   name,
 		Owners: []string{},
 	}
-}
-
-type setupData struct {
-	Address string `json:"address,omitempty"`
-}
-
-func SaveSetup() error {
-	if setupFilePath == "" {
-		return nil
-	}
-
-	data, err := json.Marshal(setupData{Address: Device.Address.String()})
-	if err != nil {
-		return errors.Wrap(err, "json.Marshal(setup)")
-	}
-
-	return utils.SaveFile(setupFilePath, data)
-}
-
-func readSetup() (setupData, error) {
-	if setupFilePath == "" || !utils.FileExists(setupFilePath) {
-		return setupData{}, errors.New("setup file is not available")
-	}
-
-	var setup setupData
-	if err := utils.ReadJSONFile(setupFilePath, &setup); err != nil {
-		return setupData{}, err
-	}
-
-	return setup, nil
-}
-
-func resolveSetupFilePath(path string) string {
-	if path == "" {
-		return ""
-	}
-	if filepath.IsAbs(path) {
-		return path
-	}
-	return filepath.Join(utils.GetFilesDir(), path)
 }

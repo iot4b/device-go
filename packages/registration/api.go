@@ -7,7 +7,6 @@ import (
 	"device-go/packages/storage"
 	"encoding/json"
 	"fmt"
-	"time"
 
 	"github.com/coalalib/coalago"
 	"github.com/jinzhu/copier"
@@ -19,31 +18,9 @@ import (
 func Register() error {
 	log.Debug("Register")
 
-	// получаем список доступных нод с рандомной мастер ноды
-	masterNode, list, err := endpointList(config.List("masterNodes"))
+	fasterHost, fasterAddress, err := selectFastestNode()
 	if err != nil {
-		return fmt.Errorf("getEndpoints: %w", err)
-	}
-	log.Debug("endpoints: %+v", list)
-
-	// перебираем ноды и определяем самый низкий ping, далее используем эту ноду для регистрации и поддержания соединения
-	var lastTime time.Duration
-	fasterHost := masterNode
-	fasterAddress := ""
-	log.Debug("fasterHost before ping: " + fasterHost)
-	for _, host := range list {
-		t, err := ping(host.IpPort)
-		if err != nil {
-			//if host.IpPort != "240.0.0.0:65535" { // non-existent node
-			//	log.Error(err)
-			//}
-			continue
-		}
-		if lastTime > t || lastTime == 0 {
-			lastTime = t
-			fasterHost = host.IpPort
-			fasterAddress = host.Account
-		}
+		return err
 	}
 	log.Info("Registering device on node:", fasterHost)
 

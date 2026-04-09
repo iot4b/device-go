@@ -3,6 +3,7 @@ package registration
 import (
 	"device-go/packages/config"
 	"encoding/json"
+	"fmt"
 	"math/rand"
 	"time"
 
@@ -79,4 +80,30 @@ func getEndpoints(node string) (list []node, err error) {
 		return nil, err
 	}
 	return
+}
+
+func selectFastestNode() (string, string, error) {
+	masterNode, list, err := endpointList(config.List("masterNodes"))
+	if err != nil {
+		return "", "", fmt.Errorf("getEndpoints: %w", err)
+	}
+
+	var lastTime time.Duration
+	fasterHost := masterNode
+	fasterAddress := ""
+
+	log.Debug("fasterHost before ping: " + fasterHost)
+	for _, host := range list {
+		t, err := ping(host.IpPort)
+		if err != nil {
+			continue
+		}
+		if lastTime > t || lastTime == 0 {
+			lastTime = t
+			fasterHost = host.IpPort
+			fasterAddress = host.Account
+		}
+	}
+
+	return fasterHost, fasterAddress, nil
 }
