@@ -21,8 +21,8 @@ The installer:
 - detects the current OpenWrt or Keenetic architecture
 - installs the required package dependencies
 - installs `iot4b` to `/opt/iot4b`
-- runs `iot4b setup`
 - starts the service automatically
+- lets you complete pairing with `iot4b setup`
 
 Check the service status:
 
@@ -129,31 +129,32 @@ sudo apt remove iot4b
 
 ## Setup
 
-Run setup on the installed package:
+Start the service first, then run setup on the installed package:
 
 ```sh
 iot4b setup
 ```
 
 The setup command:
-- prints its device public key
-- asks you to enter the deployed device contract address
+- shows the current one-time pairing code
+- waits until the app finishes binding the device
+- updates the displayed code automatically when the previous code expires
 
 If the contract address is already configured, `setup` will show the saved address and exit.
 
 ## Add The Device In The App
 
-1. Run `setup`.
-2. Copy the device public key from the setup console.
-3. On the target group in the app tap `(+)` (add device).
-4. Enter the device name.
-5. Paste the device public key into the public key field.
-6. Confirm the deploy and wait a bit.
-7. The app will show a popup with the device contract address.
-8. Copy the contract address from the popup.
-9. Go back to the device setup console and paste the contract address into the prompt.
+1. Make sure the `iot4b` service is running.
+2. Run `iot4b setup`.
+3. Keep the setup console open to see the current pairing code.
+4. On the target group in the app tap `(+)` (add device).
+5. Enter the pairing code shown by setup.
+6. After the app finds the device, enter the device name.
+7. Confirm the deployment and wait until the app returns to the main screen with a new device.
 
-After that, the device stores the contract address, registers on the node, should appear online in the app and can receive commands.
+The pairing code is short-lived and refreshes about once per minute. If the app says the code was not found or expired, use the new code shown by `iot4b setup`.
+
+After that, the device receives the contract address from the selected node, stores it locally, registers on the node, appears in the group in the app and can receive commands.
 
 ## Development
 
