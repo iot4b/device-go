@@ -6,19 +6,12 @@ SERVICE_FILE="/etc/init.d/iot4b"
 
 # Start and enable the service
 echo ""
-echo "Running IoT4B setup..."
+echo "Starting the IoT4B service..."
 
 if [ ! -x "/opt/iot4b/iot4b" ]; then
     echo "Binary /opt/iot4b/iot4b not found or is not executable."
     exit 1
 fi
-
-(
-  cd /opt/iot4b && ./iot4b setup --env iot4b
-) || exit 1
-
-echo ""
-echo "Starting the IoT4B service..."
 
 killall "$SERVICE_NAME" 2>/dev/null
 
@@ -41,6 +34,13 @@ else
     echo "Service script $SERVICE_FILE not found or is not executable."
     exit 1
 fi
+
+echo ""
+echo "Service started and enabled successfully."
+echo "Running IoT4B setup..."
+(
+  cd /opt/iot4b && ./iot4b setup --env iot4b
+) || exit 1
 
 echo ""
 echo "Setup completed successfully."

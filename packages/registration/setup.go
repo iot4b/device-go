@@ -44,10 +44,10 @@ func Setup() {
 		if err := storage.Update(); err != nil {
 			log.Error(err)
 		}
-		if storage.Device.Address != "" && storage.Device.NodeIpPort != "" {
+		if storage.Device.Address != "" {
+			clearConsole()
 			fmt.Println("Device pairing completed.")
 			fmt.Printf("Address: %s\n", storage.Device.Address)
-			fmt.Printf("Node: %s\n", storage.Device.Node)
 			return
 		}
 		if storage.Pairing.Code != "" && storage.Pairing.Code != lastCode {
@@ -78,12 +78,12 @@ func renderPairingSetup(code string) {
 	fmt.Println()
 	var displayCode string
 	if code == "" {
-		displayCode = "....."
+		displayCode = "...loading..."
 	} else {
-		displayCode = code
+		displayCode = "    " + code + "    "
 	}
 	fmt.Println("+---------------+")
-	fmt.Printf("|     %s     |\n", displayCode)
+	fmt.Printf("| %s |\n", displayCode)
 	fmt.Println("+---------------+")
 	fmt.Println()
 	fmt.Println("Enter this code in the app to bind the device.")
