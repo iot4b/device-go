@@ -52,7 +52,7 @@ jobs:
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
-          name: iot4b ${{ env.IOT4B_GIT_TAG }}
+          name: ${{ env.IOT4B_GIT_TAG }}
           generate_release_notes: true
           files: |
             apt/*.deb
